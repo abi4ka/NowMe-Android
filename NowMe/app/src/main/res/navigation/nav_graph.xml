@@ -1,0 +1,21 @@
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.nowme.HomeFragment"
+        android:label="Home"/>
+
+    <fragment
+        android:id="@+id/cameraFragment"
+        android:name="com.example.nowme.CameraFragment"
+        android:label="Camera"/>
+
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.example.nowme.ProfileFragment"
+        android:label="Profile"/>
+
+</navigation>

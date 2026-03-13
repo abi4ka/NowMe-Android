@@ -13,6 +13,7 @@ public class LoginActivity extends AppCompatActivity {
     EditText etUsername, etPassword;
     Button btnLogin;
     TextView tvSignup;
+    boolean registerMode = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,7 +26,32 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin = findViewById(R.id.btnLogin);
         tvSignup = findViewById(R.id.tvSignup);
 
-        btnLogin.setOnClickListener(v -> login());
+        btnLogin.setOnClickListener(v -> {
+            if (registerMode) {
+                register();
+
+            } else {
+                login();
+            }
+        });
+
+        tvSignup.setOnClickListener(v -> {
+            if (!registerMode) {
+                // Cambiar a modo registro
+                btnLogin.setText("Register");
+                tvSignup.setText("Back");
+                registerMode = true;
+            } else {
+                // Volver a login
+                btnLogin.setText("Login");
+                tvSignup.setText("Sign up");
+                registerMode = false;
+            }
+        });
+    }
+
+    private void register() {
+        //TODO: register
     }
 
     private void login() {

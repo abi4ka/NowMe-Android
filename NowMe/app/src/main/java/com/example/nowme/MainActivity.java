@@ -30,15 +30,14 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(bottomNavigationView, navController);
 
         bottomNavigationView.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
 
-            if (item.getItemId() == R.id.cameraFragment) {
-
+            if (id == R.id.cameraFragment) {
                 startActivity(new Intent(this, CameraActivity.class));
-                return false;
-
+                return true;
+            } else {
+                return NavigationUI.onNavDestinationSelected(item, navController);
             }
-
-            return NavigationUI.onNavDestinationSelected(item, navController);
         });
     }
 }

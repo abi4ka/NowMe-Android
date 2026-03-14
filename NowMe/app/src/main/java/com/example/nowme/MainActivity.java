@@ -1,5 +1,6 @@
 package com.example.nowme;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,5 +28,17 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = navHostFragment.getNavController();
 
         NavigationUI.setupWithNavController(bottomNavigationView, navController);
+
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+
+            if (item.getItemId() == R.id.cameraFragment) {
+
+                startActivity(new Intent(this, CameraActivity.class));
+                return false;
+
+            }
+
+            return NavigationUI.onNavDestinationSelected(item, navController);
+        });
     }
 }

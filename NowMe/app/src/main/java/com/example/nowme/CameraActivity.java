@@ -1,6 +1,7 @@
 package com.example.nowme;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -130,7 +131,10 @@ public class CameraActivity extends AppCompatActivity {
 
     private void uploadImage(Uri uri) {
 
-        System.out.println("UPLOAD: " + uri);
+        Intent intent = new Intent(this, PublishActivity.class);
+        intent.putExtra("imageUri", uri.toString());
+
+        startActivity(intent);
 
     }
 

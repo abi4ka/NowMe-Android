@@ -19,6 +19,7 @@ import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
+
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
@@ -113,7 +114,7 @@ public class CameraActivity extends AppCompatActivity {
                     public void onImageSaved(@NonNull ImageCapture.OutputFileResults output) {
 
                         Uri uri = Uri.fromFile(photoFile);
-                        uploadImage(uri);
+                        goToPublishActivity(uri);
 
                     }
 
@@ -129,12 +130,12 @@ public class CameraActivity extends AppCompatActivity {
             registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
 
                 if (uri != null) {
-                    uploadImage(uri);
+                    goToPublishActivity(uri);
                 }
 
             });
 
-    private void uploadImage(Uri uri) {
+    private void goToPublishActivity(Uri uri) {
 
         Intent intent = new Intent(this, PublishActivity.class);
         intent.putExtra("imageUri", uri.toString());

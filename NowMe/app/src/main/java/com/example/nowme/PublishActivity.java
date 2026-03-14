@@ -41,6 +41,8 @@ public class PublishActivity extends AppCompatActivity {
         System.out.println("IMAGE: " + imageUri);
         System.out.println("TEXT: " + description);
 
+        // TODO SEND POST TO SERVER
+
         Toast.makeText(this, "Post published", Toast.LENGTH_SHORT).show();
 
         finish();

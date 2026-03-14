@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -33,23 +34,27 @@ public class CameraActivity extends AppCompatActivity {
         setContentView(R.layout.activity_camera);
 
         previewView = findViewById(R.id.cameraPreview);
+        FrameLayout cameraContainer = findViewById(R.id.cameraContainer);
+
+        cameraContainer.post(() -> {
+            int width = cameraContainer.getWidth();
+            float ratio = 3f / 4f;
+            int height = (int) (width / ratio);
+            cameraContainer.getLayoutParams().height = height;
+            cameraContainer.requestLayout();
+        });
 
         ImageButton captureButton = findViewById(R.id.captureButton);
         ImageButton galleryButton = findViewById(R.id.galleryButton);
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                 == PackageManager.PERMISSION_GRANTED) {
-
             startCamera();
-
         } else {
-
             requestPermissionLauncher.launch(Manifest.permission.CAMERA);
-
         }
 
         captureButton.setOnClickListener(v -> takePhoto());
-
         galleryButton.setOnClickListener(v -> galleryLauncher.launch("image/*"));
     }
 

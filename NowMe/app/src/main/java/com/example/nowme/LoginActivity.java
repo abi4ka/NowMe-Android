@@ -5,8 +5,18 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.nowme.network.RetrofitClient;
+import com.example.nowme.network.dto.UserDto;
+
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -29,7 +39,6 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin.setOnClickListener(v -> {
             if (registerMode) {
                 register();
-
             } else {
                 login();
             }
@@ -37,12 +46,12 @@ public class LoginActivity extends AppCompatActivity {
 
         tvSignup.setOnClickListener(v -> {
             if (!registerMode) {
-                // Cambiar a modo registro
+                //register
                 btnLogin.setText("Register");
                 tvSignup.setText("Back");
                 registerMode = true;
             } else {
-                // Volver a login
+                //login
                 btnLogin.setText("Login");
                 tvSignup.setText("Sign up");
                 registerMode = false;
@@ -51,19 +60,78 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void register() {
-        //TODO: register
+
+        String username = etUsername.getText().toString();
+        String password = etPassword.getText().toString();
+
+        if (username.isEmpty() || password.isEmpty()) {
+            Toast.makeText(this, "Username and password required", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        UserDto userDto = new UserDto(username, password);
+
+        RetrofitClient.getApi()
+                .register(userDto)
+                .enqueue(new retrofit2.Callback<String>() {
+                    @Override
+                    public void onResponse(Call<String> call, Response<String> response) {
+
+                        if (response.isSuccessful()) {
+                            saveSessionToken(response.body());
+
+                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                            startActivity(intent);
+                            finish();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<String> call, Throwable t) {
+                        t.printStackTrace();
+                    }
+                });
     }
 
     private void login() {
 
-        String user = etUsername.getText().toString();
-        String password = etPassword.getText().toString();
+        String username = etUsername.getText().toString().trim();
+        String password = etPassword.getText().toString().trim();
 
-        //TODO: connect backend
-        if (user.equals("test") && password.equals("1234")) {
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-            startActivity(intent);
-            finish();
+        if (username.isEmpty() || password.isEmpty()) {
+            Toast.makeText(this, "Username and password required", Toast.LENGTH_SHORT).show();
+            return;
         }
+
+        UserDto userDto = new UserDto(username, password);
+
+        RetrofitClient.getApi()
+                .login(userDto)
+                .enqueue(new retrofit2.Callback<String>() {
+                    @Override
+                    public void onResponse(Call<String> call, Response<String> response) {
+
+                        if (response.isSuccessful()) {
+                            saveSessionToken(response.body());
+
+                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                            startActivity(intent);
+                            finish();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<String> call, Throwable t) {
+                        t.printStackTrace();
+                    }
+                });
+    }
+
+
+    private void saveSessionToken(String token) {
+        getSharedPreferences("session", MODE_PRIVATE)
+                .edit()
+                .putString("sessionToken", token)
+                .apply();
     }
 }

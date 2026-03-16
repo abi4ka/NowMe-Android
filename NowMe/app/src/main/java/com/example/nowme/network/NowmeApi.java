@@ -14,6 +14,7 @@ public interface NowmeApi {
     @POST("/auth/register")
     Call<String> register(@Body UserDto user);
 
+
 }
 
 

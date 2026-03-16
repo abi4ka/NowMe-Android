@@ -61,8 +61,8 @@ public class LoginActivity extends AppCompatActivity {
 
     private void register() {
 
-        String username = etUsername.getText().toString();
-        String password = etPassword.getText().toString();
+        String username = etUsername.getText().toString().trim();
+        String password = etPassword.getText().toString().trim();
 
         if (username.isEmpty() || password.isEmpty()) {
             Toast.makeText(this, "Username and password required", Toast.LENGTH_SHORT).show();
@@ -71,26 +71,9 @@ public class LoginActivity extends AppCompatActivity {
 
         UserDto userDto = new UserDto(username, password);
 
-        RetrofitClient.getApi()
-                .register(userDto)
-                .enqueue(new retrofit2.Callback<String>() {
-                    @Override
-                    public void onResponse(Call<String> call, Response<String> response) {
+        Call<String> call = RetrofitClient.getApi().register(userDto);
 
-                        if (response.isSuccessful()) {
-                            saveSessionToken(response.body());
-
-                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                            startActivity(intent);
-                            finish();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<String> call, Throwable t) {
-                        t.printStackTrace();
-                    }
-                });
+        auth(call);
     }
 
     private void login() {
@@ -105,28 +88,34 @@ public class LoginActivity extends AppCompatActivity {
 
         UserDto userDto = new UserDto(username, password);
 
-        RetrofitClient.getApi()
-                .login(userDto)
-                .enqueue(new retrofit2.Callback<String>() {
-                    @Override
-                    public void onResponse(Call<String> call, Response<String> response) {
+        Call<String> call = RetrofitClient.getApi().login(userDto);
 
-                        if (response.isSuccessful()) {
-                            saveSessionToken(response.body());
-
-                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                            startActivity(intent);
-                            finish();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<String> call, Throwable t) {
-                        t.printStackTrace();
-                    }
-                });
+        auth(call);
     }
 
+    private void auth(Call<String> call) {
+
+        call.enqueue(new retrofit2.Callback<String>() {
+
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+
+                if (response.isSuccessful()) {
+
+                    saveSessionToken(response.body());
+
+                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+                t.printStackTrace();
+            }
+        });
+    }
 
     private void saveSessionToken(String token) {
         getSharedPreferences("session", MODE_PRIVATE)

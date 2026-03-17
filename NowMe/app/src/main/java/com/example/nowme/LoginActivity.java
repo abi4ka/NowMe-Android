@@ -12,22 +12,21 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.nowme.network.RetrofitClient;
 import com.example.nowme.network.dto.UserDto;
 
-import java.util.List;
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class LoginActivity extends AppCompatActivity {
 
-    EditText etUsername, etPassword;
-    Button btnLogin;
-    TextView tvSignup;
-    boolean registerMode = false;
+    private EditText etUsername, etPassword;
+    private Button btnLogin;
+    private TextView tvSignup;
+    private boolean registerMode = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_login);
         getSupportActionBar().hide();
 
@@ -37,11 +36,7 @@ public class LoginActivity extends AppCompatActivity {
         tvSignup = findViewById(R.id.tvSignup);
 
         btnLogin.setOnClickListener(v -> {
-            if (registerMode) {
-                register();
-            } else {
-                login();
-            }
+            auth();
         });
 
         tvSignup.setOnClickListener(v -> {
@@ -59,7 +54,7 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private void register() {
+    private void auth() {
 
         String username = etUsername.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
@@ -71,31 +66,11 @@ public class LoginActivity extends AppCompatActivity {
 
         UserDto userDto = new UserDto(username, password);
 
-        Call<String> call = RetrofitClient.getApi().register(userDto);
+        Call<String> call = (registerMode)
+                ? RetrofitClient.getApi().register(userDto)
+                : RetrofitClient.getApi().login(userDto);
 
-        auth(call);
-    }
-
-    private void login() {
-
-        String username = etUsername.getText().toString().trim();
-        String password = etPassword.getText().toString().trim();
-
-        if (username.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Username and password required", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        UserDto userDto = new UserDto(username, password);
-
-        Call<String> call = RetrofitClient.getApi().login(userDto);
-
-        auth(call);
-    }
-
-    private void auth(Call<String> call) {
-
-        call.enqueue(new retrofit2.Callback<String>() {
+        call.enqueue(new Callback<String>() {
 
             @Override
             public void onResponse(Call<String> call, Response<String> response) {

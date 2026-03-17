@@ -27,6 +27,13 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        if (hasSession()) {
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
+            return;
+        }
+
         setContentView(R.layout.activity_login);
         getSupportActionBar().hide();
 
@@ -90,6 +97,12 @@ public class LoginActivity extends AppCompatActivity {
                 t.printStackTrace();
             }
         });
+    }
+
+    private boolean hasSession() {
+        String token = getSharedPreferences("session", MODE_PRIVATE)
+                .getString("sessionToken", null);
+        return token != null && !token.isEmpty();
     }
 
     private void saveSessionToken(String token) {

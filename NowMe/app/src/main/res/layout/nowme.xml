@@ -51,17 +51,42 @@
             app:layout_constraintTop_toTopOf="@id/btnClose"
             app:tint="@android:color/white" />
 
+        <!-- Emoji -->
+        <TextView
+            android:id="@+id/tvEmoji"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:text="🐱"
+            android:textSize="30dp"
+            android:layout_marginTop="26dp"
+            app:layout_constraintStart_toStartOf="@id/imgNowMe"
+            app:layout_constraintTop_toBottomOf="@id/btnClose" />
+
+        <!-- Username -->
+        <TextView
+            android:id="@+id/tvUsername"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="username"
+            android:textColor="#E6E6E6"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@id/tvEmoji"
+            app:layout_constraintTop_toTopOf="@id/tvEmoji"
+            app:layout_constraintBottom_toBottomOf="@id/tvEmoji"
+            android:layout_marginStart="8dp"/>
+
         <!-- Date -->
         <TextView
             android:id="@+id/tvDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
             android:text="-- / -- / --"
             android:textColor="@android:color/white"
             android:textSize="20sp"
-            app:layout_constraintStart_toStartOf="@id/imgNowMe"
-            app:layout_constraintTop_toBottomOf="@id/tvTitle" />
+            app:layout_constraintBottom_toBottomOf= "@id/tvEmoji"
+            app:layout_constraintEnd_toEndOf="@id/imgNowMe"
+            app:layout_constraintTop_toTopOf= "@id/tvEmoji"/>
 
         <!-- Image NowMe -->
         <ImageView

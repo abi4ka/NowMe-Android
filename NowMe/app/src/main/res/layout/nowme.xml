@@ -4,10 +4,9 @@
     android:layout_height="match_parent"
     android:fillViewport="true">
 
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:background="#081A3A">
 
         <!-- Close -->
@@ -44,6 +43,8 @@
             android:layout_height="40dp"
             android:layout_marginEnd="24dp"
             android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="3dp"
+            android:scaleType="centerInside"
             android:src="@drawable/ic_menu_points"
             app:layout_constraintBottom_toBottomOf="@id/btnClose"
             app:layout_constraintEnd_toEndOf="parent"
@@ -66,11 +67,10 @@
         <ImageView
             android:id="@+id/imgNowMe"
             android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_height="500dp"
             android:layout_margin="16dp"
             android:scaleType="centerCrop"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHeight_percent="0.5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvDate" />
 
@@ -89,10 +89,12 @@
         <!-- Likes -->
         <ImageButton
             android:id="@+id/btnLike"
-            android:layout_width="26dp"
-            android:layout_height="26dp"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
             android:layout_marginEnd="16dp"
             android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="0dp"
+            android:scaleType="centerInside"
             android:src="@drawable/ic_heart_empty"
             app:layout_constraintBottom_toBottomOf="@id/btnComment"
             app:layout_constraintEnd_toStartOf="@id/btnComment"
@@ -112,9 +114,10 @@
         <!-- Comments -->
         <ImageButton
             android:id="@+id/btnComment"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/add_comment"
             app:layout_constraintEnd_toEndOf="@id/imgNowMe"

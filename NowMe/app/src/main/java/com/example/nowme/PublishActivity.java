@@ -9,6 +9,20 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.nowme.network.RetrofitClient;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class PublishActivity extends AppCompatActivity {
 
     ImageView imagePreview;
@@ -36,15 +50,72 @@ public class PublishActivity extends AppCompatActivity {
 
     private void publishPost() {
 
-        String description = descriptionInput.getText().toString();
+        String descriptionText = descriptionInput.getText().toString().trim();
 
-        System.out.println("IMAGE: " + imageUri);
-        System.out.println("TEXT: " + description);
+        if (imageUri == null) {
+            Toast.makeText(this, "Image required", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        // TODO SEND POST TO SERVER
+        try {
+            File file = uriToFile(imageUri);
 
-        Toast.makeText(this, "Post published", Toast.LENGTH_SHORT).show();
+            RequestBody requestFile =
+                    RequestBody.create(file, MediaType.parse("image/*"));
 
-        finish();
+            MultipartBody.Part imagePart =
+                    MultipartBody.Part.createFormData("image", file.getName(), requestFile);
+
+            RequestBody description =
+                    RequestBody.create(descriptionText, MediaType.parse("text/plain"));
+
+            Call<Long> call = RetrofitClient.getApi()
+                    .createNowme(imagePart, description);
+
+            call.enqueue(new Callback<Long>() {
+
+                @Override
+                public void onResponse(Call<Long> call, Response<Long> response) {
+
+                    if (response.isSuccessful()) {
+
+                        Toast.makeText(PublishActivity.this, "Post published", Toast.LENGTH_SHORT).show();
+                        finish();
+
+                    } else {
+                        Toast.makeText(PublishActivity.this, "Error: " + response.code(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Long> call, Throwable t) {
+                    t.printStackTrace();
+                    Toast.makeText(PublishActivity.this, "Network error", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "File error", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private File uriToFile(Uri uri) throws IOException {
+        InputStream inputStream = getContentResolver().openInputStream(uri);
+
+        File file = new File(getCacheDir(), "upload.jpg");
+        FileOutputStream outputStream = new FileOutputStream(file);
+
+        byte[] buffer = new byte[4096];
+        int read;
+
+        while ((read = inputStream.read(buffer)) != -1) {
+            outputStream.write(buffer, 0, read);
+        }
+
+        outputStream.close();
+        inputStream.close();
+
+        return file;
     }
 }

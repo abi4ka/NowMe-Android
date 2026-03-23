@@ -60,7 +60,7 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:text="🐱"
-            android:textSize="30dp"
+            android:textSize="30sp"
             android:layout_marginTop="26dp"
             app:layout_constraintStart_toStartOf="@id/imgNowMe"
             app:layout_constraintTop_toBottomOf="@id/btnClose" />
@@ -95,7 +95,8 @@
         <ImageView
             android:id="@+id/imgNowMe"
             android:layout_width="0dp"
-            android:layout_height="500dp"
+            android:layout_height="0dp"
+            app:layout_constraintDimensionRatio="1:1"
             android:layout_margin="16dp"
             android:scaleType="centerCrop"
             app:layout_constraintEnd_toEndOf="parent"

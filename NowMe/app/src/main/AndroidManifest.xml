@@ -21,19 +21,21 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.NowMe"
         android:usesCleartextTraffic="true">
-
+        <activity
+            android:name=".NowmeActivity"
+            android:exported="false" />
         <activity
             android:name=".AuthActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".MainActivity"
-            android:exported="false">
-        </activity>
+            android:exported="false"></activity>
         <activity android:name=".CameraActivity" />
         <activity android:name=".PublishActivity" />
 
@@ -42,10 +44,10 @@
             android:authorities="${applicationId}.provider"
             android:exported="false"
             android:grantUriPermissions="true">
-
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
     </application>
+
 </manifest>

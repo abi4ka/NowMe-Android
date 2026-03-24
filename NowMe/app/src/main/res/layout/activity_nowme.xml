@@ -1,0 +1,179 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    tools:context=".NowmeActivity">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#081A3A">
+
+        <!-- Close -->
+        <ImageButton
+            android:id="@+id/btnClose"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_margin="24dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_delete"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@android:color/white" />
+
+        <!-- Head -->
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="NowMe"
+            android:textColor="@android:color/white"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@id/btnClose"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/btnClose" />
+
+        <!-- Menu (Delete / Pin) -->
+        <ImageButton
+            android:id="@+id/btnMenu"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="24dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="3dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_menu_points"
+            app:layout_constraintBottom_toBottomOf="@id/btnClose"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/btnClose"
+            app:tint="@android:color/white" />
+
+        <!-- Emoji -->
+        <TextView
+            android:id="@+id/tvEmoji"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:text="🐱"
+            android:textSize="30sp"
+            android:layout_marginTop="26dp"
+            app:layout_constraintStart_toStartOf="@id/imgNowMe"
+            app:layout_constraintTop_toBottomOf="@id/btnClose" />
+
+        <!-- Username -->
+        <TextView
+            android:id="@+id/tvUsername"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="username"
+            android:textColor="#E6E6E6"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@id/tvEmoji"
+            app:layout_constraintTop_toTopOf="@id/tvEmoji"
+            app:layout_constraintBottom_toBottomOf="@id/tvEmoji"
+            android:layout_marginStart="8dp"/>
+
+        <!-- Date -->
+        <TextView
+            android:id="@+id/tvDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="-- / -- / --"
+            android:textColor="@android:color/white"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf= "@id/tvEmoji"
+            app:layout_constraintEnd_toEndOf="@id/imgNowMe"
+            app:layout_constraintTop_toTopOf= "@id/tvEmoji"/>
+
+        <!-- Image NowMe -->
+        <ImageView
+            android:id="@+id/imgNowMe"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintDimensionRatio="1:1"
+            android:layout_margin="16dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvDate" />
+
+        <!--Description-->
+        <TextView
+            android:id="@+id/tvDescription"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Description..."
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="@id/btnComment"
+            app:layout_constraintStart_toStartOf="@id/imgNowMe"
+            app:layout_constraintTop_toTopOf="@id/btnComment" />
+
+        <!-- Likes -->
+        <ImageButton
+            android:id="@+id/btnLike"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_marginEnd="16dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="0dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_heart_empty"
+            app:layout_constraintBottom_toBottomOf="@id/btnComment"
+            app:layout_constraintEnd_toStartOf="@id/btnComment"
+            app:layout_constraintTop_toTopOf="@id/btnComment"
+            app:tint="@android:color/white" />
+
+        <TextView
+            android:id="@+id/tvNumLike"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="7"
+            android:textColor="@android:color/white"
+            app:layout_constraintEnd_toEndOf="@id/btnLike"
+            app:layout_constraintStart_toStartOf="@id/btnLike"
+            app:layout_constraintTop_toTopOf="@id/tvNumComment" />
+
+        <!-- Comments -->
+        <ImageButton
+            android:id="@+id/btnComment"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/add_comment"
+            app:layout_constraintEnd_toEndOf="@id/imgNowMe"
+            app:layout_constraintTop_toBottomOf="@id/imgNowMe"
+            app:tint="@android:color/white" />
+
+        <TextView
+            android:id="@+id/tvNumComment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="20"
+            android:textColor="@android:color/white"
+            app:layout_constraintEnd_toEndOf="@id/btnComment"
+            app:layout_constraintStart_toStartOf="@id/btnComment"
+            app:layout_constraintTop_toBottomOf="@id/btnComment" />
+
+        <!-- Comments list -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvComments"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="8dp"
+            android:nestedScrollingEnabled="false"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvNumComment" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>

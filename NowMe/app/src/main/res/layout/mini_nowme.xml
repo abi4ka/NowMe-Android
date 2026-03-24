@@ -15,7 +15,7 @@
         android:textColor="@android:color/white"
         android:textStyle="bold"
         android:textSize="35sp"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="18dp"
         android:layout_marginTop="16dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
@@ -24,7 +24,7 @@
         android:id="@+id/tvUsername"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="username2"
+        android:text="username"
         android:textColor="@android:color/white"
         android:textStyle="bold"
         android:textSize="20sp"
@@ -33,16 +33,25 @@
         app:layout_constraintTop_toTopOf="@id/tvEmoji"
         app:layout_constraintBottom_toBottomOf="@id/tvEmoji"/>
 
-    <ImageView
-        android:id="@+id/imgNowMe"
+    <FrameLayout
+        android:id="@+id/imgContainer"
         android:layout_width="0dp"
         android:layout_height="500dp"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="8dp"
-        android:scaleType="centerCrop"
+        android:layout_marginHorizontal="14dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/camera_frame"
+        android:clipToOutline="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvUsername" />
+        app:layout_constraintTop_toBottomOf="@id/tvEmoji">
+
+        <ImageView
+            android:id="@+id/imgNowMe"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop" />
+
+    </FrameLayout>
 
     <ImageButton
         android:id="@+id/btnComment"
@@ -50,9 +59,10 @@
         android:layout_height="36dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:src="@drawable/add_comment"
-        android:layout_margin="8dp"
-        app:layout_constraintBottom_toBottomOf="@id/imgNowMe"
-        app:layout_constraintEnd_toEndOf="@id/imgNowMe" />
+        android:layout_marginEnd="30dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <ImageButton
         android:id="@+id/btnLike"

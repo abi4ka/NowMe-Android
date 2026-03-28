@@ -1,7 +1,10 @@
 package com.example.nowme.network;
 
 import com.example.nowme.network.dto.AuthDto;
+import com.example.nowme.network.dto.RefreshRequest;
 import com.example.nowme.network.dto.UserDto;
+
+import java.util.Map;
 
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -25,6 +28,9 @@ public interface NowmeApi {
             @Part MultipartBody.Part image,
             @Part("description") RequestBody description
     );
+
+    @POST("/auth/refresh")
+    Call<AuthDto> refresh(@Body RefreshRequest request);
 }
 
 

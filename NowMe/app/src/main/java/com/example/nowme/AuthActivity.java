@@ -10,6 +10,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.nowme.network.RetrofitClient;
+import com.example.nowme.network.TokenStorage;
 import com.example.nowme.network.dto.AuthDto;
 import com.example.nowme.network.dto.UserDto;
 
@@ -43,18 +44,14 @@ public class AuthActivity extends AppCompatActivity {
         btnLogin = findViewById(R.id.btnLogin);
         tvSignup = findViewById(R.id.tvSignup);
 
-        btnLogin.setOnClickListener(v -> {
-            auth();
-        });
+        btnLogin.setOnClickListener(v -> auth());
 
         tvSignup.setOnClickListener(v -> {
             if (!registerMode) {
-                //register
                 btnLogin.setText("Register");
                 tvSignup.setText("Back");
                 registerMode = true;
             } else {
-                //login
                 btnLogin.setText("Login");
                 tvSignup.setText("Sign up");
                 registerMode = false;
@@ -74,42 +71,44 @@ public class AuthActivity extends AppCompatActivity {
 
         UserDto userDto = new UserDto(username, password);
 
-        Call<AuthDto> call = (registerMode)
+        Call<AuthDto> call = registerMode
                 ? RetrofitClient.getApi().register(userDto)
                 : RetrofitClient.getApi().login(userDto);
 
         call.enqueue(new Callback<AuthDto>() {
-
             @Override
             public void onResponse(Call<AuthDto> call, Response<AuthDto> response) {
 
-                if (response.isSuccessful()) {
+                if (response.isSuccessful() && response.body() != null) {
+                    AuthDto dto = response.body();
 
-                    saveSessionToken(response.body().token);
+                    // 🔹 сохраняем оба токена
+                    TokenStorage.save(AuthActivity.this, dto);
 
                     Intent intent = new Intent(AuthActivity.this, MainActivity.class);
                     startActivity(intent);
                     finish();
+                } else {
+                    Toast.makeText(AuthActivity.this,
+                            "Auth failed: " + response.code(),
+                            Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<AuthDto> call, Throwable t) {
                 t.printStackTrace();
+                Toast.makeText(AuthActivity.this,
+                        "Network error: " + t.getMessage(),
+                        Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     private boolean hasSession() {
-        String token = getSharedPreferences("session", MODE_PRIVATE)
-                .getString("sessionToken", null);
-        return token != null && !token.isEmpty();
-    }
-
-    private void saveSessionToken(String token) {
-        getSharedPreferences("session", MODE_PRIVATE)
-                .edit()
-                .putString("sessionToken", token)
-                .apply();
+        String access = TokenStorage.getAccess(this);
+        String refresh = TokenStorage.getRefresh(this);
+        return access != null && !access.isEmpty()
+                && refresh != null && !refresh.isEmpty();
     }
 }

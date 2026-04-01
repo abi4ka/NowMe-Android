@@ -14,49 +14,89 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.nowme.network.RetrofitClient;
 import com.example.nowme.network.dto.NowmeDto;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.FeedViewHolder> {
+public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private List<NowmeDto> items = new ArrayList<>();
+    private static final int VIEW_TYPE_DATE_HEADER = 0;
+    private static final int VIEW_TYPE_POST = 1;
+    private static final DateTimeFormatter FALLBACK_DATE_TIME_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    private final List<RowItem> rows = new ArrayList<>();
 
     public void setItems(List<NowmeDto> items) {
-        this.items = items;
+        rows.clear();
+
+        String lastDateLabel = null;
+        for (NowmeDto item : items) {
+            String dateLabel = formatDateLabel(item.creationTime);
+            if (!dateLabel.equals(lastDateLabel)) {
+                rows.add(new DateHeaderRow(dateLabel));
+                lastDateLabel = dateLabel;
+            }
+            rows.add(new PostRow(item));
+        }
+
         notifyDataSetChanged();
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return rows.get(position) instanceof DateHeaderRow ? VIEW_TYPE_DATE_HEADER : VIEW_TYPE_POST;
     }
 
     @NonNull
     @Override
-    public FeedViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.mini_nowme, parent, false);
-        return new FeedViewHolder(view);
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+        if (viewType == VIEW_TYPE_DATE_HEADER) {
+            View view = inflater.inflate(R.layout.item_date_header, parent, false);
+            return new DateHeaderViewHolder(view);
+        }
+
+        View view = inflater.inflate(R.layout.mini_nowme, parent, false);
+        return new PostViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull FeedViewHolder holder, int position) {
-        NowmeDto item = items.get(position);
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        RowItem row = rows.get(position);
+        if (holder instanceof DateHeaderViewHolder) {
+            ((DateHeaderViewHolder) holder).title.setText(((DateHeaderRow) row).title);
+            return;
+        }
+
+        PostViewHolder postHolder = (PostViewHolder) holder;
+        NowmeDto item = ((PostRow) row).item;
 
         if (item.userAvatar != null && !item.userAvatar.trim().isEmpty()) {
-            holder.avatar.setText(item.userAvatar);
+            postHolder.avatar.setText(item.userAvatar);
         } else {
-            holder.avatar.setText("🙂");
+            postHolder.avatar.setText(":)");
         }
-        holder.username.setText(item.username);
-        holder.image.setImageResource(R.drawable.ic_launcher_background);
+        postHolder.username.setText(item.username);
+        postHolder.image.setImageResource(R.drawable.ic_launcher_background);
 
         if (item.id == null) {
             return;
         }
 
-        holder.image.setTag(item.id);
-
+        postHolder.image.setTag(item.id);
         RetrofitClient.getApi().getNowmeImage(item.id).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -69,9 +109,9 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.FeedViewHolder
                     return;
                 }
 
-                Object currentTag = holder.image.getTag();
+                Object currentTag = postHolder.image.getTag();
                 if (currentTag instanceof Long && ((Long) currentTag).equals(item.id)) {
-                    holder.image.setImageBitmap(bitmap);
+                    postHolder.image.setImageBitmap(bitmap);
                 }
             }
 
@@ -84,15 +124,86 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.FeedViewHolder
 
     @Override
     public int getItemCount() {
-        return items.size();
+        return rows.size();
     }
 
-    static class FeedViewHolder extends RecyclerView.ViewHolder {
-        TextView avatar;
-        TextView username;
-        ImageView image;
+    private String formatDateLabel(String creationTime) {
+        LocalDate date = parseLocalDate(creationTime);
+        if (date == null) {
+            return "Unknown date";
+        }
+        return date.getDayOfMonth() + " " + date.getMonth().getDisplayName(TextStyle.FULL, Locale.ENGLISH);
+    }
 
-        public FeedViewHolder(@NonNull View itemView) {
+    private LocalDate parseLocalDate(String creationTime) {
+        if (creationTime == null || creationTime.trim().isEmpty()) {
+            return null;
+        }
+
+        String value = creationTime.trim();
+
+        try {
+            return OffsetDateTime.parse(value).toLocalDate();
+        } catch (Exception ignored) {
+        }
+
+        try {
+            return Instant.parse(value).atZone(ZoneId.systemDefault()).toLocalDate();
+        } catch (Exception ignored) {
+        }
+
+        try {
+            return LocalDateTime.parse(value).toLocalDate();
+        } catch (Exception ignored) {
+        }
+
+        try {
+            return LocalDate.parse(value);
+        } catch (Exception ignored) {
+        }
+
+        try {
+            return LocalDateTime.parse(value, FALLBACK_DATE_TIME_FORMATTER).toLocalDate();
+        } catch (Exception ignored) {
+        }
+
+        return null;
+    }
+
+    private interface RowItem {
+    }
+
+    private static class DateHeaderRow implements RowItem {
+        final String title;
+
+        DateHeaderRow(String title) {
+            this.title = title;
+        }
+    }
+
+    private static class PostRow implements RowItem {
+        final NowmeDto item;
+
+        PostRow(NowmeDto item) {
+            this.item = item;
+        }
+    }
+
+    static class DateHeaderViewHolder extends RecyclerView.ViewHolder {
+        final TextView title;
+
+        DateHeaderViewHolder(@NonNull View itemView) {
+            super(itemView);
+            title = itemView.findViewById(R.id.tvDateHeader);
+        }
+    }
+
+    static class PostViewHolder extends RecyclerView.ViewHolder {
+        final TextView avatar;
+        final TextView username;
+        final ImageView image;
+
+        PostViewHolder(@NonNull View itemView) {
             super(itemView);
             avatar = itemView.findViewById(R.id.tvEmoji);
             username = itemView.findViewById(R.id.tvUsername);

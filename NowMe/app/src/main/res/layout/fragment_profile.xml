@@ -9,7 +9,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#081A3A">
+        android:background="#010F28">
 
         <!--Buttons-->
         <ImageButton
@@ -31,6 +31,35 @@
             android:src="@drawable/icon_setting"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- UNFOLLOW / FOLLOW  -->
+        <Button
+            android:id="@+id/btnFollow"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:backgroundTint="#7D7E87"
+            android:text="FOLLOW"
+            android:textColor="@android:color/white"
+            android:visibility="gone"
+
+            app:layout_constraintBottom_toBottomOf="@id/btnCalendar"
+            app:layout_constraintEnd_toStartOf="@id/btnSettings"
+            app:layout_constraintStart_toEndOf="@id/btnCalendar"
+            app:layout_constraintTop_toTopOf="@id/btnCalendar" />
+
+        <Button
+            android:id="@+id/btnUnfollow"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:backgroundTint="#7D7E87"
+            android:text="UNFOLLOW"
+            android:textColor="@android:color/white"
+            android:visibility="gone"
+
+            app:layout_constraintBottom_toBottomOf="@id/btnCalendar"
+            app:layout_constraintEnd_toStartOf="@id/btnSettings"
+            app:layout_constraintStart_toEndOf="@id/btnCalendar"
+            app:layout_constraintTop_toTopOf="@id/btnCalendar" />
 
         <!-- User personal information-->
         <LinearLayout
@@ -71,10 +100,10 @@
                 android:id="@+id/tvUserLevelNumber"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="20sp"
                 android:text="50 level"
-                android:textStyle="bold"
-                android:textColor="@android:color/white" />
+                android:textColor="@android:color/white"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
             <View
                 android:layout_width="120dp"
@@ -98,42 +127,42 @@
             android:id="@+id/statsRow"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
             android:layout_marginStart="16dp"
+            android:layout_marginTop="12dp"
             android:layout_marginEnd="16dp"
             android:orientation="horizontal"
             android:weightSum="3"
 
-            app:layout_constraintTop_toBottomOf="@id/profileCard"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            app:layout_constraintTop_toBottomOf="@id/profileCard">
 
             <!-- FRIENDS -->
             <LinearLayout
                 android:id="@+id/cardFriends"
                 android:layout_width="0dp"
                 android:layout_height="80dp"
-                android:layout_weight="1"
                 android:layout_margin="6dp"
-                android:orientation="vertical"
+                android:layout_weight="1"
+                android:background="@drawable/bg_stat_card"
                 android:gravity="center"
-                android:background="@drawable/bg_stat_card">
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/tvFriendsCount"
-                    android:text="10"
-                    android:textStyle="bold"
-                    android:textColor="@android:color/white"
-                    android:layout_height="wrap_content"
                     android:layout_width="wrap_content"
-                    android:textSize="22sp"/>
+                    android:layout_height="wrap_content"
+                    android:text="10"
+                    android:textColor="@android:color/white"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
 
                 <TextView
-                    android:textSize="20sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:text="friends"
                     android:textColor="@android:color/white"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"/>
+                    android:textSize="20sp" />
             </LinearLayout>
 
             <!-- FOLLOWERS -->
@@ -141,27 +170,27 @@
                 android:id="@+id/cardFollowers"
                 android:layout_width="0dp"
                 android:layout_height="80dp"
-                android:layout_weight="1"
                 android:layout_margin="6dp"
-                android:orientation="vertical"
+                android:layout_weight="1"
+                android:background="@drawable/bg_stat_card"
                 android:gravity="center"
-                android:background="@drawable/bg_stat_card">
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/tvFollowersCount"
-                    android:text="21"
-                    android:textSize="22sp"
-                    android:textStyle="bold"
-                    android:textColor="@android:color/white"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"/>
+                    android:text="21"
+                    android:textColor="@android:color/white"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
 
                 <TextView
-                    android:textSize="20sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:text="followers"
                     android:textColor="@android:color/white"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"/>
+                    android:textSize="20sp" />
             </LinearLayout>
 
             <!-- FOLLOWING -->
@@ -169,27 +198,27 @@
                 android:id="@+id/cardFollowing"
                 android:layout_width="0dp"
                 android:layout_height="80dp"
-                android:layout_weight="1"
                 android:layout_margin="6dp"
-                android:orientation="vertical"
+                android:layout_weight="1"
+                android:background="@drawable/bg_stat_card"
                 android:gravity="center"
-                android:background="@drawable/bg_stat_card">
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/tvFollowingCount"
-                    android:text="38"
-                    android:textSize="22sp"
-                    android:textStyle="bold"
-                    android:textColor="@android:color/white"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"/>
+                    android:text="38"
+                    android:textColor="@android:color/white"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
 
                 <TextView
-                    android:textSize="20sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:text="following"
                     android:textColor="@android:color/white"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"/>
+                    android:textSize="20sp" />
             </LinearLayout>
 
         </LinearLayout>

@@ -87,7 +87,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         PostViewHolder postHolder = (PostViewHolder) holder;
         NowmeDto item = ((PostRow) row).item;
 
-        // Avatar
         if (item.userAvatar != null && !item.userAvatar.trim().isEmpty()) {
             postHolder.avatar.setText(item.userAvatar);
         } else {
@@ -103,10 +102,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
             Intent intent = new Intent(context, NowmeActivity.class);
 
-            intent.putExtra("nowmeId", item.id);
-            intent.putExtra("likes", item.likes != null ? item.likes.intValue() : 0);
-            intent.putExtra("liked", false); // luego lo puedes mejorar
-            intent.putExtra("isOwner", false); // luego lo puedes mejorar
+            intent.putExtra("nowme", item);
 
             context.startActivity(intent);
         });
@@ -154,16 +150,32 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         String value = creationTime.trim();
 
-        try { return OffsetDateTime.parse(value).toLocalDate(); } catch (Exception ignored) {}
-        try { return Instant.parse(value).atZone(ZoneId.systemDefault()).toLocalDate(); } catch (Exception ignored) {}
-        try { return LocalDateTime.parse(value).toLocalDate(); } catch (Exception ignored) {}
-        try { return LocalDate.parse(value); } catch (Exception ignored) {}
-        try { return LocalDateTime.parse(value, FALLBACK_DATE_TIME_FORMATTER).toLocalDate(); } catch (Exception ignored) {}
+        try {
+            return OffsetDateTime.parse(value).toLocalDate();
+        } catch (Exception ignored) {
+        }
+        try {
+            return Instant.parse(value).atZone(ZoneId.systemDefault()).toLocalDate();
+        } catch (Exception ignored) {
+        }
+        try {
+            return LocalDateTime.parse(value).toLocalDate();
+        } catch (Exception ignored) {
+        }
+        try {
+            return LocalDate.parse(value);
+        } catch (Exception ignored) {
+        }
+        try {
+            return LocalDateTime.parse(value, FALLBACK_DATE_TIME_FORMATTER).toLocalDate();
+        } catch (Exception ignored) {
+        }
 
         return null;
     }
 
-    private interface RowItem {}
+    private interface RowItem {
+    }
 
     private static class DateHeaderRow implements RowItem {
         final String title;

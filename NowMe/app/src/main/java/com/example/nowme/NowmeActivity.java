@@ -75,10 +75,26 @@ public class NowmeActivity extends AppCompatActivity {
 
         //upgrade date
         try {
-            tvDate.setText(
-                    java.time.OffsetDateTime.parse(nowme.creationTime)
-                            .format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+            String value = nowme.creationTime;
+
+            java.time.LocalDate date;
+
+            try {
+                date = java.time.OffsetDateTime.parse(value).toLocalDate();
+            } catch (Exception e1) {
+                try {
+                    date = java.time.LocalDateTime.parse(value).toLocalDate();
+                } catch (Exception e2) {
+                    date = java.time.LocalDate.parse(value);
+                }
+            }
+
+            String formatted = date.format(
+                    java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")
             );
+
+            tvDate.setText(formatted);
+
         } catch (Exception e) {
             tvDate.setText("-- / -- / --");
         }

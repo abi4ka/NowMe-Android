@@ -1,5 +1,7 @@
 package com.example.nowme;
 
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
@@ -76,6 +78,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         RowItem row = rows.get(position);
+
         if (holder instanceof DateHeaderViewHolder) {
             ((DateHeaderViewHolder) holder).title.setText(((DateHeaderRow) row).title);
             return;
@@ -89,25 +92,32 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         } else {
             postHolder.avatar.setText(":)");
         }
+
         postHolder.username.setText(item.username);
         postHolder.image.setImageResource(R.drawable.ic_launcher_background);
 
-        if (item.id == null) {
-            return;
-        }
+        postHolder.image.setOnClickListener(v -> {
+
+            Context context = v.getContext();
+
+            Intent intent = new Intent(context, NowmeActivity.class);
+
+            intent.putExtra("nowme", item);
+
+            context.startActivity(intent);
+        });
+
+        if (item.id == null) return;
 
         postHolder.image.setTag(item.id);
+
         RetrofitClient.getApi().getNowmeImage(item.id).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if (!response.isSuccessful() || response.body() == null) {
-                    return;
-                }
+                if (!response.isSuccessful() || response.body() == null) return;
 
                 Bitmap bitmap = BitmapFactory.decodeStream(response.body().byteStream());
-                if (bitmap == null) {
-                    return;
-                }
+                if (bitmap == null) return;
 
                 Object currentTag = postHolder.image.getTag();
                 if (currentTag instanceof Long && ((Long) currentTag).equals(item.id)) {
@@ -117,7 +127,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                // Keep placeholder when loading fails.
+                // nada
             }
         });
     }
@@ -129,16 +139,14 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private String formatDateLabel(String creationTime) {
         LocalDate date = parseLocalDate(creationTime);
-        if (date == null) {
-            return "Unknown date";
-        }
-        return date.getDayOfMonth() + " " + date.getMonth().getDisplayName(TextStyle.FULL, Locale.ENGLISH);
+        if (date == null) return "Unknown date";
+
+        return date.getDayOfMonth() + " " +
+                date.getMonth().getDisplayName(TextStyle.FULL, Locale.ENGLISH);
     }
 
     private LocalDate parseLocalDate(String creationTime) {
-        if (creationTime == null || creationTime.trim().isEmpty()) {
-            return null;
-        }
+        if (creationTime == null || creationTime.trim().isEmpty()) return null;
 
         String value = creationTime.trim();
 
@@ -146,22 +154,18 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             return OffsetDateTime.parse(value).toLocalDate();
         } catch (Exception ignored) {
         }
-
         try {
             return Instant.parse(value).atZone(ZoneId.systemDefault()).toLocalDate();
         } catch (Exception ignored) {
         }
-
         try {
             return LocalDateTime.parse(value).toLocalDate();
         } catch (Exception ignored) {
         }
-
         try {
             return LocalDate.parse(value);
         } catch (Exception ignored) {
         }
-
         try {
             return LocalDateTime.parse(value, FALLBACK_DATE_TIME_FORMATTER).toLocalDate();
         } catch (Exception ignored) {

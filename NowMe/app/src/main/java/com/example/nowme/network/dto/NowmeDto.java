@@ -1,6 +1,8 @@
 package com.example.nowme.network.dto;
 
-public class NowmeDto {
+import java.io.Serializable;
+
+public class NowmeDto implements Serializable {
     public Long id;
     public String description;
     public String creationTime;

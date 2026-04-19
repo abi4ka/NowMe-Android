@@ -10,4 +10,5 @@ public class NowmeDto implements Serializable {
     public Long comments;
     public String username;
     public String userAvatar;
+    public Boolean liked;
 }

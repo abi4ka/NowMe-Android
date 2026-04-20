@@ -5,6 +5,7 @@ import com.example.nowme.network.dto.AuthDto;
 import com.example.nowme.network.dto.NowmeDto;
 import com.example.nowme.network.dto.RefreshRequest;
 import com.example.nowme.network.dto.UserDto;
+import com.example.nowme.network.dto.UserProfileDto;
 
 import java.util.List;
 
@@ -52,6 +53,12 @@ public interface NowmeApi {
 
     @DELETE("/nowme/{id}/like")
     Call<Long> unlike(@Path("id") Long id);
+
+    @GET("/users/me")
+    Call<UserProfileDto> getMyProfile();
+
+    @GET("/users/{id}")
+    Call<UserProfileDto> getUserProfile(@Path("id") Long id);
 }
 
 

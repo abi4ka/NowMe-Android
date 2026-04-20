@@ -137,7 +137,6 @@ public class ProfileFragment extends Fragment {
 
     private long getFollowersCount(UserProfileDto user) {
         if (user.followersCount != null) return user.followersCount;
-        if (user.followerCount != null) return user.followerCount;
         return 0L;
     }
 

@@ -6,7 +6,6 @@ public class UserProfileDto {
     public String avatar;
     public String registerTime;
 
-    public Long followerCount;
     public Long followersCount;
     public Long followingCount;
     public Long friends;

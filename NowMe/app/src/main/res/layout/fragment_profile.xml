@@ -96,20 +96,6 @@
                 android:textSize="32sp"
                 android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/tvUserLevelNumber"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="50 level"
-                android:textColor="@android:color/white"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <View
-                android:layout_width="120dp"
-                android:layout_height="6dp"
-                android:layout_margin="8dp"
-                android:background="#3A6FD9" />
 
             <TextView
                 android:id="@+id/tvNowmeNumber"

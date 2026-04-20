@@ -67,6 +67,12 @@ public class NowmeActivity extends AppCompatActivity {
             return;
         }
 
+        liked = nowme.liked != null && nowme.liked;
+
+        btnLike.setImageResource(
+                liked ? R.drawable.ic_heart : R.drawable.ic_heart_empty
+        );
+
         tvUsername.setText(nowme.username);
         tvDescription.setText(nowme.description != null ? nowme.description : "Sin descripción");
         tvNumLike.setText(String.valueOf(nowme.likes != null ? nowme.likes : 0));
@@ -129,18 +135,40 @@ public class NowmeActivity extends AppCompatActivity {
 
         btnLike.setOnClickListener(v -> {
 
-            liked = !liked;
+            if (nowme.id == null) return;
 
-            btnLike.setImageResource(
-                    liked ? R.drawable.ic_heart : R.drawable.ic_heart_empty
-            );
+            Call<Long> call;
 
-            long likes = nowme.likes != null ? nowme.likes : 0;
+            if (!liked) {
+                call = RetrofitClient.getApi().like(nowme.id);
+            } else {
+                call = RetrofitClient.getApi().unlike(nowme.id);
+            }
 
-            if (liked) likes++;
-            else likes--;
+            call.enqueue(new Callback<Long>() {
+                @Override
+                public void onResponse(Call<Long> call, Response<Long> response) {
 
-            tvNumLike.setText(String.valueOf(likes));
+                    if (!response.isSuccessful() || response.body() == null) return;
+
+                    long newLikes = response.body();
+
+                    liked = !liked;
+
+                    btnLike.setImageResource(
+                            liked ? R.drawable.ic_heart : R.drawable.ic_heart_empty
+                    );
+
+                    tvNumLike.setText(String.valueOf(newLikes));
+
+                    nowme.likes = newLikes;
+                }
+
+                @Override
+                public void onFailure(Call<Long> call, Throwable t) {
+                    Toast.makeText(NowmeActivity.this, "Like error", Toast.LENGTH_SHORT).show();
+                }
+            });
         });
 
         btnComment.setOnClickListener(v ->

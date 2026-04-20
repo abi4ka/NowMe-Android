@@ -3,6 +3,8 @@ package com.example.nowme;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,7 +15,10 @@ import android.widget.Toast;
 
 import com.example.nowme.network.NowmeApi;
 import com.example.nowme.network.RetrofitClient;
+import com.example.nowme.network.dto.NowmeDto;
 import com.example.nowme.network.dto.UserProfileDto;
+
+import java.util.List;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -23,6 +28,8 @@ import retrofit2.Response;
 public class ProfileFragment extends Fragment {
     TextView tvUserIcon, tvUsername, tvFollowers, tvFollowing, tvFriends, tvStreak;
     Button btnFollow;
+    RecyclerView recyclerProfilePosts;
+    ProfilePostAdapter postAdapter;
     Long userId = null;
     Long profileUserId = null;
     boolean followingProfile = false;
@@ -46,6 +53,11 @@ public class ProfileFragment extends Fragment {
 
         btnFollow = view.findViewById(R.id.btnFollow);
         btnFollow.setOnClickListener(v -> toggleFollow());
+
+        recyclerProfilePosts = view.findViewById(R.id.recyclerProfilePosts);
+        postAdapter = new ProfilePostAdapter();
+        recyclerProfilePosts.setLayoutManager(new GridLayoutManager(getContext(), 3));
+        recyclerProfilePosts.setAdapter(postAdapter);
 
         loadProfile();
 
@@ -93,11 +105,31 @@ public class ProfileFragment extends Fragment {
                         updateFollowButton();
                         btnFollow.setVisibility(View.VISIBLE);
                     }
+
+                    loadProfilePosts();
                 }
             }
 
             @Override
             public void onFailure(Call<UserProfileDto> call, Throwable t) {
+                t.printStackTrace();
+            }
+        });
+    }
+
+    private void loadProfilePosts() {
+        if (profileUserId == null) return;
+
+        RetrofitClient.getApi().getProfileNowmes(profileUserId).enqueue(new Callback<List<NowmeDto>>() {
+            @Override
+            public void onResponse(Call<List<NowmeDto>> call, Response<List<NowmeDto>> response) {
+                if (response.isSuccessful()) {
+                    postAdapter.setItems(response.body());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<NowmeDto>> call, Throwable t) {
                 t.printStackTrace();
             }
         });

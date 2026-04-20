@@ -45,6 +45,9 @@ public interface NowmeApi {
     Call<PageResponse<NowmeDto>> getNowmes(
     );
 
+    @GET("/nowme/users/{userId}")
+    Call<List<NowmeDto>> getProfileNowmes(@Path("userId") Long userId);
+
     @GET("/nowme/{id}/image")
     Call<ResponseBody> getNowmeImage(@Path("id") Long id);
 

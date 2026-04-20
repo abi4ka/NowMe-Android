@@ -59,6 +59,12 @@ public interface NowmeApi {
 
     @GET("/users/{id}")
     Call<UserProfileDto> getUserProfile(@Path("id") Long id);
+
+    @POST("/follow/{userId}")
+    Call<ResponseBody> followUser(@Path("userId") Long userId);
+
+    @DELETE("/follow/{userId}")
+    Call<ResponseBody> unfollowUser(@Path("userId") Long userId);
 }
 
 

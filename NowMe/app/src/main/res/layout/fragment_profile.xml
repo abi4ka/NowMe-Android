@@ -11,7 +11,6 @@
         android:layout_height="match_parent"
         android:background="#010F28">
 
-        <!--Buttons-->
         <ImageButton
             android:id="@+id/btnCalendar"
             android:layout_width="40dp"
@@ -32,49 +31,20 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- UNFOLLOW / FOLLOW  -->
-        <Button
-            android:id="@+id/btnFollow"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:backgroundTint="#7D7E87"
-            android:text="FOLLOW"
-            android:textColor="@android:color/white"
-            android:visibility="gone"
-
-            app:layout_constraintBottom_toBottomOf="@id/btnCalendar"
-            app:layout_constraintEnd_toStartOf="@id/btnSettings"
-            app:layout_constraintStart_toEndOf="@id/btnCalendar"
-            app:layout_constraintTop_toTopOf="@id/btnCalendar" />
-
-        <Button
-            android:id="@+id/btnUnfollow"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:backgroundTint="#7D7E87"
-            android:text="UNFOLLOW"
-            android:textColor="@android:color/white"
-            android:visibility="gone"
-
-            app:layout_constraintBottom_toBottomOf="@id/btnCalendar"
-            app:layout_constraintEnd_toStartOf="@id/btnSettings"
-            app:layout_constraintStart_toEndOf="@id/btnCalendar"
-            app:layout_constraintTop_toTopOf="@id/btnCalendar" />
-
-        <!-- User personal information-->
         <LinearLayout
             android:id="@+id/profileCard"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_margin="50dp"
+            android:layout_marginStart="28dp"
             android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginEnd="28dp"
             android:background="@drawable/bg_profile_card"
             android:gravity="center"
             android:orientation="vertical"
-            android:padding="16dp"
-
+            android:paddingStart="20dp"
+            android:paddingTop="22dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="22dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/btnCalendar">
@@ -83,7 +53,7 @@
                 android:id="@+id/tvUserIcon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="🐣"
+                android:text=""
                 android:textColor="@android:color/white"
                 android:textSize="70sp" />
 
@@ -91,24 +61,41 @@
                 android:id="@+id/tvUsername"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Username"
+                android:layout_marginTop="6dp"
+                android:text=""
                 android:textColor="@android:color/white"
                 android:textSize="32sp"
                 android:textStyle="bold" />
-
 
             <TextView
                 android:id="@+id/tvNowmeNumber"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="666 days"
-                android:textColor="@android:color/white"
-                android:textSize="26sp" />
+                android:text=""
+                android:textColor="#FFD65A"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/btnFollow"
+                android:layout_width="wrap_content"
+                android:layout_height="44dp"
+                android:layout_marginTop="18dp"
+                android:background="@drawable/button_follow"
+                android:minWidth="136dp"
+                android:paddingStart="22dp"
+                android:paddingEnd="22dp"
+                android:text=""
+                android:textAllCaps="false"
+                android:textColor="#001B26"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
 
         </LinearLayout>
 
-        <!-- User stats information-->
         <LinearLayout
             android:id="@+id/statsRow"
             android:layout_width="0dp"
@@ -118,12 +105,10 @@
             android:layout_marginEnd="16dp"
             android:orientation="horizontal"
             android:weightSum="3"
-
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/profileCard">
 
-            <!-- FRIENDS -->
             <LinearLayout
                 android:id="@+id/cardFriends"
                 android:layout_width="0dp"
@@ -138,7 +123,7 @@
                     android:id="@+id/tvFriendsCount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="10"
+                    android:text=""
                     android:textColor="@android:color/white"
                     android:textSize="22sp"
                     android:textStyle="bold" />
@@ -151,7 +136,6 @@
                     android:textSize="20sp" />
             </LinearLayout>
 
-            <!-- FOLLOWERS -->
             <LinearLayout
                 android:id="@+id/cardFollowers"
                 android:layout_width="0dp"
@@ -166,7 +150,7 @@
                     android:id="@+id/tvFollowersCount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="21"
+                    android:text=""
                     android:textColor="@android:color/white"
                     android:textSize="22sp"
                     android:textStyle="bold" />
@@ -179,7 +163,6 @@
                     android:textSize="20sp" />
             </LinearLayout>
 
-            <!-- FOLLOWING -->
             <LinearLayout
                 android:id="@+id/cardFollowing"
                 android:layout_width="0dp"
@@ -194,7 +177,7 @@
                     android:id="@+id/tvFollowingCount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="38"
+                    android:text=""
                     android:textColor="@android:color/white"
                     android:textSize="22sp"
                     android:textStyle="bold" />
@@ -209,85 +192,15 @@
 
         </LinearLayout>
 
-        <!-- LISTS -->
-        <LinearLayout
-            android:id="@+id/statsContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:weightSum="2"
-            app:layout_constraintTop_toBottomOf="@id/statsRow">
-
-            <!-- Currently -->
-            <LinearLayout
-                android:id="@+id/currentlyContainer"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="?attr/selectableItemBackground"
-
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:padding="8dp">
-
-                <ImageView
-                    android:id="@+id/imTime"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_time" />
-
-                <View
-                    android:id="@+id/indicatorCreated"
-                    android:layout_width="40dp"
-                    android:layout_height="3dp" />
-
-            </LinearLayout>
-
-            <!-- Favorite -->
-            <LinearLayout
-                android:id="@+id/favoriteContainer"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="?attr/selectableItemBackground"
-
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:padding="8dp">
-
-                <ImageView
-                    android:id="@+id/imFavorite"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@android:drawable/btn_star_big_off" />
-
-                <View
-                    android:id="@+id/indicatorFavorite"
-                    android:layout_width="40dp"
-                    android:layout_height="3dp"
-                    android:background="#00000000" />
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <!-- SWIPE -->
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/viewPager"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_marginTop="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/statsContainer"
-            tools:ignore="NotSibling" />
+            app:layout_constraintTop_toBottomOf="@id/statsRow" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

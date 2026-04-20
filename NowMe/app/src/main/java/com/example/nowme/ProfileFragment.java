@@ -9,19 +9,23 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.nowme.network.NowmeApi;
 import com.example.nowme.network.RetrofitClient;
 import com.example.nowme.network.dto.UserProfileDto;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class ProfileFragment extends Fragment {
-    TextView tvUserIcon, tvUsername, tvFollowers, tvFollowing, tvFriends;
-    Button btnFollow, btnUnfollow;
+    TextView tvUserIcon, tvUsername, tvFollowers, tvFollowing, tvFriends, tvStreak;
+    Button btnFollow;
     Long userId = null;
+    Long profileUserId = null;
+    boolean followingProfile = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -38,9 +42,10 @@ public class ProfileFragment extends Fragment {
         tvFollowers = view.findViewById(R.id.tvFollowersCount);
         tvFollowing = view.findViewById(R.id.tvFollowingCount);
         tvFriends = view.findViewById(R.id.tvFriendsCount);
+        tvStreak = view.findViewById(R.id.tvNowmeNumber);
 
         btnFollow = view.findViewById(R.id.btnFollow);
-        btnUnfollow = view.findViewById(R.id.btnUnfollow);
+        btnFollow.setOnClickListener(v -> toggleFollow());
 
         loadProfile();
 
@@ -65,24 +70,28 @@ public class ProfileFragment extends Fragment {
 
                     UserProfileDto user = response.body();
 
-                    tvUserIcon.setText(user.avatar);
-                    tvUsername.setText(user.username);
-                    tvFollowers.setText(String.valueOf(user.followerCount != null ? user.followerCount : 0));
+                    profileUserId = user.id;
+                    followingProfile = user.followingUser || user.following;
+
+                    tvUserIcon.setText(user.avatar != null ? user.avatar : "");
+                    tvUsername.setText(user.username != null ? user.username : "");
+                    tvFollowers.setText(String.valueOf(getFollowersCount(user)));
                     tvFollowing.setText(String.valueOf(user.followingCount != null ? user.followingCount : 0));
-                    tvFriends.setText(String.valueOf(user.friends));
+                    tvFriends.setText(String.valueOf(user.friends != null ? user.friends : 0));
+
+                    if (user.streakDays != null) {
+                        tvStreak.setText(user.streakDays + " 🔥");
+                        tvStreak.setVisibility(View.VISIBLE);
+                    } else {
+                        tvStreak.setText("");
+                        tvStreak.setVisibility(View.GONE);
+                    }
 
                     if (user.me) {
                         btnFollow.setVisibility(View.GONE);
-                        btnUnfollow.setVisibility(View.GONE);
                     } else {
-
-                        if (user.followingUser) {
-                            btnFollow.setVisibility(View.GONE);
-                            btnUnfollow.setVisibility(View.VISIBLE);
-                        } else {
-                            btnFollow.setVisibility(View.VISIBLE);
-                            btnUnfollow.setVisibility(View.GONE);
-                        }
+                        updateFollowButton();
+                        btnFollow.setVisibility(View.VISIBLE);
                     }
                 }
             }
@@ -90,6 +99,51 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onFailure(Call<UserProfileDto> call, Throwable t) {
                 t.printStackTrace();
+            }
+        });
+    }
+
+    private long getFollowersCount(UserProfileDto user) {
+        if (user.followersCount != null) return user.followersCount;
+        if (user.followerCount != null) return user.followerCount;
+        return 0L;
+    }
+
+    private void updateFollowButton() {
+        btnFollow.setEnabled(true);
+        btnFollow.setText(followingProfile ? "Following" : "Follow");
+        btnFollow.setTextColor(followingProfile ? 0xFFFFFFFF : 0xFF001B26);
+        btnFollow.setBackgroundResource(followingProfile
+                ? R.drawable.button_following
+                : R.drawable.button_follow);
+    }
+
+    private void toggleFollow() {
+        if (profileUserId == null) return;
+
+        btnFollow.setEnabled(false);
+        Call<ResponseBody> call = followingProfile
+                ? RetrofitClient.getApi().unfollowUser(profileUserId)
+                : RetrofitClient.getApi().followUser(profileUserId);
+
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (!response.isSuccessful()) {
+                    btnFollow.setEnabled(true);
+                    Toast.makeText(getContext(), "Follow error", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                followingProfile = !followingProfile;
+                updateFollowButton();
+                loadProfile();
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                btnFollow.setEnabled(true);
+                Toast.makeText(getContext(), "Follow error", Toast.LENGTH_SHORT).show();
             }
         });
     }

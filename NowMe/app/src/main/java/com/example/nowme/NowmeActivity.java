@@ -166,7 +166,7 @@ public class NowmeActivity extends AppCompatActivity {
 
                 @Override
                 public void onFailure(Call<Long> call, Throwable t) {
-                    Toast.makeText(NowmeActivity.this, "Error al dar like", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(NowmeActivity.this, "Like error", Toast.LENGTH_SHORT).show();
                 }
             });
         });

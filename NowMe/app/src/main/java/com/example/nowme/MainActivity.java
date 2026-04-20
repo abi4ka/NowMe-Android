@@ -55,12 +55,50 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
 
-            if (id == R.id.cameraFragment) {
+            if (id == R.id.homeFragment) {
+                openHome(navController);
+                return true;
+            } else if (id == R.id.cameraFragment) {
                 startActivity(new Intent(this, CameraActivity.class));
+                return true;
+            } else if (id == R.id.profileFragment) {
+                openMyProfile(navController);
                 return true;
             } else {
                 return NavigationUI.onNavDestinationSelected(item, navController);
             }
         });
+
+        bottomNavigationView.setOnItemReselectedListener(item -> {
+            if (item.getItemId() == R.id.homeFragment) {
+                openHome(navController);
+            } else if (item.getItemId() == R.id.profileFragment) {
+                openMyProfile(navController);
+            }
+        });
+    }
+
+    private void openHome(NavController navController) {
+        if (navController.getCurrentDestination() != null
+                && navController.getCurrentDestination().getId() == R.id.homeFragment) {
+            return;
+        }
+
+        if (!navController.popBackStack(R.id.homeFragment, false)) {
+            navController.navigate(R.id.homeFragment);
+        }
+    }
+
+    private void openMyProfile(NavController navController) {
+        if (navController.getCurrentDestination() != null
+                && navController.getCurrentDestination().getId() == R.id.profileFragment
+                && (navController.getCurrentBackStackEntry() == null
+                || navController.getCurrentBackStackEntry().getArguments() == null
+                || !navController.getCurrentBackStackEntry().getArguments().containsKey("userId"))) {
+            return;
+        }
+
+        navController.popBackStack(R.id.profileFragment, true);
+        navController.navigate(R.id.profileFragment);
     }
 }

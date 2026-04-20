@@ -29,7 +29,7 @@ public class ProfileFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
-        if (getArguments() != null) {
+        if (getArguments() != null && getArguments().containsKey("userId")) {
             userId = getArguments().getLong("userId");
         }
 

@@ -67,8 +67,8 @@ public class ProfileFragment extends Fragment {
 
                     tvUserIcon.setText(user.avatar);
                     tvUsername.setText(user.username);
-                    tvFollowers.setText(String.valueOf(user.followers != null ? user.followers : 0));
-                    tvFollowing.setText(String.valueOf(user.following != null ? user.following : 0));
+                    tvFollowers.setText(String.valueOf(user.followerCount != null ? user.followerCount : 0));
+                    tvFollowing.setText(String.valueOf(user.followingCount != null ? user.followingCount : 0));
                     tvFriends.setText(String.valueOf(user.friends));
 
                     if (user.me) {

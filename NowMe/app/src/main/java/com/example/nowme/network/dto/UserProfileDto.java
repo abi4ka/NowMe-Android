@@ -4,8 +4,10 @@ public class UserProfileDto {
     public Long id;
     public String username;
     public String avatar;
-    public Long followers;
-    public Long following;
+    public String registerTime;
+
+    public Long followerCount;
+    public Long followingCount;
     public Long friends;
 
     public boolean me;

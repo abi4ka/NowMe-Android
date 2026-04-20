@@ -36,6 +36,7 @@
         <activity
             android:name=".MainActivity"
             android:exported="false"
+            android:launchMode="singleTop"
             android:theme="@style/Theme.NowMe.NoActionBar"></activity>
         <activity android:name=".CameraActivity" />
         <activity android:name=".PublishActivity" />

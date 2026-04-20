@@ -16,7 +16,10 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static final String EXTRA_PROFILE_USER_ID = "profileUserId";
+
     BottomNavigationView bottomNavigationView;
+    private NavController navController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
                 (NavHostFragment) getSupportFragmentManager()
                         .findFragmentById(R.id.nav_host_fragment);
 
-        NavController navController = navHostFragment.getNavController();
+        navController = navHostFragment.getNavController();
 
         NavigationUI.setupWithNavController(bottomNavigationView, navController);
 
@@ -76,6 +79,15 @@ public class MainActivity extends AppCompatActivity {
                 openMyProfile(navController);
             }
         });
+
+        openProfileFromIntent(getIntent());
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        openProfileFromIntent(intent);
     }
 
     private void openHome(NavController navController) {
@@ -100,5 +112,22 @@ public class MainActivity extends AppCompatActivity {
 
         navController.popBackStack(R.id.profileFragment, true);
         navController.navigate(R.id.profileFragment);
+    }
+
+    private void openProfileFromIntent(Intent intent) {
+        if (intent == null || !intent.hasExtra(EXTRA_PROFILE_USER_ID) || navController == null) {
+            return;
+        }
+
+        long userId = intent.getLongExtra(EXTRA_PROFILE_USER_ID, -1L);
+        intent.removeExtra(EXTRA_PROFILE_USER_ID);
+        if (userId <= 0L) {
+            return;
+        }
+
+        Bundle args = new Bundle();
+        args.putLong("userId", userId);
+        navController.popBackStack(R.id.profileFragment, true);
+        navController.navigate(R.id.profileFragment, args);
     }
 }

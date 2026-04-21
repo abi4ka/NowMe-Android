@@ -2,6 +2,7 @@ package com.example.nowme;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -78,6 +79,8 @@ public class NowmeActivity extends AppCompatActivity {
         tvNumLike.setText(String.valueOf(nowme.likes != null ? nowme.likes : 0));
         tvNumComment.setText(String.valueOf(nowme.comments != null ? nowme.comments : 0));
         tvEmoji.setText(nowme.userAvatar != null ? nowme.userAvatar : ":)");
+        tvUsername.setOnClickListener(v -> openAuthorProfile());
+        tvEmoji.setOnClickListener(v -> openAuthorProfile());
 
         //upgrade date
         try {
@@ -174,5 +177,15 @@ public class NowmeActivity extends AppCompatActivity {
         btnComment.setOnClickListener(v ->
                 Toast.makeText(this, "Add comment", Toast.LENGTH_SHORT).show()
         );
+    }
+
+    private void openAuthorProfile() {
+        if (nowme.userId == null) return;
+
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        intent.putExtra(MainActivity.EXTRA_PROFILE_USER_ID, nowme.userId);
+        startActivity(intent);
+        finish();
     }
 }

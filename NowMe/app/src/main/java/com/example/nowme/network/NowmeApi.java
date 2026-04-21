@@ -45,6 +45,9 @@ public interface NowmeApi {
     Call<PageResponse<NowmeDto>> getNowmes(
     );
 
+    @GET("/nowme/users/{userId}")
+    Call<List<NowmeDto>> getProfileNowmes(@Path("userId") Long userId);
+
     @GET("/nowme/{id}/image")
     Call<ResponseBody> getNowmeImage(@Path("id") Long id);
 
@@ -59,6 +62,12 @@ public interface NowmeApi {
 
     @GET("/users/{id}")
     Call<UserProfileDto> getUserProfile(@Path("id") Long id);
+
+    @POST("/follow/{userId}")
+    Call<ResponseBody> followUser(@Path("userId") Long userId);
+
+    @DELETE("/follow/{userId}")
+    Call<ResponseBody> unfollowUser(@Path("userId") Long userId);
 }
 
 

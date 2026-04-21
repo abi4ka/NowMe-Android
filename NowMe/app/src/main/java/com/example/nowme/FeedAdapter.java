@@ -40,6 +40,11 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     private final List<RowItem> rows = new ArrayList<>();
+    private final OnAuthorClickListener onAuthorClickListener;
+
+    public FeedAdapter(OnAuthorClickListener onAuthorClickListener) {
+        this.onAuthorClickListener = onAuthorClickListener;
+    }
 
     public void setItems(List<NowmeDto> items) {
         rows.clear();
@@ -95,6 +100,14 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         postHolder.username.setText(item.username);
         postHolder.image.setImageResource(R.drawable.ic_launcher_background);
+
+        View.OnClickListener authorClickListener = v -> {
+            if (onAuthorClickListener != null && item.userId != null) {
+                onAuthorClickListener.onAuthorClick(item.userId);
+            }
+        };
+        postHolder.avatar.setOnClickListener(authorClickListener);
+        postHolder.username.setOnClickListener(authorClickListener);
 
         postHolder.image.setOnClickListener(v -> {
 
@@ -175,6 +188,10 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     private interface RowItem {
+    }
+
+    interface OnAuthorClickListener {
+        void onAuthorClick(Long userId);
     }
 
     private static class DateHeaderRow implements RowItem {

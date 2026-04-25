@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -6,9 +5,14 @@
     android:layout_height="match_parent"
     tools:context=".ProfileFragment">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:fillViewport="true">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:background="#010F28">
 
         <ImageButton
@@ -36,16 +40,20 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
+            android:layout_marginTop="16dp"
+
             android:layout_marginEnd="20dp"
-            android:paddingBottom="10dp"
+            android:background="@drawable/bg_profile_card"
+            android:paddingBottom="16dp"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/btnCalendar">
 
             <FrameLayout
                 android:id="@+id/avatarContainer"
-                android:layout_width="140dp"
-                android:layout_height="140dp"
+                android:layout_width="130dp"
+                android:layout_height="130dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
@@ -56,20 +64,20 @@
                     android:gravity="center"
                     android:text=""
                     android:textColor="@android:color/white"
-                    android:textSize="100sp" />
+                    android:textSize="90sp" />
             </FrameLayout>
 
             <LinearLayout
                 android:id="@+id/statsRow"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:layout_marginBottom="10dp"
                 android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:gravity="center"
                 android:orientation="horizontal"
-                app:layout_constraintTop_toBottomOf="@id/tvUsername"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/avatarContainer">
+                app:layout_constraintStart_toEndOf="@id/avatarContainer"
+                app:layout_constraintTop_toBottomOf="@id/tvUsername">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -147,8 +155,8 @@
                 android:id="@+id/tvUsername"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
                 android:layout_marginStart="24dp"
+                android:layout_marginTop="20dp"
                 android:text=""
                 android:textColor="@android:color/white"
                 android:textSize="26sp"
@@ -160,29 +168,26 @@
                 android:id="@+id/tvNowmeNumber"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
                 android:layout_marginStart="14dp"
                 android:text=""
                 android:textColor="#FFD65A"
-                android:textSize="14sp"
+                android:textSize="20sp"
+                app:layout_constraintBottom_toBottomOf="@id/tvUsername"
                 app:layout_constraintStart_toEndOf="@id/tvUsername"
-                app:layout_constraintTop_toTopOf="@id/tvUsername"
-                app:layout_constraintBottom_toBottomOf="@id/tvUsername"/>
+                app:layout_constraintTop_toTopOf="@id/tvUsername" />
 
             <Button
                 android:id="@+id/btnFollow"
-                android:layout_width="0dp"
+                android:layout_width="180dp"
                 android:layout_height="36dp"
                 android:background="@drawable/button_follow"
                 android:text="Follow"
                 android:textAllCaps="false"
                 android:textColor="#001B26"
                 android:textSize="14sp"
-
-
-
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="@id/statsRow"
+                app:layout_constraintHorizontal_bias="0.505"
+                app:layout_constraintStart_toStartOf="@id/statsRow"
                 app:layout_constraintTop_toBottomOf="@id/avatarContainer" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -190,17 +195,19 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerProfilePosts"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false"
             android:clipToPadding="false"
             android:paddingStart="2dp"
             android:paddingEnd="2dp"
+            android:paddingTop="12dp"
             android:paddingBottom="12dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/profileCard"
-            tools:ignore="NotSibling" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </ScrollView>
 
 </FrameLayout>

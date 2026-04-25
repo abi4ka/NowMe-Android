@@ -36,18 +36,16 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
-            android:layout_marginTop="16dp"
             android:layout_marginEnd="20dp"
-            android:padding="16dp"
-            app:layout_constraintTop_toBottomOf="@id/btnCalendar"
+            android:paddingBottom="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            app:layout_constraintTop_toBottomOf="@id/btnCalendar">
 
             <FrameLayout
                 android:id="@+id/avatarContainer"
-                android:layout_width="120dp"
-                android:layout_height="120dp"
-                android:padding="10dp"
+                android:layout_width="140dp"
+                android:layout_height="140dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
@@ -57,93 +55,90 @@
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:text=""
-                    android:textSize="90sp"
-                    android:textColor="@android:color/white"/>
+                    android:textColor="@android:color/white"
+                    android:textSize="100sp" />
             </FrameLayout>
 
             <LinearLayout
                 android:id="@+id/statsRow"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-
                 android:gravity="center"
-
-                app:layout_constraintStart_toEndOf="@id/avatarContainer"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal"
+                app:layout_constraintTop_toBottomOf="@id/tvUsername"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toBottomOf="@id/avatarContainer">
+                app:layout_constraintStart_toEndOf="@id/avatarContainer">
 
                 <LinearLayout
-                    android:orientation="vertical"
-                    android:gravity="center"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    >
+                    android:gravity="center"
+                    android:orientation="vertical">
 
                     <TextView
                         android:id="@+id/tvFriendsCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:text="0"
                         android:textColor="@android:color/white"
-                        android:textStyle="bold"
                         android:textSize="16sp"
-                        android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"/>
+                        android:textStyle="bold" />
 
                     <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:text="friends"
                         android:textColor="@android:color/white"
-                        android:textSize="12sp"
-                        android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"/>
+                        android:textSize="12sp" />
                 </LinearLayout>
 
                 <LinearLayout
-                    android:orientation="vertical"
-                    android:gravity="center"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_margin="10dp">
+                    android:layout_margin="10dp"
+                    android:gravity="center"
+                    android:orientation="vertical">
 
                     <TextView
                         android:id="@+id/tvFollowersCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:text="0"
                         android:textColor="@android:color/white"
-                        android:textStyle="bold"
                         android:textSize="16sp"
-                        android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"/>
+                        android:textStyle="bold" />
 
                     <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:text="followers"
                         android:textColor="@android:color/white"
-                        android:textSize="12sp"
-                        android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"/>
+                        android:textSize="12sp" />
                 </LinearLayout>
 
-                <!-- FOLLOWING -->
                 <LinearLayout
-                    android:orientation="vertical"
-                    android:gravity="center"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    >
+                    android:gravity="center"
+                    android:orientation="vertical">
 
                     <TextView
                         android:id="@+id/tvFollowingCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:text="0"
                         android:textColor="@android:color/white"
-                        android:textStyle="bold"
                         android:textSize="16sp"
-                        android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"/>
+                        android:textStyle="bold" />
 
                     <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:text="following"
                         android:textColor="@android:color/white"
-                        android:textSize="12sp"
-                        android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"/>
+                        android:textSize="12sp" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -152,39 +147,43 @@
                 android:id="@+id/tvUsername"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginStart="24dp"
                 android:text=""
                 android:textColor="@android:color/white"
-                android:textSize="18sp"
+                android:textSize="26sp"
                 android:textStyle="bold"
-                android:layout_marginStart="24dp"
                 app:layout_constraintStart_toEndOf="@id/avatarContainer"
-                app:layout_constraintTop_toTopOf="@id/avatarContainer"/>
+                app:layout_constraintTop_toTopOf="@id/avatarContainer" />
 
             <TextView
                 android:id="@+id/tvNowmeNumber"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginStart="14dp"
                 android:text=""
                 android:textColor="#FFD65A"
                 android:textSize="14sp"
-                android:layout_marginTop="4dp"
-                app:layout_constraintStart_toStartOf="@id/tvUsername"
-                app:layout_constraintTop_toBottomOf="@id/tvUsername"/>
+                app:layout_constraintStart_toEndOf="@id/tvUsername"
+                app:layout_constraintTop_toTopOf="@id/tvUsername"
+                app:layout_constraintBottom_toBottomOf="@id/tvUsername"/>
 
             <Button
                 android:id="@+id/btnFollow"
                 android:layout_width="0dp"
                 android:layout_height="36dp"
-                android:layout_marginTop="12dp"
                 android:background="@drawable/button_follow"
                 android:text="Follow"
                 android:textAllCaps="false"
                 android:textColor="#001B26"
                 android:textSize="14sp"
 
-                app:layout_constraintStart_toStartOf="parent"
+
+
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/statsRow"/>
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/avatarContainer" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -192,7 +191,6 @@
             android:id="@+id/recyclerProfilePosts"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginTop="16dp"
             android:clipToPadding="false"
             android:paddingStart="2dp"
             android:paddingEnd="2dp"
@@ -200,7 +198,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/statsRow"
+            app:layout_constraintTop_toBottomOf="@id/profileCard"
             tools:ignore="NotSibling" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

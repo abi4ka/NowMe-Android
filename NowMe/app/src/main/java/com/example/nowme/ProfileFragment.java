@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,6 +29,7 @@ import retrofit2.Response;
 public class ProfileFragment extends Fragment {
     TextView tvUserIcon, tvUsername, tvFollowers, tvFollowing, tvFriends, tvStreak;
     Button btnFollow;
+    ImageButton btnCalendar, btnSettings;
     RecyclerView recyclerProfilePosts;
     ProfilePostAdapter postAdapter;
     Long userId = null;
@@ -53,6 +55,9 @@ public class ProfileFragment extends Fragment {
 
         btnFollow = view.findViewById(R.id.btnFollow);
         btnFollow.setOnClickListener(v -> toggleFollow());
+
+        btnCalendar = view.findViewById(R.id.btnCalendar);
+        btnSettings = view.findViewById(R.id.btnSettings);
 
         recyclerProfilePosts = view.findViewById(R.id.recyclerProfilePosts);
         postAdapter = new ProfilePostAdapter();
@@ -101,9 +106,14 @@ public class ProfileFragment extends Fragment {
 
                     if (user.me) {
                         btnFollow.setVisibility(View.GONE);
+                        btnCalendar.setVisibility(View.VISIBLE);
+                        btnSettings.setVisibility(View.VISIBLE);
+
                     } else {
                         updateFollowButton();
                         btnFollow.setVisibility(View.VISIBLE);
+                        btnCalendar.setVisibility(View.GONE);
+                        btnSettings.setVisibility(View.GONE);
                     }
 
                     loadProfilePosts();

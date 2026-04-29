@@ -15,14 +15,34 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
+        <ImageButton
+            android:id="@+id/appBarCalendarButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="start|center_vertical"
+            android:layout_marginStart="16dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_calendar"
+            android:visibility="gone" />
+
         <TextView
             android:id="@+id/tvAppBarTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:text="@string/app_name"
-            style="@style/Text.NowMe.Display"
-            android:textSize="34sp" />
+            style="@style/Text.NowMe.Title"
+            android:textSize="20sp" />
+
+        <ImageButton
+            android:id="@+id/appBarSettingsButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="end|center_vertical"
+            android:layout_marginEnd="16dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/icon_setting"
+            android:visibility="gone" />
 
     </FrameLayout>
 

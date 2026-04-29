@@ -64,8 +64,9 @@ public class MainActivity extends AppCompatActivity {
                 openHome(navController);
                 return true;
             } else if (id == R.id.cameraFragment) {
-                startActivity(new Intent(this, CameraActivity.class));
-                return true;
+                openCamera();
+                syncBottomNavigationSelection();
+                return false;
             } else if (id == R.id.profileFragment) {
                 openMyProfile(navController);
                 return true;
@@ -83,6 +84,17 @@ public class MainActivity extends AppCompatActivity {
         });
 
         openProfileFromIntent(getIntent());
+    }
+
+    private void openCamera() {
+        startActivity(new Intent(this, CameraActivity.class));
+        overridePendingTransition(R.anim.slide_in_bottom, R.anim.stay);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        syncBottomNavigationSelection();
     }
 
     @Override
@@ -131,5 +143,18 @@ public class MainActivity extends AppCompatActivity {
         args.putLong("userId", userId);
         navController.popBackStack(R.id.profileFragment, true);
         navController.navigate(R.id.profileFragment, args);
+    }
+
+    private void syncBottomNavigationSelection() {
+        if (bottomNavigationView == null
+                || navController == null
+                || navController.getCurrentDestination() == null) {
+            return;
+        }
+
+        int destinationId = navController.getCurrentDestination().getId();
+        if (destinationId == R.id.homeFragment || destinationId == R.id.profileFragment) {
+            bottomNavigationView.getMenu().findItem(destinationId).setChecked(true);
+        }
     }
 }

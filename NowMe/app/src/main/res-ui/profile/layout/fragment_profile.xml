@@ -13,36 +13,14 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/nowme_navy_950">
-
-            <ImageButton
-                android:id="@+id/btnCalendar"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_margin="16dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_calendar"
-                android:visibility="gone"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <ImageButton
-                android:id="@+id/btnSettings"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_margin="16dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/icon_setting"
-                android:visibility="gone"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+            android:background="@color/nowme_navy_900">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/profileCard"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="20dp"
-                android:layout_marginTop="70dp"
+                android:layout_marginTop="20dp"
 
                 android:layout_marginEnd="20dp"
                 android:background="@drawable/bg_profile_card"
@@ -155,15 +133,14 @@
 
                 <TextView
                     android:id="@+id/tvUsername"
+                    style="@style/Text.NowMe.Title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="24dp"
                     android:layout_marginTop="20dp"
                     android:text=""
                     android:padding="2dp"
-                    android:textColor="@color/nowme_text_primary"
-                    android:textSize="26sp"
-                    android:textStyle="bold"
+                    android:textSize="20sp"
                     app:layout_constraintStart_toEndOf="@id/avatarContainer"
                     app:layout_constraintTop_toTopOf="@id/avatarContainer" />
 

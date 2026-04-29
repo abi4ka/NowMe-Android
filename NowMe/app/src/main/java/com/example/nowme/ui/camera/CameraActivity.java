@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -19,6 +20,9 @@ import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.example.nowme.R;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -48,6 +52,16 @@ public class CameraActivity extends AppCompatActivity {
 
         ImageButton captureButton = findViewById(R.id.captureButton);
         ImageButton galleryButton = findViewById(R.id.galleryButton);
+        ImageButton closeButton = findViewById(R.id.closeButton);
+        TextView cameraTitle = findViewById(R.id.cameraTitle);
+        closeButton.bringToFront();
+        cameraTitle.bringToFront();
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.cameraRoot), (v, insets) -> {
+            Insets statusBars = insets.getInsets(WindowInsetsCompat.Type.statusBars());
+            closeButton.setY(statusBars.top + 4f);
+            cameraTitle.setY(statusBars.top + 16f);
+            return insets;
+        });
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                 == PackageManager.PERMISSION_GRANTED) {
@@ -58,6 +72,7 @@ public class CameraActivity extends AppCompatActivity {
 
         captureButton.setOnClickListener(v -> takePhoto());
         galleryButton.setOnClickListener(v -> galleryLauncher.launch("image/*"));
+        closeButton.setOnClickListener(v -> closeWithSlideDown());
     }
 
     private void startCamera() {
@@ -142,7 +157,19 @@ public class CameraActivity extends AppCompatActivity {
         intent.putExtra("imageUri", uri.toString());
 
         startActivity(intent);
+        finish();
+        overridePendingTransition(R.anim.stay, R.anim.stay);
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        closeWithSlideDown();
+    }
+
+    private void closeWithSlideDown() {
+        finish();
+        overridePendingTransition(R.anim.stay, R.anim.slide_out_bottom);
     }
 
     private final ActivityResultLauncher<String> requestPermissionLauncher =

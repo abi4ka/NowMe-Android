@@ -3,11 +3,15 @@ package com.example.nowme.ui.camera;
 import android.net.Uri;
 import android.os.Bundle;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.example.nowme.R;
 import com.example.nowme.network.RetrofitClient;
@@ -40,6 +44,17 @@ public class PublishActivity extends AppCompatActivity {
         imagePreview = findViewById(R.id.imagePreview);
         descriptionInput = findViewById(R.id.descriptionInput);
         publishButton = findViewById(R.id.publishButton);
+        ImageButton closeButton = findViewById(R.id.closeButton);
+        TextView publishTitle = findViewById(R.id.publishTitle);
+
+        closeButton.bringToFront();
+        publishTitle.bringToFront();
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.publishRoot), (v, insets) -> {
+            Insets statusBars = insets.getInsets(WindowInsetsCompat.Type.statusBars());
+            closeButton.setY(statusBars.top + 4f);
+            publishTitle.setY(statusBars.top + 16f);
+            return insets;
+        });
 
         String uriString = getIntent().getStringExtra("imageUri");
         imageUri = Uri.parse(uriString);
@@ -47,6 +62,7 @@ public class PublishActivity extends AppCompatActivity {
         imagePreview.setImageURI(imageUri);
 
         publishButton.setOnClickListener(v -> publishPost());
+        closeButton.setOnClickListener(v -> closeWithSlideDown());
     }
 
     private void publishPost() {
@@ -81,7 +97,7 @@ public class PublishActivity extends AppCompatActivity {
                     if (response.isSuccessful()) {
 
                         Toast.makeText(PublishActivity.this, "Post published", Toast.LENGTH_SHORT).show();
-                        finish();
+                        closeWithSlideDown();
 
                     } else {
                         Toast.makeText(PublishActivity.this, "Error: " + response.code(), Toast.LENGTH_SHORT).show();
@@ -118,5 +134,15 @@ public class PublishActivity extends AppCompatActivity {
         inputStream.close();
 
         return file;
+    }
+
+    @Override
+    public void onBackPressed() {
+        closeWithSlideDown();
+    }
+
+    private void closeWithSlideDown() {
+        finish();
+        overridePendingTransition(R.anim.stay, R.anim.slide_out_bottom);
     }
 }

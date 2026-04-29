@@ -38,8 +38,12 @@
             android:exported="false"
             android:launchMode="singleTop"
             android:theme="@style/Theme.NowMe.NoActionBar"></activity>
-        <activity android:name=".ui.camera.CameraActivity" />
-        <activity android:name=".ui.camera.PublishActivity" />
+        <activity
+            android:name=".ui.camera.CameraActivity"
+            android:theme="@style/Theme.NowMe.NoActionBar" />
+        <activity
+            android:name=".ui.camera.PublishActivity"
+            android:theme="@style/Theme.NowMe.NoActionBar" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

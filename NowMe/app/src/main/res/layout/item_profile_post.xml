@@ -15,14 +15,13 @@
 
     <ImageView
         android:id="@+id/imgPinned"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_gravity="top|end"
-        android:layout_margin="5dp"
-        android:background="@drawable/bg_pin_badge"
+        android:layout_margin="2dp"
         android:elevation="8dp"
-        android:padding="5dp"
-        android:src="@drawable/ic_pin"
+        android:padding="3dp"
+        android:src="@drawable/pin_alt_svgrepo_com"
         android:visibility="gone" />
 
 </FrameLayout>

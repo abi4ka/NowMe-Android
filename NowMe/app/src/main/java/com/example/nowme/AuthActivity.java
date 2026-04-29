@@ -10,6 +10,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.nowme.network.RetrofitClient;
+import com.example.nowme.network.SessionManager;
 import com.example.nowme.network.TokenStorage;
 import com.example.nowme.network.dto.AuthDto;
 import com.example.nowme.network.dto.UserDto;
@@ -38,6 +39,10 @@ public class AuthActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_login);
         getSupportActionBar().hide();
+
+        if (getIntent().getBooleanExtra(SessionManager.EXTRA_SESSION_EXPIRED, false)) {
+            Toast.makeText(this, "Session expired. Please log in again.", Toast.LENGTH_SHORT).show();
+        }
 
         etUsername = findViewById(R.id.etUsername);
         etPassword = findViewById(R.id.etPassword);

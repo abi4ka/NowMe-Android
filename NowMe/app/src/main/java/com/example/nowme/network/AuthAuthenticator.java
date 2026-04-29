@@ -31,10 +31,12 @@ public class AuthAuthenticator implements Authenticator {
         String accessToken = TokenStorage.getAccess(context);
 
         if (refreshToken == null || accessToken == null) {
+            SessionManager.expireSession(context);
             return null;
         }
 
         if (responseCount(response) >= 2) {
+            SessionManager.expireSession(context);
             return null;
         }
 
@@ -46,7 +48,7 @@ public class AuthAuthenticator implements Authenticator {
                 authApi.refresh(request).execute();
 
         if (!refreshResponse.isSuccessful() || refreshResponse.body() == null) {
-            TokenStorage.clear(context);
+            SessionManager.expireSession(context);
             return null;
         }
 

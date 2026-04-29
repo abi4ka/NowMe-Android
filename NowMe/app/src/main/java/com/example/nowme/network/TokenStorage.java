@@ -11,6 +11,8 @@ public class TokenStorage {
     private static final String KEY_REFRESH = "refreshToken";
 
     public static void save(Context context, AuthDto dto) {
+        SessionManager.resetRedirectState();
+
         context.getSharedPreferences(PREF, Context.MODE_PRIVATE)
                 .edit()
                 .putString(KEY_ACCESS, dto.accessToken)

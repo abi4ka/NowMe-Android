@@ -1,7 +1,9 @@
 package com.example.nowme;
 
+import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -9,6 +11,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -16,6 +20,7 @@ import android.widget.Toast;
 
 import com.example.nowme.network.NowmeApi;
 import com.example.nowme.network.RetrofitClient;
+import com.example.nowme.network.TokenStorage;
 import com.example.nowme.network.dto.NowmeDto;
 import com.example.nowme.network.dto.UserProfileDto;
 
@@ -32,9 +37,12 @@ public class ProfileFragment extends Fragment {
     ImageButton btnCalendar, btnSettings;
     RecyclerView recyclerProfilePosts;
     ProfilePostAdapter postAdapter;
+    View settingsOverlay, settingsPanel;
+    OnBackPressedCallback settingsBackCallback;
     Long userId = null;
     Long profileUserId = null;
     boolean followingProfile = false;
+    boolean settingsClosing = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -58,6 +66,19 @@ public class ProfileFragment extends Fragment {
 
         btnCalendar = view.findViewById(R.id.btnCalendar);
         btnSettings = view.findViewById(R.id.btnSettings);
+        btnSettings.setOnClickListener(v -> showSettingsPanel());
+
+        settingsOverlay = view.findViewById(R.id.settingsOverlay);
+        settingsPanel = view.findViewById(R.id.settingsPanel);
+        view.findViewById(R.id.btnBackSettings).setOnClickListener(v -> closeSettingsPanel(null));
+        view.findViewById(R.id.btnLogout).setOnClickListener(v -> closeSettingsPanel(this::logout));
+        settingsBackCallback = new OnBackPressedCallback(false) {
+            @Override
+            public void handleOnBackPressed() {
+                closeSettingsPanel(null);
+            }
+        };
+        requireActivity().getOnBackPressedDispatcher().addCallback(this, settingsBackCallback);
 
         recyclerProfilePosts = view.findViewById(R.id.recyclerProfilePosts);
         postAdapter = new ProfilePostAdapter();
@@ -187,5 +208,56 @@ public class ProfileFragment extends Fragment {
                 Toast.makeText(getContext(), "Follow error", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void showSettingsPanel() {
+        if (settingsOverlay == null || settingsPanel == null) return;
+
+        settingsClosing = false;
+        settingsBackCallback.setEnabled(true);
+        settingsPanel.animate().cancel();
+        settingsPanel.setTranslationX(getResources().getDisplayMetrics().widthPixels);
+        settingsOverlay.setVisibility(View.VISIBLE);
+        settingsPanel.post(() -> openSettingsPanel(settingsPanel));
+    }
+
+    private void openSettingsPanel(View panel) {
+        panel.animate().cancel();
+        panel.animate()
+                .translationX(0f)
+                .setDuration(280)
+                .setInterpolator(new DecelerateInterpolator())
+                .start();
+    }
+
+    private void closeSettingsPanel(Runnable afterClose) {
+        if (settingsOverlay == null || settingsPanel == null || settingsClosing) return;
+        settingsClosing = true;
+        settingsBackCallback.setEnabled(false);
+
+        settingsPanel.animate().cancel();
+        settingsPanel.animate()
+                .translationX(settingsPanel.getWidth())
+                .setDuration(240)
+                .setInterpolator(new AccelerateInterpolator())
+                .withEndAction(() -> {
+                    settingsOverlay.setVisibility(View.GONE);
+                    settingsPanel.setTranslationX(0f);
+                    settingsClosing = false;
+                    if (afterClose != null) {
+                        afterClose.run();
+                    }
+                })
+                .start();
+    }
+
+    private void logout() {
+        if (getContext() == null) return;
+
+        TokenStorage.clear(requireContext());
+
+        Intent intent = new Intent(requireContext(), AuthActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
     }
 }

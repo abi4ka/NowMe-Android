@@ -214,4 +214,8 @@
 
     </ScrollView>
 
+    <include
+        layout="@layout/bottom_sheet_settings"
+        android:visibility="gone" />
+
 </FrameLayout>

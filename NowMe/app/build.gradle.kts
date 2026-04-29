@@ -30,6 +30,22 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
+    sourceSets {
+        getByName("main") {
+            res.srcDirs(
+                "src/main/res",
+                "src/main/res-design",
+                "src/main/res-ui/auth",
+                "src/main/res-ui/camera",
+                "src/main/res-ui/home",
+                "src/main/res-ui/main",
+                "src/main/res-ui/nowme",
+                "src/main/res-ui/profile",
+                "src/main/res-ui/shared"
+            )
+        }
+    }
 }
 
 dependencies {

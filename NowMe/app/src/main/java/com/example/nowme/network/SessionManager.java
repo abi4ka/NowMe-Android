@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 
-import com.example.nowme.AuthActivity;
+import com.example.nowme.ui.auth.AuthActivity;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 

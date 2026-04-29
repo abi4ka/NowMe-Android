@@ -1,0 +1,9 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="@color/nowme_text_primary"
+        android:pathData="M14.7,5.3C15.1,5.7 15.1,6.3 14.7,6.7L10.4,11H20C20.6,11 21,11.4 21,12C21,12.6 20.6,13 20,13H10.4L14.7,17.3C15.1,17.7 15.1,18.3 14.7,18.7C14.3,19.1 13.7,19.1 13.3,18.7L7.3,12.7C6.9,12.3 6.9,11.7 7.3,11.3L13.3,5.3C13.7,4.9 14.3,4.9 14.7,5.3Z" />
+</vector>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="nowme_space_xs">4dp</dimen>
+    <dimen name="nowme_space_sm">8dp</dimen>
+    <dimen name="nowme_space_md">16dp</dimen>
+    <dimen name="nowme_space_lg">20dp</dimen>
+    <dimen name="nowme_space_xl">24dp</dimen>
+    <dimen name="nowme_radius_md">18dp</dimen>
+    <dimen name="nowme_radius_lg">24dp</dimen>
+    <dimen name="nowme_button_height">46dp</dimen>
+</resources>

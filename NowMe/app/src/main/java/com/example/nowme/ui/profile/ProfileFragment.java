@@ -179,7 +179,7 @@ public class ProfileFragment extends Fragment {
         btnFollow.setText(followingProfile ? "Following" : "Follow");
         btnFollow.setTextColor(ContextCompat.getColor(
                 requireContext(),
-                followingProfile ? R.color.nowme_text_primary : R.color.nowme_accent_dark_text
+                R.color.nowme_text_primary
         ));
         btnFollow.setBackgroundResource(followingProfile
                 ? R.drawable.button_following

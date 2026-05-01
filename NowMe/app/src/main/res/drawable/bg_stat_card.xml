@@ -1,4 +1,4 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="#0A1F47"/>
-    <corners android:radius="16dp"/>
+    <solid android:color="@color/nowme_navy_800"/>
+    <corners android:radius="@dimen/nowme_radius_md"/>
 </shape>

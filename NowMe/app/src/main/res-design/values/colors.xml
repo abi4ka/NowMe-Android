@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="nowme_navy_950">#010816</color>
+    <color name="nowme_navy_900">#06142E</color>
+    <color name="nowme_navy_850">#081A3A</color>
+    <color name="nowme_navy_800">#0B2148</color>
+    <color name="nowme_navy_700">#12305F</color>
+    <color name="nowme_surface">#0D2A5C</color>
+    <color name="nowme_surface_soft">#142F5E</color>
+    <color name="nowme_surface_overlay">#1AFFFFFF</color>
+    <color name="nowme_surface_overlay_pressed">#2DFFFFFF</color>
+    <color name="nowme_text_primary">#FFFFFFFF</color>
+    <color name="nowme_text_secondary">#C5D3EC</color>
+    <color name="nowme_text_muted">#8FA4C8</color>
+    <color name="nowme_accent">#FFFFFFFF</color>
+    <color name="nowme_accent_dark_text">#001B26</color>
+    <color name="nowme_warning">#FFD65A</color>
+    <color name="nowme_danger">#FF0000</color>
+    <color name="nowme_scrim">#99010816</color>
+    <color name="nowme_input_fill">#26FFFFFF</color>
+    <color name="nowme_input_hint">#BFD0EA</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+</resources>

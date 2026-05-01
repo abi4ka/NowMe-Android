@@ -22,10 +22,10 @@
         android:theme="@style/Theme.NowMe"
         android:usesCleartextTraffic="true">
         <activity
-            android:name=".NowmeActivity"
+            android:name=".ui.nowme.NowmeActivity"
             android:exported="false" />
         <activity
-            android:name=".AuthActivity"
+            android:name=".ui.auth.AuthActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -34,12 +34,16 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.main.MainActivity"
             android:exported="false"
             android:launchMode="singleTop"
             android:theme="@style/Theme.NowMe.NoActionBar"></activity>
-        <activity android:name=".CameraActivity" />
-        <activity android:name=".PublishActivity" />
+        <activity
+            android:name=".ui.camera.CameraActivity"
+            android:theme="@style/Theme.NowMe.NoActionBar" />
+        <activity
+            android:name=".ui.camera.PublishActivity"
+            android:theme="@style/Theme.NowMe.NoActionBar" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

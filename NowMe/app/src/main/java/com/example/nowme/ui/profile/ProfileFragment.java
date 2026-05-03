@@ -158,13 +158,43 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onResponse(Call<List<NowmeDto>> call, Response<List<NowmeDto>> response) {
                 if (response.isSuccessful()) {
-                    postAdapter.setItems(response.body());
+                    List<NowmeDto> posts = response.body();
+                    postAdapter.setItems(posts);
+                    updateProfilePostsHeight(posts != null ? posts.size() : 0);
                 }
             }
 
             @Override
             public void onFailure(Call<List<NowmeDto>> call, Throwable t) {
                 t.printStackTrace();
+            }
+        });
+    }
+
+    private void updateProfilePostsHeight(int itemCount) {
+        if (recyclerProfilePosts == null) return;
+
+        recyclerProfilePosts.post(() -> {
+            final int spanCount = 3;
+            int rowCount = (itemCount + spanCount - 1) / spanCount;
+            int availableWidth = recyclerProfilePosts.getWidth();
+            if (availableWidth <= 0) {
+                availableWidth = getResources().getDisplayMetrics().widthPixels;
+            }
+
+            float density = getResources().getDisplayMetrics().density;
+            int itemSpacing = Math.round(2 * density) * 2;
+            int itemWidth = availableWidth / spanCount - itemSpacing;
+            int itemHeight = Math.max(0, itemWidth * 4 / 3);
+            int rowMargin = Math.round(2 * density) * 2;
+            int verticalPadding = recyclerProfilePosts.getPaddingTop()
+                    + recyclerProfilePosts.getPaddingBottom();
+
+            ViewGroup.LayoutParams layoutParams = recyclerProfilePosts.getLayoutParams();
+            int targetHeight = rowCount * (itemHeight + rowMargin) + verticalPadding;
+            if (layoutParams.height != targetHeight) {
+                layoutParams.height = targetHeight;
+                recyclerProfilePosts.setLayoutParams(layoutParams);
             }
         });
     }

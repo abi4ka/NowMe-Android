@@ -15,11 +15,10 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.nowme.R;
 import com.example.nowme.network.RetrofitClient;
+import com.example.nowme.util.ImageOrientationUtils;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -59,7 +58,13 @@ public class PublishActivity extends AppCompatActivity {
         String uriString = getIntent().getStringExtra("imageUri");
         imageUri = Uri.parse(uriString);
 
-        imagePreview.setImageURI(imageUri);
+        try {
+            imagePreview.setImageBitmap(ImageOrientationUtils.decodeUprightBitmap(
+                    getContentResolver().openInputStream(imageUri)
+            ));
+        } catch (IOException e) {
+            imagePreview.setImageURI(imageUri);
+        }
 
         publishButton.setOnClickListener(v -> publishPost());
         closeButton.setOnClickListener(v -> closeWithSlideDown());
@@ -118,22 +123,8 @@ public class PublishActivity extends AppCompatActivity {
     }
 
     private File uriToFile(Uri uri) throws IOException {
-        InputStream inputStream = getContentResolver().openInputStream(uri);
-
         File file = new File(getCacheDir(), "upload.jpg");
-        FileOutputStream outputStream = new FileOutputStream(file);
-
-        byte[] buffer = new byte[4096];
-        int read;
-
-        while ((read = inputStream.read(buffer)) != -1) {
-            outputStream.write(buffer, 0, read);
-        }
-
-        outputStream.close();
-        inputStream.close();
-
-        return file;
+        return ImageOrientationUtils.writeUprightJpeg(this, uri, file);
     }
 
     @Override

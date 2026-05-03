@@ -3,7 +3,6 @@ package com.example.nowme.ui.profile;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +15,9 @@ import com.example.nowme.R;
 import com.example.nowme.network.RetrofitClient;
 import com.example.nowme.network.dto.NowmeDto;
 import com.example.nowme.ui.nowme.NowmeActivity;
+import com.example.nowme.util.ImageOrientationUtils;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,7 +72,12 @@ public class ProfilePostAdapter extends RecyclerView.Adapter<ProfilePostAdapter.
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (!response.isSuccessful() || response.body() == null) return;
 
-                Bitmap bitmap = BitmapFactory.decodeStream(response.body().byteStream());
+                Bitmap bitmap;
+                try {
+                    bitmap = ImageOrientationUtils.decodeUprightBitmap(response.body().byteStream());
+                } catch (IOException e) {
+                    return;
+                }
                 if (bitmap == null) return;
 
                 Object currentTag = holder.image.getTag();

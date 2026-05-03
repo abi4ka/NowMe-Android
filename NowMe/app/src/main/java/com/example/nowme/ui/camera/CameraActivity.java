@@ -5,10 +5,12 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.Surface;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import androidx.camera.core.AspectRatio;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -86,10 +88,20 @@ public class CameraActivity extends AppCompatActivity {
 
                 ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
 
-                Preview preview = new Preview.Builder().build();
+                int rotation = previewView.getDisplay() != null
+                        ? previewView.getDisplay().getRotation()
+                        : Surface.ROTATION_0;
+
+                Preview preview = new Preview.Builder()
+                        .setTargetAspectRatio(AspectRatio.RATIO_4_3)
+                        .setTargetRotation(rotation)
+                        .build();
                 preview.setSurfaceProvider(previewView.getSurfaceProvider());
 
-                imageCapture = new ImageCapture.Builder().build();
+                imageCapture = new ImageCapture.Builder()
+                        .setTargetAspectRatio(AspectRatio.RATIO_4_3)
+                        .setTargetRotation(rotation)
+                        .build();
 
                 CameraSelector cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
 
@@ -112,6 +124,10 @@ public class CameraActivity extends AppCompatActivity {
     private void takePhoto() {
 
         if (imageCapture == null) return;
+
+        if (previewView.getDisplay() != null) {
+            imageCapture.setTargetRotation(previewView.getDisplay().getRotation());
+        }
 
         File photoFile = new File(
                 getCacheDir(),

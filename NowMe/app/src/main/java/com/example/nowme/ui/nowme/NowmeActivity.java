@@ -167,6 +167,7 @@ public class NowmeActivity extends AppCompatActivity {
                     tvNumLike.setText(String.valueOf(newLikes));
 
                     nowme.likes = newLikes;
+                    nowme.liked = liked;
                 }
 
                 @Override

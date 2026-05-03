@@ -8,7 +8,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -102,6 +104,9 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         postHolder.username.setText(item.username);
         postHolder.image.setImageResource(R.drawable.ic_launcher_background);
+        postHolder.likeButton.setEnabled(item.id != null);
+        postHolder.likeButton.setTag(item.id);
+        postHolder.likeButton.setImageResource(isLiked(item) ? R.drawable.ic_heart : R.drawable.ic_heart_empty);
 
         View.OnClickListener authorClickListener = v -> {
             if (onAuthorClickListener != null && item.userId != null) {
@@ -121,6 +126,8 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
             context.startActivity(intent);
         });
+
+        postHolder.likeButton.setOnClickListener(v -> toggleLike(item, postHolder.likeButton));
 
         if (item.id == null) return;
 
@@ -145,6 +152,63 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 // nada
             }
         });
+    }
+
+    private void toggleLike(NowmeDto item, ImageButton likeButton) {
+        if (item.id == null) return;
+
+        boolean wasLiked = isLiked(item);
+        likeButton.setEnabled(false);
+        updateLikeState(item, likeButton, !wasLiked, item.likes);
+
+        Call<Long> call = wasLiked
+                ? RetrofitClient.getApi().unlike(item.id)
+                : RetrofitClient.getApi().like(item.id);
+
+        call.enqueue(new Callback<Long>() {
+            @Override
+            public void onResponse(Call<Long> call, Response<Long> response) {
+                if (isButtonBoundToItem(likeButton, item)) {
+                    likeButton.setEnabled(true);
+                }
+
+                if (!response.isSuccessful() || response.body() == null) {
+                    updateLikeState(item, likeButton, wasLiked, item.likes);
+                    Toast.makeText(likeButton.getContext(), "Like error", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                updateLikeState(item, likeButton, !wasLiked, response.body());
+            }
+
+            @Override
+            public void onFailure(Call<Long> call, Throwable t) {
+                if (isButtonBoundToItem(likeButton, item)) {
+                    likeButton.setEnabled(true);
+                }
+                updateLikeState(item, likeButton, wasLiked, item.likes);
+                Toast.makeText(likeButton.getContext(), "Like error", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private boolean isLiked(NowmeDto item) {
+        return item.liked != null && item.liked;
+    }
+
+    private void updateLikeState(NowmeDto item, ImageButton likeButton, boolean liked, Long likes) {
+        item.liked = liked;
+        if (likes != null) {
+            item.likes = likes;
+        }
+        if (isButtonBoundToItem(likeButton, item)) {
+            likeButton.setImageResource(liked ? R.drawable.ic_heart : R.drawable.ic_heart_empty);
+        }
+    }
+
+    private boolean isButtonBoundToItem(ImageButton likeButton, NowmeDto item) {
+        Object tag = likeButton.getTag();
+        return item.id != null && item.id.equals(tag);
     }
 
     @Override
@@ -225,12 +289,14 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         final TextView avatar;
         final TextView username;
         final ImageView image;
+        final ImageButton likeButton;
 
         PostViewHolder(@NonNull View itemView) {
             super(itemView);
             avatar = itemView.findViewById(R.id.tvEmoji);
             username = itemView.findViewById(R.id.tvUsername);
             image = itemView.findViewById(R.id.imgNowMe);
+            likeButton = itemView.findViewById(R.id.btnLike);
         }
     }
 }

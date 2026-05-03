@@ -25,6 +25,7 @@ public class HomeFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private FeedAdapter adapter;
+    private boolean refreshOnResume = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -45,6 +46,16 @@ public class HomeFragment extends Fragment {
         loadFeed();
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if (refreshOnResume) {
+            loadFeed();
+        }
+        refreshOnResume = true;
     }
 
     private void loadFeed() {

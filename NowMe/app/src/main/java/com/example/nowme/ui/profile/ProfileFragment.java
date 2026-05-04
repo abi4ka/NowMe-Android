@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -46,6 +47,7 @@ public class ProfileFragment extends Fragment {
     ImageButton btnCalendar, btnSettings;
     RecyclerView recyclerProfilePosts;
     ProfilePostAdapter postAdapter;
+    SwipeRefreshLayout refreshLayout;
     View settingsOverlay, settingsPanel;
     OnBackPressedCallback settingsBackCallback;
     Long userId = null;
@@ -66,6 +68,9 @@ public class ProfileFragment extends Fragment {
         }
         viewModel = new ViewModelProvider(requireActivity()).get(ProfileViewModel.class);
         profileState = viewModel.getState(getCacheKey());
+
+        refreshLayout = view.findViewById(R.id.profileRefresh);
+        refreshLayout.setOnRefreshListener(() -> loadProfile(true));
 
         tvUserIcon = view.findViewById(R.id.tvUserIcon);
         tvUsername = view.findViewById(R.id.tvUsername);
@@ -117,6 +122,7 @@ public class ProfileFragment extends Fragment {
     }
 
     private void loadProfile(boolean forceRefresh) {
+        if (profileState.profileLoading) return;
         if (!forceRefresh && profileState.profileLoaded) return;
 
         NowmeApi api = RetrofitClient.getApi();
@@ -142,13 +148,18 @@ public class ProfileFragment extends Fragment {
 
                     if (forceRefresh || !profileState.postsLoaded) {
                         loadProfilePosts(forceRefresh);
+                    } else {
+                        stopRefreshing();
                     }
+                } else {
+                    stopRefreshing();
                 }
             }
 
             @Override
             public void onFailure(Call<UserProfileDto> call, Throwable t) {
                 profileState.profileLoading = false;
+                stopRefreshing();
                 t.printStackTrace();
             }
         });
@@ -186,8 +197,14 @@ public class ProfileFragment extends Fragment {
     }
 
     private void loadProfilePosts(boolean forceRefresh) {
-        if (profileUserId == null) return;
-        if (!forceRefresh && profileState.postsLoaded) return;
+        if (profileUserId == null) {
+            stopRefreshing();
+            return;
+        }
+        if (!forceRefresh && profileState.postsLoaded) {
+            stopRefreshing();
+            return;
+        }
         if (profileState.postsLoading) return;
 
         profileState.postsLoading = true;
@@ -195,6 +212,7 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onResponse(Call<List<NowmeDto>> call, Response<List<NowmeDto>> response) {
                 profileState.postsLoading = false;
+                stopRefreshing();
                 if (response.isSuccessful()) {
                     List<NowmeDto> posts = response.body();
                     profileState.posts = posts;
@@ -209,9 +227,16 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onFailure(Call<List<NowmeDto>> call, Throwable t) {
                 profileState.postsLoading = false;
+                stopRefreshing();
                 t.printStackTrace();
             }
         });
+    }
+
+    private void stopRefreshing() {
+        if (refreshLayout != null) {
+            refreshLayout.setRefreshing(false);
+        }
     }
 
     private void updateProfilePostsHeight(int itemCount) {

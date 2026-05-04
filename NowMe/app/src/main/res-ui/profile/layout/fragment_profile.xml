@@ -5,207 +5,213 @@
     android:layout_height="match_parent"
     tools:context=".ui.profile.ProfileFragment">
 
-    <ScrollView
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/profileRefresh"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fillViewport="true">
+        android:layout_height="match_parent">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/nowme_navy_900">
+            android:layout_height="match_parent"
+            android:fillViewport="true">
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/profileCard"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="20dp"
+                android:background="@color/nowme_navy_900">
 
-                android:layout_marginEnd="20dp"
-                android:background="@drawable/bg_profile_card"
-                android:paddingBottom="16dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <FrameLayout
-                    android:id="@+id/avatarContainer"
-                    android:layout_width="130dp"
-                    android:layout_height="130dp"
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/profileCard"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:background="@drawable/bg_profile_card"
+                    android:paddingBottom="16dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
 
+                    <FrameLayout
+                        android:id="@+id/avatarContainer"
+                        android:layout_width="130dp"
+                        android:layout_height="130dp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent">
+
+                        <TextView
+                            android:id="@+id/tvUserIcon"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:text=""
+                            android:textColor="@color/nowme_text_primary"
+                            android:textSize="90sp" />
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:id="@+id/statsRow"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="10dp"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/avatarContainer"
+                        app:layout_constraintTop_toBottomOf="@id/tvUsername">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/tvFriendsCount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textColor="@color/nowme_text_primary"
+                                android:textSize="16sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="friends"
+                                android:textColor="@color/nowme_text_secondary"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="10dp"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/tvFollowersCount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textColor="@color/nowme_text_primary"
+                                android:textSize="16sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="followers"
+                                android:textColor="@color/nowme_text_secondary"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/tvFollowingCount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textColor="@color/nowme_text_primary"
+                                android:textSize="16sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="following"
+                                android:textColor="@color/nowme_text_secondary"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                    </LinearLayout>
+
                     <TextView
-                        android:id="@+id/tvUserIcon"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center"
+                        android:id="@+id/tvUsername"
+                        style="@style/Text.NowMe.Title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="24dp"
+                        android:layout_marginTop="20dp"
+                        android:padding="2dp"
                         android:text=""
+                        android:textSize="20sp"
+                        app:layout_constraintStart_toEndOf="@id/avatarContainer"
+                        app:layout_constraintTop_toTopOf="@id/avatarContainer" />
+
+                    <TextView
+                        android:id="@+id/tvNowmeNumber"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="20dp"
+                        android:padding="2dp"
+                        android:text=""
+                        android:textColor="@color/nowme_warning"
+                        android:textSize="18sp"
+                        app:layout_constraintBottom_toBottomOf="@id/tvUsername"
+                        app:layout_constraintStart_toEndOf="@id/tvUsername"
+                        app:layout_constraintTop_toTopOf="@id/tvUsername" />
+
+                    <Button
+                        android:id="@+id/btnFollow"
+                        android:layout_width="0dp"
+                        android:layout_height="44dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginEnd="10dp"
+                        android:background="@drawable/button_follow"
+                        android:fontFamily="sans-serif-rounded"
+                        android:minWidth="0dp"
+                        android:minHeight="0dp"
+                        android:paddingStart="18dp"
+                        android:paddingEnd="18dp"
+                        android:stateListAnimator="@null"
+                        android:text="Follow"
+                        android:textAllCaps="false"
                         android:textColor="@color/nowme_text_primary"
-                        android:textSize="90sp" />
-                </FrameLayout>
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        app:layout_constraintEnd_toEndOf="@id/statsRow"
+                        app:layout_constraintStart_toStartOf="@id/statsRow"
+                        app:layout_constraintTop_toBottomOf="@id/avatarContainer" />
 
-                <LinearLayout
-                    android:id="@+id/statsRow"
-                    android:layout_width="0dp"
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerProfilePosts"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginBottom="10dp"
-                    android:gravity="center"
-                    android:orientation="horizontal"
+                    android:clipToPadding="false"
+                    android:nestedScrollingEnabled="false"
+                    android:paddingStart="2dp"
+                    android:paddingTop="12dp"
+                    android:paddingEnd="2dp"
+                    android:paddingBottom="12dp"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/avatarContainer"
-                    app:layout_constraintTop_toBottomOf="@id/tvUsername">
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/profileCard" />
 
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:id="@+id/tvFriendsCount"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0"
-                            android:textColor="@color/nowme_text_primary"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="friends"
-                            android:textColor="@color/nowme_text_secondary"
-                            android:textSize="12sp" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="10dp"
-                        android:gravity="center"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:id="@+id/tvFollowersCount"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0"
-                            android:textColor="@color/nowme_text_primary"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="followers"
-                            android:textColor="@color/nowme_text_secondary"
-                            android:textSize="12sp" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:id="@+id/tvFollowingCount"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0"
-                            android:textColor="@color/nowme_text_primary"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="following"
-                            android:textColor="@color/nowme_text_secondary"
-                            android:textSize="12sp" />
-                    </LinearLayout>
-
-                </LinearLayout>
-
-                <TextView
-                    android:id="@+id/tvUsername"
-                    style="@style/Text.NowMe.Title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="24dp"
-                    android:layout_marginTop="20dp"
-                    android:text=""
-                    android:padding="2dp"
-                    android:textSize="20sp"
-                    app:layout_constraintStart_toEndOf="@id/avatarContainer"
-                    app:layout_constraintTop_toTopOf="@id/avatarContainer" />
-
-                <TextView
-                    android:id="@+id/tvNowmeNumber"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="20dp"
-                    android:padding="2dp"
-                    android:text=""
-                    android:textColor="@color/nowme_warning"
-                    android:textSize="18sp"
-                    app:layout_constraintBottom_toBottomOf="@id/tvUsername"
-                    app:layout_constraintStart_toEndOf="@id/tvUsername"
-                    app:layout_constraintTop_toTopOf="@id/tvUsername" />
-
-                <Button
-                    android:id="@+id/btnFollow"
-                    android:layout_width="0dp"
-                    android:layout_height="44dp"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginEnd="10dp"
-                    android:background="@drawable/button_follow"
-                    android:fontFamily="sans-serif-rounded"
-                    android:minWidth="0dp"
-                    android:minHeight="0dp"
-                    android:paddingStart="18dp"
-                    android:paddingEnd="18dp"
-                    android:stateListAnimator="@null"
-                    android:text="Follow"
-                    android:textAllCaps="false"
-                    android:textColor="@color/nowme_text_primary"
-                    android:textSize="15sp"
-                    android:textStyle="bold"
-                    app:layout_constraintEnd_toEndOf="@id/statsRow"
-                    app:layout_constraintStart_toStartOf="@id/statsRow"
-                    app:layout_constraintTop_toBottomOf="@id/avatarContainer" />
+                <Space
+                    android:id="@+id/profileBottomSpacer"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/nowme_bottom_navigation_clearance"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/recyclerProfilePosts" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerProfilePosts"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clipToPadding="false"
-                android:nestedScrollingEnabled="false"
-                android:paddingStart="2dp"
-                android:paddingTop="12dp"
-                android:paddingEnd="2dp"
-                android:paddingBottom="12dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/profileCard" />
+        </ScrollView>
 
-            <Space
-                android:id="@+id/profileBottomSpacer"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/nowme_bottom_navigation_clearance"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/recyclerProfilePosts" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-    </ScrollView>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <include
         layout="@layout/bottom_sheet_settings"

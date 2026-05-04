@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.nowme.PageResponse;
 import com.example.nowme.R;
@@ -28,6 +29,7 @@ public class HomeFragment extends Fragment {
     private RecyclerView recyclerView;
     private FeedAdapter adapter;
     private HomeFeedViewModel viewModel;
+    private SwipeRefreshLayout refreshLayout;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -36,6 +38,9 @@ public class HomeFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
         viewModel = new ViewModelProvider(requireActivity()).get(HomeFeedViewModel.class);
+
+        refreshLayout = view.findViewById(R.id.homeRefresh);
+        refreshLayout.setOnRefreshListener(() -> loadFeed(true));
 
         recyclerView = view.findViewById(R.id.recyclerFeed);
         adapter = new FeedAdapter(userId -> {
@@ -53,7 +58,7 @@ public class HomeFragment extends Fragment {
         }
 
         if (!viewModel.loaded && !viewModel.loading) {
-            loadFeed();
+            loadFeed(false);
         }
 
         return view;
@@ -73,7 +78,10 @@ public class HomeFragment extends Fragment {
         saveScrollPosition();
     }
 
-    private void loadFeed() {
+    private void loadFeed(boolean forceRefresh) {
+        if (viewModel.loading) return;
+        if (!forceRefresh && viewModel.loaded) return;
+
         viewModel.loading = true;
         Call<PageResponse<NowmeDto>> call = RetrofitClient.getApi().getNowmes();
         call.enqueue(new Callback<PageResponse<NowmeDto>>() {
@@ -81,6 +89,7 @@ public class HomeFragment extends Fragment {
             public void onResponse(Call<PageResponse<NowmeDto>> call,
                                    Response<PageResponse<NowmeDto>> response) {
                 viewModel.loading = false;
+                stopRefreshing();
 
                 if (response.isSuccessful() && response.body() != null) {
                     List<NowmeDto> list = response.body().content;
@@ -95,9 +104,16 @@ public class HomeFragment extends Fragment {
             @Override
             public void onFailure(Call<PageResponse<NowmeDto>> call, Throwable t) {
                 viewModel.loading = false;
+                stopRefreshing();
                 t.printStackTrace();
             }
         });
+    }
+
+    private void stopRefreshing() {
+        if (refreshLayout != null) {
+            refreshLayout.setRefreshing(false);
+        }
     }
 
     private void saveScrollPosition() {

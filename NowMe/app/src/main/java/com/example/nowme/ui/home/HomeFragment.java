@@ -6,6 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -25,13 +27,15 @@ public class HomeFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private FeedAdapter adapter;
-    private boolean refreshOnResume = false;
+    private HomeFeedViewModel viewModel;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_home, container, false);
+
+        viewModel = new ViewModelProvider(requireActivity()).get(HomeFeedViewModel.class);
 
         recyclerView = view.findViewById(R.id.recyclerFeed);
         adapter = new FeedAdapter(userId -> {
@@ -43,38 +47,80 @@ public class HomeFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter);
 
-        loadFeed();
+        if (viewModel.items != null) {
+            adapter.setItems(viewModel.items);
+            restoreScrollPosition();
+        }
+
+        if (!viewModel.loaded && !viewModel.loading) {
+            loadFeed();
+        }
 
         return view;
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-
-        if (refreshOnResume) {
-            loadFeed();
-        }
-        refreshOnResume = true;
+    public void onPause() {
+        super.onPause();
+        saveScrollPosition();
     }
 
     private void loadFeed() {
+        viewModel.loading = true;
         Call<PageResponse<NowmeDto>> call = RetrofitClient.getApi().getNowmes();
         call.enqueue(new Callback<PageResponse<NowmeDto>>() {
             @Override
             public void onResponse(Call<PageResponse<NowmeDto>> call,
                                    Response<PageResponse<NowmeDto>> response) {
+                viewModel.loading = false;
 
                 if (response.isSuccessful() && response.body() != null) {
                     List<NowmeDto> list = response.body().content;
-                    adapter.setItems(list);
+                    viewModel.items = list;
+                    viewModel.loaded = true;
+                    if (adapter != null) {
+                        adapter.setItems(list);
+                    }
                 }
             }
 
             @Override
             public void onFailure(Call<PageResponse<NowmeDto>> call, Throwable t) {
+                viewModel.loading = false;
                 t.printStackTrace();
             }
         });
+    }
+
+    private void saveScrollPosition() {
+        if (recyclerView == null) return;
+        LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+        if (layoutManager == null) return;
+
+        int position = layoutManager.findFirstVisibleItemPosition();
+        View firstItem = layoutManager.findViewByPosition(position);
+        viewModel.scrollPosition = Math.max(position, 0);
+        viewModel.scrollOffset = firstItem != null ? firstItem.getTop() - recyclerView.getPaddingTop() : 0;
+    }
+
+    private void restoreScrollPosition() {
+        recyclerView.post(() -> {
+            if (recyclerView == null) return;
+            LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+            if (layoutManager != null) {
+                layoutManager.scrollToPositionWithOffset(
+                        viewModel.scrollPosition,
+                        viewModel.scrollOffset
+                );
+            }
+        });
+    }
+
+    public static class HomeFeedViewModel extends ViewModel {
+        List<NowmeDto> items;
+        boolean loaded = false;
+        boolean loading = false;
+        int scrollPosition = 0;
+        int scrollOffset = 0;
     }
 }

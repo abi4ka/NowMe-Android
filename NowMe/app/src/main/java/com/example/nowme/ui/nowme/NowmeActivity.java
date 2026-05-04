@@ -1,6 +1,5 @@
 package com.example.nowme.ui.nowme;
 
-import android.graphics.Bitmap;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageButton;
@@ -13,15 +12,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.nowme.R;
-import com.example.nowme.network.RetrofitClient;
 import com.example.nowme.network.dto.NowmeDto;
 import com.example.nowme.ui.main.MainActivity;
-import com.example.nowme.util.ImageOrientationUtils;
+import com.example.nowme.network.RetrofitClient;
+import com.example.nowme.util.NowmeImageCache;
 
-import java.io.IOException;
 import java.io.Serializable;
-
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -112,30 +108,7 @@ public class NowmeActivity extends AppCompatActivity {
         }
 
         if (nowme.id != null) {
-
-            RetrofitClient.getApi().getNowmeImage(nowme.id)
-                    .enqueue(new Callback<ResponseBody>() {
-
-                        @Override
-                        public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                            if (!response.isSuccessful() || response.body() == null) return;
-
-                            Bitmap bitmap;
-                            try {
-                                bitmap = ImageOrientationUtils.decodeUprightBitmap(response.body().byteStream());
-                            } catch (IOException e) {
-                                return;
-                            }
-                            if (bitmap != null) {
-                                imgNowMe.setImageBitmap(bitmap);
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(Call<ResponseBody> call, Throwable t) {
-                            t.printStackTrace();
-                        }
-                    });
+            NowmeImageCache.load(nowme.id, bitmap -> imgNowMe.setImageBitmap(bitmap));
         }
 
         btnClose.setOnClickListener(v -> finish());

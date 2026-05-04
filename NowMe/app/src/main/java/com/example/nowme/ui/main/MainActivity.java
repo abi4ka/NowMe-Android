@@ -9,6 +9,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.navigation.NavController;
+import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
@@ -110,9 +111,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        if (!navController.popBackStack(R.id.homeFragment, false)) {
-            navController.navigate(R.id.homeFragment);
-        }
+        navController.navigate(R.id.homeFragment, null, buildTabNavOptions());
     }
 
     private void openMyProfile(NavController navController) {
@@ -124,8 +123,19 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        navController.popBackStack(R.id.profileFragment, true);
-        navController.navigate(R.id.profileFragment);
+        if (navController.getCurrentDestination() != null
+                && navController.getCurrentDestination().getId() == R.id.profileFragment) {
+            navController.popBackStack(R.id.profileFragment, true);
+        }
+        navController.navigate(R.id.profileFragment, null, buildTabNavOptions());
+    }
+
+    private NavOptions buildTabNavOptions() {
+        return new NavOptions.Builder()
+                .setLaunchSingleTop(true)
+                .setRestoreState(true)
+                .setPopUpTo(navController.getGraph().getStartDestinationId(), false, true)
+                .build();
     }
 
     private void openProfileFromIntent(Intent intent) {

@@ -60,6 +60,14 @@ public class HomeFragment extends Fragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        if (adapter != null) {
+            adapter.syncLikeStates();
+        }
+    }
+
+    @Override
     public void onPause() {
         super.onPause();
         saveScrollPosition();

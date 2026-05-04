@@ -18,6 +18,7 @@ import com.example.nowme.network.RetrofitClient;
 import com.example.nowme.network.dto.NowmeDto;
 import com.example.nowme.ui.nowme.NowmeActivity;
 import com.example.nowme.util.NowmeImageCache;
+import com.example.nowme.util.NowmeLikeStateStore;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -53,6 +54,8 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         String lastDateLabel = null;
         for (NowmeDto item : items) {
+            NowmeLikeStateStore.apply(item);
+            NowmeLikeStateStore.remember(item);
             String dateLabel = formatDateLabel(item.creationTime);
             if (!dateLabel.equals(lastDateLabel)) {
                 rows.add(new DateHeaderRow(dateLabel));
@@ -61,6 +64,15 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             rows.add(new PostRow(item));
         }
 
+        notifyDataSetChanged();
+    }
+
+    public void syncLikeStates() {
+        for (RowItem row : rows) {
+            if (row instanceof PostRow) {
+                NowmeLikeStateStore.apply(((PostRow) row).item);
+            }
+        }
         notifyDataSetChanged();
     }
 
@@ -93,6 +105,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         PostViewHolder postHolder = (PostViewHolder) holder;
         NowmeDto item = ((PostRow) row).item;
+        NowmeLikeStateStore.apply(item);
 
         if (item.userAvatar != null && !item.userAvatar.trim().isEmpty()) {
             postHolder.avatar.setText(item.userAvatar);
@@ -185,6 +198,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (likes != null) {
             item.likes = likes;
         }
+        NowmeLikeStateStore.update(item.id, liked, item.likes);
         if (isButtonBoundToItem(likeButton, item)) {
             likeButton.setImageResource(liked ? R.drawable.ic_heart : R.drawable.ic_heart_empty);
         }

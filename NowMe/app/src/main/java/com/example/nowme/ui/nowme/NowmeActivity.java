@@ -16,6 +16,7 @@ import com.example.nowme.network.dto.NowmeDto;
 import com.example.nowme.ui.main.MainActivity;
 import com.example.nowme.network.RetrofitClient;
 import com.example.nowme.util.NowmeImageCache;
+import com.example.nowme.util.NowmeLikeStateStore;
 
 import java.io.Serializable;
 import retrofit2.Call;
@@ -67,6 +68,7 @@ public class NowmeActivity extends AppCompatActivity {
             return;
         }
 
+        NowmeLikeStateStore.apply(nowme);
         liked = nowme.liked != null && nowme.liked;
 
         btnLike.setImageResource(
@@ -147,6 +149,7 @@ public class NowmeActivity extends AppCompatActivity {
 
                     nowme.likes = newLikes;
                     nowme.liked = liked;
+                    NowmeLikeStateStore.update(nowme.id, liked, newLikes);
                 }
 
                 @Override

@@ -2,7 +2,6 @@ package com.example.nowme.ui.home;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,9 +17,9 @@ import com.example.nowme.R;
 import com.example.nowme.network.RetrofitClient;
 import com.example.nowme.network.dto.NowmeDto;
 import com.example.nowme.ui.nowme.NowmeActivity;
-import com.example.nowme.util.ImageOrientationUtils;
+import com.example.nowme.util.NowmeImageCache;
+import com.example.nowme.util.NowmeLikeStateStore;
 
-import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -32,7 +31,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -56,6 +54,8 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         String lastDateLabel = null;
         for (NowmeDto item : items) {
+            NowmeLikeStateStore.apply(item);
+            NowmeLikeStateStore.remember(item);
             String dateLabel = formatDateLabel(item.creationTime);
             if (!dateLabel.equals(lastDateLabel)) {
                 rows.add(new DateHeaderRow(dateLabel));
@@ -64,6 +64,15 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             rows.add(new PostRow(item));
         }
 
+        notifyDataSetChanged();
+    }
+
+    public void syncLikeStates() {
+        for (RowItem row : rows) {
+            if (row instanceof PostRow) {
+                NowmeLikeStateStore.apply(((PostRow) row).item);
+            }
+        }
         notifyDataSetChanged();
     }
 
@@ -96,6 +105,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         PostViewHolder postHolder = (PostViewHolder) holder;
         NowmeDto item = ((PostRow) row).item;
+        NowmeLikeStateStore.apply(item);
 
         if (item.userAvatar != null && !item.userAvatar.trim().isEmpty()) {
             postHolder.avatar.setText(item.userAvatar);
@@ -133,29 +143,10 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (item.id == null) return;
 
         postHolder.image.setTag(item.id);
-
-        RetrofitClient.getApi().getNowmeImage(item.id).enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if (!response.isSuccessful() || response.body() == null) return;
-
-                Bitmap bitmap;
-                try {
-                    bitmap = ImageOrientationUtils.decodeUprightBitmap(response.body().byteStream());
-                } catch (IOException e) {
-                    return;
-                }
-                if (bitmap == null) return;
-
-                Object currentTag = postHolder.image.getTag();
-                if (currentTag instanceof Long && ((Long) currentTag).equals(item.id)) {
-                    postHolder.image.setImageBitmap(bitmap);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                // nada
+        NowmeImageCache.load(item.id, bitmap -> {
+            Object currentTag = postHolder.image.getTag();
+            if (currentTag instanceof Long && ((Long) currentTag).equals(item.id)) {
+                postHolder.image.setImageBitmap(bitmap);
             }
         });
     }
@@ -207,6 +198,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (likes != null) {
             item.likes = likes;
         }
+        NowmeLikeStateStore.update(item.id, liked, item.likes);
         if (isButtonBoundToItem(likeButton, item)) {
             likeButton.setImageResource(liked ? R.drawable.ic_heart : R.drawable.ic_heart_empty);
         }

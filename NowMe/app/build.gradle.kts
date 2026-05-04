@@ -56,6 +56,7 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
     // CameraX
     implementation("androidx.camera:camera-core:1.3.3")

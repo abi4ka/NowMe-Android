@@ -2,7 +2,6 @@ package com.example.nowme.ui.profile;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,19 +11,12 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.nowme.R;
-import com.example.nowme.network.RetrofitClient;
 import com.example.nowme.network.dto.NowmeDto;
 import com.example.nowme.ui.nowme.NowmeActivity;
-import com.example.nowme.util.ImageOrientationUtils;
+import com.example.nowme.util.NowmeImageCache;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class ProfilePostAdapter extends RecyclerView.Adapter<ProfilePostAdapter.ProfilePostViewHolder> {
 
@@ -67,28 +59,10 @@ public class ProfilePostAdapter extends RecyclerView.Adapter<ProfilePostAdapter.
         if (item.id == null) return;
 
         holder.image.setTag(item.id);
-        RetrofitClient.getApi().getNowmeImage(item.id).enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if (!response.isSuccessful() || response.body() == null) return;
-
-                Bitmap bitmap;
-                try {
-                    bitmap = ImageOrientationUtils.decodeUprightBitmap(response.body().byteStream());
-                } catch (IOException e) {
-                    return;
-                }
-                if (bitmap == null) return;
-
-                Object currentTag = holder.image.getTag();
-                if (currentTag instanceof Long && ((Long) currentTag).equals(item.id)) {
-                    holder.image.setImageBitmap(bitmap);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                // keep placeholder
+        NowmeImageCache.load(item.id, bitmap -> {
+            Object currentTag = holder.image.getTag();
+            if (currentTag instanceof Long && ((Long) currentTag).equals(item.id)) {
+                holder.image.setImageBitmap(bitmap);
             }
         });
     }

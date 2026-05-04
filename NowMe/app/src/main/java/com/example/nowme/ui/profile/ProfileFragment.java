@@ -6,8 +6,11 @@ import android.os.Bundle;
 import androidx.activity.OnBackPressedCallback;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,7 +30,9 @@ import com.example.nowme.network.dto.NowmeDto;
 import com.example.nowme.network.dto.UserProfileDto;
 import com.example.nowme.ui.auth.AuthActivity;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -35,17 +40,22 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class ProfileFragment extends Fragment {
+    private static final long MY_PROFILE_CACHE_KEY = -1L;
+
     TextView tvUserIcon, tvUsername, tvFollowers, tvFollowing, tvFriends, tvStreak;
     Button btnFollow;
     ImageButton btnCalendar, btnSettings;
     RecyclerView recyclerProfilePosts;
     ProfilePostAdapter postAdapter;
+    SwipeRefreshLayout refreshLayout;
     View settingsOverlay, settingsPanel;
     OnBackPressedCallback settingsBackCallback;
     Long userId = null;
     Long profileUserId = null;
     boolean followingProfile = false;
     boolean settingsClosing = false;
+    ProfileViewModel viewModel;
+    ProfileState profileState;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -56,6 +66,11 @@ public class ProfileFragment extends Fragment {
         if (getArguments() != null && getArguments().containsKey("userId")) {
             userId = getArguments().getLong("userId");
         }
+        viewModel = new ViewModelProvider(requireActivity()).get(ProfileViewModel.class);
+        profileState = viewModel.getState(getCacheKey());
+
+        refreshLayout = view.findViewById(R.id.profileRefresh);
+        refreshLayout.setOnRefreshListener(() -> loadProfile(true));
 
         tvUserIcon = view.findViewById(R.id.tvUserIcon);
         tvUsername = view.findViewById(R.id.tvUsername);
@@ -88,12 +103,27 @@ public class ProfileFragment extends Fragment {
         recyclerProfilePosts.setLayoutManager(new GridLayoutManager(getContext(), 3));
         recyclerProfilePosts.setAdapter(postAdapter);
 
-        loadProfile();
+        if (profileState.user != null) {
+            renderProfile(profileState.user);
+        }
+        if (profileState.posts != null) {
+            postAdapter.setItems(profileState.posts);
+            updateProfilePostsHeight(profileState.posts.size());
+        }
+        if (!profileState.profileLoaded && !profileState.profileLoading) {
+            loadProfile(false);
+        }
 
         return view;
     }
 
-    private void loadProfile() {
+    private long getCacheKey() {
+        return userId == null ? MY_PROFILE_CACHE_KEY : userId;
+    }
+
+    private void loadProfile(boolean forceRefresh) {
+        if (profileState.profileLoading) return;
+        if (!forceRefresh && profileState.profileLoaded) return;
 
         NowmeApi api = RetrofitClient.getApi();
         Call<UserProfileDto> call;
@@ -104,71 +134,109 @@ public class ProfileFragment extends Fragment {
             call = api.getUserProfile(userId);
         }
 
+        profileState.profileLoading = true;
         call.enqueue(new Callback<UserProfileDto>() {
             @Override
             public void onResponse(Call<UserProfileDto> call, Response<UserProfileDto> response) {
+                profileState.profileLoading = false;
                 if (response.isSuccessful() && response.body() != null) {
 
                     UserProfileDto user = response.body();
+                    profileState.user = user;
+                    profileState.profileLoaded = true;
+                    renderProfile(user);
 
-                    profileUserId = user.id;
-                    followingProfile = user.followingUser || user.following;
-
-                    tvUserIcon.setText(user.avatar != null ? user.avatar : "");
-                    tvUsername.setText(user.username != null ? user.username : "");
-                    tvFollowers.setText(String.valueOf(getFollowersCount(user)));
-                    tvFollowing.setText(String.valueOf(user.followingCount != null ? user.followingCount : 0));
-                    tvFriends.setText(String.valueOf(user.friends != null ? user.friends : 0));
-
-                    if (user.streakDays != null) {
-                        tvStreak.setText(user.streakDays + " 🔥");
-                        tvStreak.setVisibility(View.VISIBLE);
+                    if (forceRefresh || !profileState.postsLoaded) {
+                        loadProfilePosts(forceRefresh);
                     } else {
-                        tvStreak.setText("");
-                        tvStreak.setVisibility(View.GONE);
+                        stopRefreshing();
                     }
-
-                    if (user.me) {
-                        btnFollow.setVisibility(View.GONE);
-                        btnCalendar.setVisibility(View.VISIBLE);
-                        btnSettings.setVisibility(View.VISIBLE);
-
-                    } else {
-                        updateFollowButton();
-                        btnFollow.setVisibility(View.VISIBLE);
-                        btnCalendar.setVisibility(View.GONE);
-                        btnSettings.setVisibility(View.GONE);
-                    }
-
-                    loadProfilePosts();
+                } else {
+                    stopRefreshing();
                 }
             }
 
             @Override
             public void onFailure(Call<UserProfileDto> call, Throwable t) {
+                profileState.profileLoading = false;
+                stopRefreshing();
                 t.printStackTrace();
             }
         });
     }
 
-    private void loadProfilePosts() {
-        if (profileUserId == null) return;
+    private void renderProfile(UserProfileDto user) {
+        profileUserId = user.id;
+        followingProfile = user.followingUser || user.following;
 
+        tvUserIcon.setText(user.avatar != null ? user.avatar : "");
+        tvUsername.setText(user.username != null ? user.username : "");
+        tvFollowers.setText(String.valueOf(getFollowersCount(user)));
+        tvFollowing.setText(String.valueOf(user.followingCount != null ? user.followingCount : 0));
+        tvFriends.setText(String.valueOf(user.friends != null ? user.friends : 0));
+
+        if (user.streakDays != null) {
+            tvStreak.setText(user.streakDays + " \uD83D\uDD25");
+            tvStreak.setVisibility(View.VISIBLE);
+        } else {
+            tvStreak.setText("");
+            tvStreak.setVisibility(View.GONE);
+        }
+
+        if (user.me) {
+            btnFollow.setVisibility(View.GONE);
+            btnCalendar.setVisibility(View.VISIBLE);
+            btnSettings.setVisibility(View.VISIBLE);
+
+        } else {
+            updateFollowButton();
+            btnFollow.setVisibility(View.VISIBLE);
+            btnCalendar.setVisibility(View.GONE);
+            btnSettings.setVisibility(View.GONE);
+        }
+    }
+
+    private void loadProfilePosts(boolean forceRefresh) {
+        if (profileUserId == null) {
+            stopRefreshing();
+            return;
+        }
+        if (!forceRefresh && profileState.postsLoaded) {
+            stopRefreshing();
+            return;
+        }
+        if (profileState.postsLoading) return;
+
+        profileState.postsLoading = true;
         RetrofitClient.getApi().getProfileNowmes(profileUserId).enqueue(new Callback<List<NowmeDto>>() {
             @Override
             public void onResponse(Call<List<NowmeDto>> call, Response<List<NowmeDto>> response) {
+                profileState.postsLoading = false;
+                stopRefreshing();
                 if (response.isSuccessful()) {
                     List<NowmeDto> posts = response.body();
-                    postAdapter.setItems(posts);
+                    profileState.posts = posts;
+                    profileState.postsLoaded = true;
+                    if (postAdapter != null) {
+                        postAdapter.setItems(posts);
+                    }
                     updateProfilePostsHeight(posts != null ? posts.size() : 0);
                 }
             }
 
             @Override
             public void onFailure(Call<List<NowmeDto>> call, Throwable t) {
+                profileState.postsLoading = false;
+                stopRefreshing();
                 t.printStackTrace();
             }
         });
+    }
+
+    private void stopRefreshing() {
+        if (refreshLayout != null) {
+            refreshLayout.setRefreshing(false);
+        }
     }
 
     private void updateProfilePostsHeight(int itemCount) {
@@ -235,7 +303,9 @@ public class ProfileFragment extends Fragment {
 
                 followingProfile = !followingProfile;
                 updateFollowButton();
-                loadProfile();
+                profileState.profileLoaded = false;
+                profileState.postsLoaded = false;
+                loadProfile(true);
             }
 
             @Override
@@ -307,5 +377,27 @@ public class ProfileFragment extends Fragment {
             btnSettings.setVisibility(View.GONE);
             btnSettings.setOnClickListener(null);
         }
+    }
+
+    public static class ProfileViewModel extends ViewModel {
+        private final Map<Long, ProfileState> states = new HashMap<>();
+
+        ProfileState getState(long key) {
+            ProfileState state = states.get(key);
+            if (state == null) {
+                state = new ProfileState();
+                states.put(key, state);
+            }
+            return state;
+        }
+    }
+
+    static class ProfileState {
+        UserProfileDto user;
+        List<NowmeDto> posts;
+        boolean profileLoaded = false;
+        boolean profileLoading = false;
+        boolean postsLoaded = false;
+        boolean postsLoading = false;
     }
 }

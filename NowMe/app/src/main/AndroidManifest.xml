@@ -23,10 +23,12 @@
         android:usesCleartextTraffic="true">
         <activity
             android:name=".ui.nowme.NowmeActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.auth.AuthActivity"
-            android:exported="true">
+            android:exported="true"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -37,12 +39,15 @@
             android:name=".ui.main.MainActivity"
             android:exported="false"
             android:launchMode="singleTop"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.NowMe.NoActionBar"></activity>
         <activity
             android:name=".ui.camera.CameraActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.NowMe.NoActionBar" />
         <activity
             android:name=".ui.camera.PublishActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.NowMe.NoActionBar" />
 
         <provider

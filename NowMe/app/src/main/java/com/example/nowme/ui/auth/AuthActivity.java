@@ -27,6 +27,7 @@ public class AuthActivity extends AppCompatActivity {
     private Button btnLogin;
     private TextView tvSignup;
     private boolean registerMode = false;
+    private boolean authRequestInFlight = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +68,9 @@ public class AuthActivity extends AppCompatActivity {
     }
 
     private void auth() {
+        if (authRequestInFlight) {
+            return;
+        }
 
         String username = etUsername.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
@@ -77,6 +81,9 @@ public class AuthActivity extends AppCompatActivity {
         }
 
         AuthRequest authRequest = new AuthRequest(username, password);
+        authRequestInFlight = true;
+        btnLogin.setEnabled(false);
+        tvSignup.setEnabled(false);
 
         Call<AuthResponse> call = registerMode
                 ? RetrofitClient.getApi().register(authRequest)
@@ -85,6 +92,9 @@ public class AuthActivity extends AppCompatActivity {
         call.enqueue(new Callback<AuthResponse>() {
             @Override
             public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
+                authRequestInFlight = false;
+                btnLogin.setEnabled(true);
+                tvSignup.setEnabled(true);
 
                 if (response.isSuccessful() && response.body() != null) {
                     AuthResponse dto = response.body();
@@ -104,6 +114,9 @@ public class AuthActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<AuthResponse> call, Throwable t) {
+                authRequestInFlight = false;
+                btnLogin.setEnabled(true);
+                tvSignup.setEnabled(true);
                 t.printStackTrace();
                 Toast.makeText(AuthActivity.this,
                         "Network error: " + t.getMessage(),

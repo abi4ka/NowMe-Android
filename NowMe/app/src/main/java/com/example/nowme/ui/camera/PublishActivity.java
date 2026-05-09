@@ -34,6 +34,7 @@ public class PublishActivity extends AppCompatActivity {
     TextView publishButton;
 
     Uri imageUri;
+    boolean publishRequestInFlight = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +72,9 @@ public class PublishActivity extends AppCompatActivity {
     }
 
     private void publishPost() {
+        if (publishRequestInFlight) {
+            return;
+        }
 
         String descriptionText = descriptionInput.getText().toString().trim();
 
@@ -91,6 +95,9 @@ public class PublishActivity extends AppCompatActivity {
             RequestBody description =
                     RequestBody.create(descriptionText, MediaType.parse("text/plain"));
 
+            publishRequestInFlight = true;
+            publishButton.setEnabled(false);
+
             Call<Long> call = RetrofitClient.getApi()
                     .createNowme(imagePart, description);
 
@@ -98,6 +105,8 @@ public class PublishActivity extends AppCompatActivity {
 
                 @Override
                 public void onResponse(Call<Long> call, Response<Long> response) {
+                    publishRequestInFlight = false;
+                    publishButton.setEnabled(true);
 
                     if (response.isSuccessful()) {
 
@@ -111,12 +120,16 @@ public class PublishActivity extends AppCompatActivity {
 
                 @Override
                 public void onFailure(Call<Long> call, Throwable t) {
+                    publishRequestInFlight = false;
+                    publishButton.setEnabled(true);
                     t.printStackTrace();
                     Toast.makeText(PublishActivity.this, "Network error", Toast.LENGTH_SHORT).show();
                 }
             });
 
         } catch (IOException e) {
+            publishRequestInFlight = false;
+            publishButton.setEnabled(true);
             e.printStackTrace();
             Toast.makeText(this, "File error", Toast.LENGTH_SHORT).show();
         }

@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -17,6 +16,7 @@ import com.example.nowme.PageResponse;
 import com.example.nowme.R;
 import com.example.nowme.network.RetrofitClient;
 import com.example.nowme.network.dto.NowmeResponse;
+import com.example.nowme.ui.main.MainActivity;
 
 import java.util.List;
 
@@ -44,9 +44,9 @@ public class HomeFragment extends Fragment {
 
         recyclerView = view.findViewById(R.id.recyclerFeed);
         adapter = new FeedAdapter(userId -> {
-            Bundle args = new Bundle();
-            args.putLong("userId", userId);
-            Navigation.findNavController(view).navigate(R.id.profileFragment, args);
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).openUserProfile(userId);
+            }
         });
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));

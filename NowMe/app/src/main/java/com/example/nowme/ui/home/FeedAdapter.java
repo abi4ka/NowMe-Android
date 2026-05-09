@@ -51,6 +51,10 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     public void setItems(List<NowmeResponse> items) {
         rows.clear();
+        if (items == null) {
+            notifyDataSetChanged();
+            return;
+        }
 
         String lastDateLabel = null;
         for (NowmeResponse item : items) {

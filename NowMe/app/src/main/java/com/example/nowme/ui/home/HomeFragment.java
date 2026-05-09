@@ -18,6 +18,7 @@ import com.example.nowme.network.RetrofitClient;
 import com.example.nowme.network.dto.NowmeResponse;
 import com.example.nowme.ui.main.MainActivity;
 
+import java.util.Collections;
 import java.util.List;
 
 import retrofit2.Call;
@@ -92,7 +93,9 @@ public class HomeFragment extends Fragment {
                 stopRefreshing();
 
                 if (response.isSuccessful() && response.body() != null) {
-                    List<NowmeResponse> list = response.body().content;
+                    List<NowmeResponse> list = response.body().content != null
+                            ? response.body().content
+                            : Collections.emptyList();
                     viewModel.items = list;
                     viewModel.loaded = true;
                     if (adapter != null) {

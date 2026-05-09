@@ -1,11 +1,11 @@
 package com.example.nowme.network;
 
 import com.example.nowme.PageResponse;
-import com.example.nowme.network.dto.AuthDto;
-import com.example.nowme.network.dto.NowmeDto;
+import com.example.nowme.network.dto.AuthRequest;
+import com.example.nowme.network.dto.AuthResponse;
+import com.example.nowme.network.dto.NowmeResponse;
 import com.example.nowme.network.dto.RefreshRequest;
-import com.example.nowme.network.dto.UserDto;
-import com.example.nowme.network.dto.UserProfileDto;
+import com.example.nowme.network.dto.UserProfileResponse;
 
 import java.util.List;
 
@@ -26,10 +26,10 @@ import retrofit2.http.Path;
 public interface NowmeApi {
 
     @POST("/auth/login")
-    Call<AuthDto> login(@Body UserDto user);
+    Call<AuthResponse> login(@Body AuthRequest user);
 
     @POST("/auth/register")
-    Call<AuthDto> register(@Body UserDto user);
+    Call<AuthResponse> register(@Body AuthRequest user);
 
     @Multipart
     @POST("/nowme")
@@ -39,14 +39,14 @@ public interface NowmeApi {
     );
 
     @POST("/auth/refresh")
-    Call<AuthDto> refresh(@Body RefreshRequest request);
+    Call<AuthResponse> refresh(@Body RefreshRequest request);
 
     @GET("/nowme")
-    Call<PageResponse<NowmeDto>> getNowmes(
+    Call<PageResponse<NowmeResponse>> getNowmes(
     );
 
     @GET("/nowme/users/{userId}")
-    Call<List<NowmeDto>> getProfileNowmes(@Path("userId") Long userId);
+    Call<List<NowmeResponse>> getProfileNowmes(@Path("userId") Long userId);
 
     @GET("/nowme/{id}/image")
     Call<ResponseBody> getNowmeImage(@Path("id") Long id);
@@ -58,10 +58,10 @@ public interface NowmeApi {
     Call<Long> unlike(@Path("id") Long id);
 
     @GET("/users/me")
-    Call<UserProfileDto> getMyProfile();
+    Call<UserProfileResponse> getMyProfile();
 
     @GET("/users/{id}")
-    Call<UserProfileDto> getUserProfile(@Path("id") Long id);
+    Call<UserProfileResponse> getUserProfile(@Path("id") Long id);
 
     @POST("/follow/{userId}")
     Call<ResponseBody> followUser(@Path("userId") Long userId);

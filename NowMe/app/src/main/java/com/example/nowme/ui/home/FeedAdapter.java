@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.nowme.R;
 import com.example.nowme.network.RetrofitClient;
-import com.example.nowme.network.dto.NowmeDto;
+import com.example.nowme.network.dto.NowmeResponse;
 import com.example.nowme.ui.nowme.NowmeActivity;
 import com.example.nowme.util.NowmeImageCache;
 import com.example.nowme.util.NowmeLikeStateStore;
@@ -49,11 +49,11 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         this.onAuthorClickListener = onAuthorClickListener;
     }
 
-    public void setItems(List<NowmeDto> items) {
+    public void setItems(List<NowmeResponse> items) {
         rows.clear();
 
         String lastDateLabel = null;
-        for (NowmeDto item : items) {
+        for (NowmeResponse item : items) {
             NowmeLikeStateStore.apply(item);
             NowmeLikeStateStore.remember(item);
             String dateLabel = formatDateLabel(item.creationTime);
@@ -104,7 +104,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
 
         PostViewHolder postHolder = (PostViewHolder) holder;
-        NowmeDto item = ((PostRow) row).item;
+        NowmeResponse item = ((PostRow) row).item;
         NowmeLikeStateStore.apply(item);
 
         if (item.userAvatar != null && !item.userAvatar.trim().isEmpty()) {
@@ -151,7 +151,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         });
     }
 
-    private void toggleLike(NowmeDto item, ImageButton likeButton) {
+    private void toggleLike(NowmeResponse item, ImageButton likeButton) {
         if (item.id == null) return;
 
         boolean wasLiked = isLiked(item);
@@ -189,11 +189,11 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         });
     }
 
-    private boolean isLiked(NowmeDto item) {
+    private boolean isLiked(NowmeResponse item) {
         return item.liked != null && item.liked;
     }
 
-    private void updateLikeState(NowmeDto item, ImageButton likeButton, boolean liked, Long likes) {
+    private void updateLikeState(NowmeResponse item, ImageButton likeButton, boolean liked, Long likes) {
         item.liked = liked;
         if (likes != null) {
             item.likes = likes;
@@ -204,7 +204,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    private boolean isButtonBoundToItem(ImageButton likeButton, NowmeDto item) {
+    private boolean isButtonBoundToItem(ImageButton likeButton, NowmeResponse item) {
         Object tag = likeButton.getTag();
         return item.id != null && item.id.equals(tag);
     }
@@ -267,9 +267,9 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     private static class PostRow implements RowItem {
-        final NowmeDto item;
+        final NowmeResponse item;
 
-        PostRow(NowmeDto item) {
+        PostRow(NowmeResponse item) {
             this.item = item;
         }
     }

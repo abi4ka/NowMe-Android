@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.nowme.R;
-import com.example.nowme.network.dto.NowmeDto;
+import com.example.nowme.network.dto.NowmeResponse;
 import com.example.nowme.ui.main.MainActivity;
 import com.example.nowme.network.RetrofitClient;
 import com.example.nowme.util.NowmeImageCache;
@@ -31,7 +31,7 @@ public class NowmeActivity extends AppCompatActivity {
 
     boolean liked = false;
     boolean isOwner;
-    NowmeDto nowme;
+    NowmeResponse nowme;
 
     RecyclerView rvComments;
 
@@ -61,7 +61,7 @@ public class NowmeActivity extends AppCompatActivity {
         imgNowMe = findViewById(R.id.imgNowMe);
         rvComments = findViewById(R.id.rvComments);
 
-        nowme = (NowmeDto) getIntent().getSerializableExtra("nowme");
+        nowme = (NowmeResponse) getIntent().getSerializableExtra("nowme");
 
         if (nowme == null) {
             finish();

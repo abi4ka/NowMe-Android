@@ -3,7 +3,7 @@ package com.example.nowme.network;
 import android.content.Context;
 
 import com.example.nowme.MyApplication;
-import com.example.nowme.network.dto.AuthDto;
+import com.example.nowme.network.dto.AuthResponse;
 import com.example.nowme.network.dto.RefreshRequest;
 
 import java.io.IOException;
@@ -44,7 +44,7 @@ public class AuthAuthenticator implements Authenticator {
         request.accessToken = accessToken;
         request.refreshToken = refreshToken;
 
-        retrofit2.Response<AuthDto> refreshResponse =
+        retrofit2.Response<AuthResponse> refreshResponse =
                 authApi.refresh(request).execute();
 
         if (!refreshResponse.isSuccessful() || refreshResponse.body() == null) {
@@ -52,7 +52,7 @@ public class AuthAuthenticator implements Authenticator {
             return null;
         }
 
-        AuthDto newTokens = refreshResponse.body();
+        AuthResponse newTokens = refreshResponse.body();
         TokenStorage.save(context, newTokens);
 
         // repeat original request with new access

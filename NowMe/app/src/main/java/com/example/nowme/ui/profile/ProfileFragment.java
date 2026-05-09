@@ -26,8 +26,8 @@ import com.example.nowme.R;
 import com.example.nowme.network.NowmeApi;
 import com.example.nowme.network.RetrofitClient;
 import com.example.nowme.network.TokenStorage;
-import com.example.nowme.network.dto.NowmeDto;
-import com.example.nowme.network.dto.UserProfileDto;
+import com.example.nowme.network.dto.NowmeResponse;
+import com.example.nowme.network.dto.UserProfileResponse;
 import com.example.nowme.ui.auth.AuthActivity;
 
 import java.util.HashMap;
@@ -126,7 +126,7 @@ public class ProfileFragment extends Fragment {
         if (!forceRefresh && profileState.profileLoaded) return;
 
         NowmeApi api = RetrofitClient.getApi();
-        Call<UserProfileDto> call;
+        Call<UserProfileResponse> call;
 
         if (userId == null) {
             call = api.getMyProfile();
@@ -135,13 +135,13 @@ public class ProfileFragment extends Fragment {
         }
 
         profileState.profileLoading = true;
-        call.enqueue(new Callback<UserProfileDto>() {
+        call.enqueue(new Callback<UserProfileResponse>() {
             @Override
-            public void onResponse(Call<UserProfileDto> call, Response<UserProfileDto> response) {
+            public void onResponse(Call<UserProfileResponse> call, Response<UserProfileResponse> response) {
                 profileState.profileLoading = false;
                 if (response.isSuccessful() && response.body() != null) {
 
-                    UserProfileDto user = response.body();
+                    UserProfileResponse user = response.body();
                     profileState.user = user;
                     profileState.profileLoaded = true;
                     renderProfile(user);
@@ -157,7 +157,7 @@ public class ProfileFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Call<UserProfileDto> call, Throwable t) {
+            public void onFailure(Call<UserProfileResponse> call, Throwable t) {
                 profileState.profileLoading = false;
                 stopRefreshing();
                 t.printStackTrace();
@@ -165,7 +165,7 @@ public class ProfileFragment extends Fragment {
         });
     }
 
-    private void renderProfile(UserProfileDto user) {
+    private void renderProfile(UserProfileResponse user) {
         profileUserId = user.id;
         followingProfile = user.followingUser || user.following;
 
@@ -208,13 +208,13 @@ public class ProfileFragment extends Fragment {
         if (profileState.postsLoading) return;
 
         profileState.postsLoading = true;
-        RetrofitClient.getApi().getProfileNowmes(profileUserId).enqueue(new Callback<List<NowmeDto>>() {
+        RetrofitClient.getApi().getProfileNowmes(profileUserId).enqueue(new Callback<List<NowmeResponse>>() {
             @Override
-            public void onResponse(Call<List<NowmeDto>> call, Response<List<NowmeDto>> response) {
+            public void onResponse(Call<List<NowmeResponse>> call, Response<List<NowmeResponse>> response) {
                 profileState.postsLoading = false;
                 stopRefreshing();
                 if (response.isSuccessful()) {
-                    List<NowmeDto> posts = response.body();
+                    List<NowmeResponse> posts = response.body();
                     profileState.posts = posts;
                     profileState.postsLoaded = true;
                     if (postAdapter != null) {
@@ -225,7 +225,7 @@ public class ProfileFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Call<List<NowmeDto>> call, Throwable t) {
+            public void onFailure(Call<List<NowmeResponse>> call, Throwable t) {
                 profileState.postsLoading = false;
                 stopRefreshing();
                 t.printStackTrace();
@@ -267,7 +267,7 @@ public class ProfileFragment extends Fragment {
         });
     }
 
-    private long getFollowersCount(UserProfileDto user) {
+    private long getFollowersCount(UserProfileResponse user) {
         if (user.followersCount != null) return user.followersCount;
         return 0L;
     }
@@ -393,8 +393,8 @@ public class ProfileFragment extends Fragment {
     }
 
     static class ProfileState {
-        UserProfileDto user;
-        List<NowmeDto> posts;
+        UserProfileResponse user;
+        List<NowmeResponse> posts;
         boolean profileLoaded = false;
         boolean profileLoading = false;
         boolean postsLoaded = false;

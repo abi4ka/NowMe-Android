@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.nowme.R;
-import com.example.nowme.network.dto.NowmeDto;
+import com.example.nowme.network.dto.NowmeResponse;
 import com.example.nowme.ui.nowme.NowmeActivity;
 import com.example.nowme.util.NowmeImageCache;
 
@@ -20,9 +20,9 @@ import java.util.List;
 
 public class ProfilePostAdapter extends RecyclerView.Adapter<ProfilePostAdapter.ProfilePostViewHolder> {
 
-    private final List<NowmeDto> items = new ArrayList<>();
+    private final List<NowmeResponse> items = new ArrayList<>();
 
-    public void setItems(List<NowmeDto> nowmes) {
+    public void setItems(List<NowmeResponse> nowmes) {
         items.clear();
         if (nowmes != null) {
             items.addAll(nowmes);
@@ -40,7 +40,7 @@ public class ProfilePostAdapter extends RecyclerView.Adapter<ProfilePostAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull ProfilePostViewHolder holder, int position) {
-        NowmeDto item = items.get(position);
+        NowmeResponse item = items.get(position);
         float density = holder.itemView.getResources().getDisplayMetrics().density;
         int spacing = Math.round(2 * density) * 2;
         int width = holder.itemView.getResources().getDisplayMetrics().widthPixels / 3 - spacing;
@@ -72,7 +72,7 @@ public class ProfilePostAdapter extends RecyclerView.Adapter<ProfilePostAdapter.
         return items.size();
     }
 
-    private void openNowme(Context context, NowmeDto item) {
+    private void openNowme(Context context, NowmeResponse item) {
         Intent intent = new Intent(context, NowmeActivity.class);
         intent.putExtra("nowme", item);
         context.startActivity(intent);

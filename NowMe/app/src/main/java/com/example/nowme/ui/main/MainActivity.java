@@ -23,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
 
     BottomNavigationView bottomNavigationView;
     private NavController navController;
+    private boolean syncingBottomNavigation = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,10 +56,17 @@ public class MainActivity extends AppCompatActivity {
                         .findFragmentById(R.id.nav_host_fragment);
 
         navController = navHostFragment.getNavController();
+        navController.addOnDestinationChangedListener((controller, destination, arguments) ->
+                syncBottomNavigationSelection()
+        );
 
         NavigationUI.setupWithNavController(bottomNavigationView, navController);
 
         bottomNavigationView.setOnItemSelectedListener(item -> {
+            if (syncingBottomNavigation) {
+                return true;
+            }
+
             int id = item.getItemId();
 
             if (id == R.id.homeFragment) {
@@ -111,7 +119,9 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        navController.navigate(R.id.homeFragment, null, buildTabNavOptions());
+        if (!navController.popBackStack(R.id.homeFragment, false)) {
+            navController.navigate(R.id.homeFragment, null, buildTabNavOptions());
+        }
     }
 
     private void openMyProfile(NavController navController) {
@@ -155,6 +165,17 @@ public class MainActivity extends AppCompatActivity {
         navController.navigate(R.id.profileFragment, args);
     }
 
+    public void openUserProfile(long userId) {
+        if (navController == null || userId <= 0L) {
+            return;
+        }
+
+        Bundle args = new Bundle();
+        args.putLong("userId", userId);
+        navController.popBackStack(R.id.profileFragment, true);
+        navController.navigate(R.id.profileFragment, args);
+    }
+
     private void syncBottomNavigationSelection() {
         if (bottomNavigationView == null
                 || navController == null
@@ -164,7 +185,13 @@ public class MainActivity extends AppCompatActivity {
 
         int destinationId = navController.getCurrentDestination().getId();
         if (destinationId == R.id.homeFragment || destinationId == R.id.profileFragment) {
-            bottomNavigationView.getMenu().findItem(destinationId).setChecked(true);
+            if (bottomNavigationView.getSelectedItemId() == destinationId) {
+                return;
+            }
+
+            syncingBottomNavigation = true;
+            bottomNavigationView.setSelectedItemId(destinationId);
+            syncingBottomNavigation = false;
         }
     }
 }

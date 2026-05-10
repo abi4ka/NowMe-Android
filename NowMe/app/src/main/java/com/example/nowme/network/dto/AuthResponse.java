@@ -1,6 +1,6 @@
 package com.example.nowme.network.dto;
 
-public class AuthDto {
+public class AuthResponse {
     public String accessToken;
     public String refreshToken;
 }

@@ -2,7 +2,7 @@ package com.example.nowme.network.dto;
 
 import java.io.Serializable;
 
-public class NowmeDto implements Serializable {
+public class NowmeResponse implements Serializable {
     public Long id;
     public Long userId;
     public String description;

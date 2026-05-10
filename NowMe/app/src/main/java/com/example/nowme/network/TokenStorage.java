@@ -2,7 +2,7 @@ package com.example.nowme.network;
 
 import android.content.Context;
 
-import com.example.nowme.network.dto.AuthDto;
+import com.example.nowme.network.dto.AuthResponse;
 
 public class TokenStorage {
 
@@ -10,7 +10,7 @@ public class TokenStorage {
     private static final String KEY_ACCESS = "accessToken";
     private static final String KEY_REFRESH = "refreshToken";
 
-    public static void save(Context context, AuthDto dto) {
+    public static void save(Context context, AuthResponse dto) {
         SessionManager.resetRedirectState();
 
         context.getSharedPreferences(PREF, Context.MODE_PRIVATE)

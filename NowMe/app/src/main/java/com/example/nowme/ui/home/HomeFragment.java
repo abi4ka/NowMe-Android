@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -16,8 +15,10 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.example.nowme.PageResponse;
 import com.example.nowme.R;
 import com.example.nowme.network.RetrofitClient;
-import com.example.nowme.network.dto.NowmeDto;
+import com.example.nowme.network.dto.NowmeResponse;
+import com.example.nowme.ui.main.MainActivity;
 
+import java.util.Collections;
 import java.util.List;
 
 import retrofit2.Call;
@@ -44,9 +45,9 @@ public class HomeFragment extends Fragment {
 
         recyclerView = view.findViewById(R.id.recyclerFeed);
         adapter = new FeedAdapter(userId -> {
-            Bundle args = new Bundle();
-            args.putLong("userId", userId);
-            Navigation.findNavController(view).navigate(R.id.profileFragment, args);
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).openUserProfile(userId);
+            }
         });
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -83,16 +84,18 @@ public class HomeFragment extends Fragment {
         if (!forceRefresh && viewModel.loaded) return;
 
         viewModel.loading = true;
-        Call<PageResponse<NowmeDto>> call = RetrofitClient.getApi().getNowmes();
-        call.enqueue(new Callback<PageResponse<NowmeDto>>() {
+        Call<PageResponse<NowmeResponse>> call = RetrofitClient.getApi().getNowmes();
+        call.enqueue(new Callback<PageResponse<NowmeResponse>>() {
             @Override
-            public void onResponse(Call<PageResponse<NowmeDto>> call,
-                                   Response<PageResponse<NowmeDto>> response) {
+            public void onResponse(Call<PageResponse<NowmeResponse>> call,
+                                   Response<PageResponse<NowmeResponse>> response) {
                 viewModel.loading = false;
                 stopRefreshing();
 
                 if (response.isSuccessful() && response.body() != null) {
-                    List<NowmeDto> list = response.body().content;
+                    List<NowmeResponse> list = response.body().content != null
+                            ? response.body().content
+                            : Collections.emptyList();
                     viewModel.items = list;
                     viewModel.loaded = true;
                     if (adapter != null) {
@@ -102,7 +105,7 @@ public class HomeFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Call<PageResponse<NowmeDto>> call, Throwable t) {
+            public void onFailure(Call<PageResponse<NowmeResponse>> call, Throwable t) {
                 viewModel.loading = false;
                 stopRefreshing();
                 t.printStackTrace();
@@ -141,7 +144,7 @@ public class HomeFragment extends Fragment {
     }
 
     public static class HomeFeedViewModel extends ViewModel {
-        List<NowmeDto> items;
+        List<NowmeResponse> items;
         boolean loaded = false;
         boolean loading = false;
         int scrollPosition = 0;

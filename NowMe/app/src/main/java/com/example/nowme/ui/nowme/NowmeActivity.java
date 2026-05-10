@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.nowme.R;
-import com.example.nowme.network.dto.NowmeDto;
+import com.example.nowme.network.dto.NowmeResponse;
 import com.example.nowme.ui.main.MainActivity;
 import com.example.nowme.network.RetrofitClient;
 import com.example.nowme.util.NowmeImageCache;
@@ -30,8 +30,9 @@ public class NowmeActivity extends AppCompatActivity {
     ImageView imgNowMe;
 
     boolean liked = false;
+    boolean likeRequestInFlight = false;
     boolean isOwner;
-    NowmeDto nowme;
+    NowmeResponse nowme;
 
     RecyclerView rvComments;
 
@@ -61,7 +62,7 @@ public class NowmeActivity extends AppCompatActivity {
         imgNowMe = findViewById(R.id.imgNowMe);
         rvComments = findViewById(R.id.rvComments);
 
-        nowme = (NowmeDto) getIntent().getSerializableExtra("nowme");
+        nowme = (NowmeResponse) getIntent().getSerializableExtra("nowme");
 
         if (nowme == null) {
             finish();
@@ -74,6 +75,7 @@ public class NowmeActivity extends AppCompatActivity {
         btnLike.setImageResource(
                 liked ? R.drawable.ic_heart : R.drawable.ic_heart_empty
         );
+        btnLike.setEnabled(nowme.id != null);
 
         tvUsername.setText(nowme.username);
         tvDescription.setText(nowme.description != null ? nowme.description : "Sin descripción");
@@ -121,11 +123,16 @@ public class NowmeActivity extends AppCompatActivity {
 
         btnLike.setOnClickListener(v -> {
 
-            if (nowme.id == null) return;
+            if (nowme.id == null || likeRequestInFlight) return;
+
+            boolean wasLiked = liked;
+            Long previousLikes = nowme.likes;
+            likeRequestInFlight = true;
+            btnLike.setEnabled(false);
 
             Call<Long> call;
 
-            if (!liked) {
+            if (!wasLiked) {
                 call = RetrofitClient.getApi().like(nowme.id);
             } else {
                 call = RetrofitClient.getApi().unlike(nowme.id);
@@ -134,12 +141,20 @@ public class NowmeActivity extends AppCompatActivity {
             call.enqueue(new Callback<Long>() {
                 @Override
                 public void onResponse(Call<Long> call, Response<Long> response) {
+                    likeRequestInFlight = false;
+                    btnLike.setEnabled(nowme.id != null);
 
-                    if (!response.isSuccessful() || response.body() == null) return;
+                    if (!response.isSuccessful() || response.body() == null) {
+                        liked = wasLiked;
+                        nowme.likes = previousLikes;
+                        nowme.liked = wasLiked;
+                        Toast.makeText(NowmeActivity.this, "Like error", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
 
                     long newLikes = response.body();
 
-                    liked = !liked;
+                    liked = !wasLiked;
 
                     btnLike.setImageResource(
                             liked ? R.drawable.ic_heart : R.drawable.ic_heart_empty
@@ -154,6 +169,11 @@ public class NowmeActivity extends AppCompatActivity {
 
                 @Override
                 public void onFailure(Call<Long> call, Throwable t) {
+                    likeRequestInFlight = false;
+                    btnLike.setEnabled(nowme.id != null);
+                    liked = wasLiked;
+                    nowme.likes = previousLikes;
+                    nowme.liked = wasLiked;
                     Toast.makeText(NowmeActivity.this, "Like error", Toast.LENGTH_SHORT).show();
                 }
             });

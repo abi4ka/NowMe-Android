@@ -1,6 +1,6 @@
 package com.example.nowme.network.dto;
 
-public class UserProfileDto {
+public class UserProfileResponse {
     public Long id;
     public String username;
     public String avatar;

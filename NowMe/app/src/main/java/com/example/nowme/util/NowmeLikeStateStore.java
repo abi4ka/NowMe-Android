@@ -1,6 +1,6 @@
 package com.example.nowme.util;
 
-import com.example.nowme.network.dto.NowmeDto;
+import com.example.nowme.network.dto.NowmeResponse;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,7 +11,7 @@ public class NowmeLikeStateStore {
     private NowmeLikeStateStore() {
     }
 
-    public static void remember(NowmeDto nowme) {
+    public static void remember(NowmeResponse nowme) {
         if (nowme == null || nowme.id == null || nowme.liked == null) return;
 
         synchronized (STATES) {
@@ -27,7 +27,7 @@ public class NowmeLikeStateStore {
         }
     }
 
-    public static void apply(NowmeDto nowme) {
+    public static void apply(NowmeResponse nowme) {
         if (nowme == null || nowme.id == null) return;
 
         LikeState state;

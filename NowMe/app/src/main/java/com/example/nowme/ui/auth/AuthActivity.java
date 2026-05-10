@@ -13,8 +13,8 @@ import com.example.nowme.R;
 import com.example.nowme.network.RetrofitClient;
 import com.example.nowme.network.SessionManager;
 import com.example.nowme.network.TokenStorage;
-import com.example.nowme.network.dto.AuthDto;
-import com.example.nowme.network.dto.UserDto;
+import com.example.nowme.network.dto.AuthRequest;
+import com.example.nowme.network.dto.AuthResponse;
 import com.example.nowme.ui.main.MainActivity;
 
 import retrofit2.Call;
@@ -27,6 +27,7 @@ public class AuthActivity extends AppCompatActivity {
     private Button btnLogin;
     private TextView tvSignup;
     private boolean registerMode = false;
+    private boolean authRequestInFlight = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +68,9 @@ public class AuthActivity extends AppCompatActivity {
     }
 
     private void auth() {
+        if (authRequestInFlight) {
+            return;
+        }
 
         String username = etUsername.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
@@ -76,18 +80,24 @@ public class AuthActivity extends AppCompatActivity {
             return;
         }
 
-        UserDto userDto = new UserDto(username, password);
+        AuthRequest authRequest = new AuthRequest(username, password);
+        authRequestInFlight = true;
+        btnLogin.setEnabled(false);
+        tvSignup.setEnabled(false);
 
-        Call<AuthDto> call = registerMode
-                ? RetrofitClient.getApi().register(userDto)
-                : RetrofitClient.getApi().login(userDto);
+        Call<AuthResponse> call = registerMode
+                ? RetrofitClient.getApi().register(authRequest)
+                : RetrofitClient.getApi().login(authRequest);
 
-        call.enqueue(new Callback<AuthDto>() {
+        call.enqueue(new Callback<AuthResponse>() {
             @Override
-            public void onResponse(Call<AuthDto> call, Response<AuthDto> response) {
+            public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
+                authRequestInFlight = false;
+                btnLogin.setEnabled(true);
+                tvSignup.setEnabled(true);
 
                 if (response.isSuccessful() && response.body() != null) {
-                    AuthDto dto = response.body();
+                    AuthResponse dto = response.body();
 
                     // 🔹 сохраняем оба токена
                     TokenStorage.save(AuthActivity.this, dto);
@@ -103,7 +113,10 @@ public class AuthActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<AuthDto> call, Throwable t) {
+            public void onFailure(Call<AuthResponse> call, Throwable t) {
+                authRequestInFlight = false;
+                btnLogin.setEnabled(true);
+                tvSignup.setEnabled(true);
                 t.printStackTrace();
                 Toast.makeText(AuthActivity.this,
                         "Network error: " + t.getMessage(),

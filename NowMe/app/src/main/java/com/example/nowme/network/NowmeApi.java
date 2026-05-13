@@ -5,11 +5,10 @@ import com.example.nowme.network.dto.AuthRequest;
 import com.example.nowme.network.dto.AuthResponse;
 import com.example.nowme.network.dto.NowmeResponse;
 import com.example.nowme.network.dto.RefreshRequest;
+import com.example.nowme.network.dto.UpdateAvatarRequest;
 import com.example.nowme.network.dto.UserProfileResponse;
 
 import java.util.List;
-
-import java.util.Map;
 
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;

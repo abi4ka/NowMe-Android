@@ -368,8 +368,8 @@ public class ProfileFragment extends Fragment {
         input.setPadding(padding, padding / 2, padding, padding / 2);
 
         AlertDialog dialog = new AlertDialog.Builder(requireContext())
-                .setTitle("Change avatar")
-                .setMessage("Current avatar: " + tvUserIcon.getText().toString())
+                .setTitle("Edit avatar")
+                .setMessage("Current: " + tvUserIcon.getText().toString())
                 .setView(input)
                 .setPositiveButton("SAVE", null)
                 .setNegativeButton("CANCEL", null)

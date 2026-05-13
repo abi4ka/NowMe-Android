@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.text.InputFilter;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -180,7 +181,15 @@ public class ProfileFragment extends Fragment {
         profileUserId = user.id;
         followingProfile = user.followingUser || user.following;
 
-        tvUserIcon.setText(user.avatar != null ? user.avatar : "");
+
+        String avatar = user.avatar != null ? user.avatar : "";
+
+        tvUserIcon.setText(avatar);
+
+        if (tvUserAvatar != null) {
+            tvUserAvatar.setText(avatar);
+        }
+
         tvUsername.setText(user.username != null ? user.username : "");
         tvFollowers.setText(String.valueOf(getFollowersCount(user)));
         tvFollowing.setText(String.valueOf(user.followingCount != null ? user.followingCount : 0));
@@ -346,35 +355,40 @@ public class ProfileFragment extends Fragment {
                 .setInterpolator(new DecelerateInterpolator())
                 .start();
     }
-
     private void showEditAvatarDialog() {
         EditText input = new EditText(requireContext());
 
-        input.setHint("CHANGE AVATAR");
+        input.setHint("New emoji");
         input.setText("");
-        input.setTextSize(20);
-
-        input.setFilters(new InputFilter[]{
-                new InputFilter.LengthFilter(4)
-        });
+        input.setTextSize(28);
+        input.setSingleLine(true);
+        input.setGravity(android.view.Gravity.CENTER);
 
         int padding = (int) (20 * getResources().getDisplayMetrics().density);
         input.setPadding(padding, padding / 2, padding, padding / 2);
 
         AlertDialog dialog = new AlertDialog.Builder(requireContext())
                 .setTitle("Change avatar")
-                .setMessage("Select new one")
+                .setMessage("Current avatar: " + tvUserIcon.getText().toString())
                 .setView(input)
                 .setPositiveButton("SAVE", null)
                 .setNegativeButton("CANCEL", null)
                 .create();
 
         dialog.setOnShowListener(d -> {
+            input.requestFocus();
+
+            if (dialog.getWindow() != null) {
+                dialog.getWindow().setSoftInputMode(
+                        android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE
+                );
+            }
+
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
                 String newAvatar = input.getText().toString().trim();
 
                 if (newAvatar.isEmpty()) {
-                    input.setError("Emoji");
+                    input.setError("Write an emoji");
                     return;
                 }
 
@@ -392,20 +406,34 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
+
                     tvUserAvatar.setText(newAvatar);
 
-                    Toast.makeText(requireContext(), "Avatar update", Toast.LENGTH_SHORT).show();
+                    tvUserIcon.setText(newAvatar);
+
+                    if (profileState.user != null) {
+                        profileState.user.avatar = newAvatar;
+                    }
+
+                    Toast.makeText(requireContext(), "Avatar updated", Toast.LENGTH_SHORT).show();
 
                     dialog.dismiss();
 
                 } else {
-                    Toast.makeText(requireContext(), "Error ", Toast.LENGTH_SHORT).show();
+                    try {
+                        String error = response.errorBody() != null ? response.errorBody().string() : "No error body";
+                        Log.e("AvatarUpdate", "Error code: " + response.code() + " body: " + error);
+                    } catch (Exception e) {
+                        Log.e("AvatarUpdate", "Error reading error body", e);
+                    }
+
+                    Toast.makeText(requireContext(), "Error updating avatar", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
-                Toast.makeText(requireContext(), "Error conection: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "Connection error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }

@@ -99,7 +99,6 @@ public class AuthActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     AuthResponse dto = response.body();
 
-                    // 🔹 сохраняем оба токена
                     TokenStorage.save(AuthActivity.this, dto);
 
                     Intent intent = new Intent(AuthActivity.this, MainActivity.class);

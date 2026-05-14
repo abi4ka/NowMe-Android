@@ -5,11 +5,10 @@ import com.example.nowme.network.dto.AuthRequest;
 import com.example.nowme.network.dto.AuthResponse;
 import com.example.nowme.network.dto.NowmeResponse;
 import com.example.nowme.network.dto.RefreshRequest;
+import com.example.nowme.network.dto.UpdateAvatarRequest;
 import com.example.nowme.network.dto.UserProfileResponse;
 
 import java.util.List;
-
-import java.util.Map;
 
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -20,6 +19,7 @@ import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
 
@@ -68,6 +68,9 @@ public interface NowmeApi {
 
     @DELETE("/follow/{userId}")
     Call<ResponseBody> unfollowUser(@Path("userId") Long userId);
+
+    @PUT("users/avatar")
+    Call<Void> updateAvatar(@Body UpdateAvatarRequest request);
 }
 
 

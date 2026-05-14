@@ -1,5 +1,6 @@
 package com.example.nowme.ui.profile;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -12,13 +13,17 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.text.InputFilter;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,6 +31,7 @@ import com.example.nowme.R;
 import com.example.nowme.network.NowmeApi;
 import com.example.nowme.network.RetrofitClient;
 import com.example.nowme.network.TokenStorage;
+import com.example.nowme.network.dto.UpdateAvatarRequest;
 import com.example.nowme.network.dto.NowmeResponse;
 import com.example.nowme.network.dto.UserProfileResponse;
 import com.example.nowme.ui.auth.AuthActivity;
@@ -42,7 +48,7 @@ import retrofit2.Response;
 public class ProfileFragment extends Fragment {
     private static final long MY_PROFILE_CACHE_KEY = -1L;
 
-    TextView tvUserIcon, tvUsername, tvFollowers, tvFollowing, tvFriends, tvStreak;
+    TextView tvUserIcon, tvUsername, tvFollowers, tvFollowing, tvFriends, tvStreak, tvUserAvatar;
     Button btnFollow;
     ImageButton btnCalendar, btnSettings;
     RecyclerView recyclerProfilePosts;
@@ -56,6 +62,8 @@ public class ProfileFragment extends Fragment {
     boolean settingsClosing = false;
     ProfileViewModel viewModel;
     ProfileState profileState;
+    LinearLayout btnEditAvatar;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -88,8 +96,12 @@ public class ProfileFragment extends Fragment {
 
         settingsOverlay = view.findViewById(R.id.settingsOverlay);
         settingsPanel = view.findViewById(R.id.settingsPanel);
+        btnEditAvatar = view.findViewById(R.id.btnEditAvatar);
+        tvUserAvatar = view.findViewById(R.id.tvUserAvatar);
+
         view.findViewById(R.id.btnBackSettings).setOnClickListener(v -> closeSettingsPanel(null));
         view.findViewById(R.id.btnLogout).setOnClickListener(v -> closeSettingsPanel(this::logout));
+        btnEditAvatar.setOnClickListener(v -> showEditAvatarDialog());
         settingsBackCallback = new OnBackPressedCallback(false) {
             @Override
             public void handleOnBackPressed() {
@@ -169,7 +181,15 @@ public class ProfileFragment extends Fragment {
         profileUserId = user.id;
         followingProfile = user.followingUser || user.following;
 
-        tvUserIcon.setText(user.avatar != null ? user.avatar : "");
+
+        String avatar = user.avatar != null ? user.avatar : "";
+
+        tvUserIcon.setText(avatar);
+
+        if (tvUserAvatar != null) {
+            tvUserAvatar.setText(avatar);
+        }
+
         tvUsername.setText(user.username != null ? user.username : "");
         tvFollowers.setText(String.valueOf(getFollowersCount(user)));
         tvFollowing.setText(String.valueOf(user.followingCount != null ? user.followingCount : 0));
@@ -334,6 +354,88 @@ public class ProfileFragment extends Fragment {
                 .setDuration(280)
                 .setInterpolator(new DecelerateInterpolator())
                 .start();
+    }
+    private void showEditAvatarDialog() {
+        EditText input = new EditText(requireContext());
+
+        input.setHint("New emoji");
+        input.setText("");
+        input.setTextSize(28);
+        input.setSingleLine(true);
+        input.setGravity(android.view.Gravity.CENTER);
+
+        int padding = (int) (20 * getResources().getDisplayMetrics().density);
+        input.setPadding(padding, padding / 2, padding, padding / 2);
+
+        AlertDialog dialog = new AlertDialog.Builder(requireContext())
+                .setTitle("Edit avatar")
+                .setMessage("Current: " + tvUserIcon.getText().toString())
+                .setView(input)
+                .setPositiveButton("SAVE", null)
+                .setNegativeButton("CANCEL", null)
+                .create();
+
+        dialog.setOnShowListener(d -> {
+            input.requestFocus();
+
+            if (dialog.getWindow() != null) {
+                dialog.getWindow().setSoftInputMode(
+                        android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE
+                );
+            }
+
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+                String newAvatar = input.getText().toString().trim();
+
+                if (newAvatar.isEmpty()) {
+                    input.setError("Write an emoji");
+                    return;
+                }
+
+                updateAvatar(newAvatar, dialog);
+            });
+        });
+
+        dialog.show();
+    }
+
+    private void updateAvatar(String newAvatar, AlertDialog dialog) {
+        UpdateAvatarRequest request = new UpdateAvatarRequest(newAvatar);
+
+        RetrofitClient.getApi().updateAvatar(request).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+
+                    tvUserAvatar.setText(newAvatar);
+
+                    tvUserIcon.setText(newAvatar);
+
+                    if (profileState.user != null) {
+                        profileState.user.avatar = newAvatar;
+                    }
+
+                    Toast.makeText(requireContext(), "Avatar updated", Toast.LENGTH_SHORT).show();
+
+                    dialog.dismiss();
+
+                } else {
+                    try {
+                        String error = response.errorBody() != null ? response.errorBody().string() : "No error body";
+                        Log.e("AvatarUpdate", "Error code: " + response.code() + " body: " + error);
+                    } catch (Exception e) {
+                        Log.e("AvatarUpdate", "Error reading error body", e);
+                    }
+
+                    Toast.makeText(requireContext(), "Error updating avatar", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(requireContext(), "Connection error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void closeSettingsPanel(Runnable afterClose) {

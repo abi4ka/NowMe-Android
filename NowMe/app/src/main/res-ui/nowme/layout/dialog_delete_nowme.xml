@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_nowme_visibility_menu"
+    android:orientation="vertical"
+    android:padding="@dimen/nowme_space_lg">
+
+    <TextView
+        style="@style/Text.NowMe.Title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Delete Nowme"
+        android:textColor="@color/nowme_text_primary" />
+
+    <TextView
+        android:id="@+id/tvDeleteWarning"
+        style="@style/Text.NowMe.Body"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/nowme_space_sm"
+        android:text="Delete forever"
+        android:textColor="@color/nowme_danger"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/nowme_space_lg"
+        android:gravity="end"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/btnCancelDelete"
+            style="@style/Text.NowMe.Body"
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            android:background="@drawable/bg_nowme_visibility_menu_item"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:minWidth="92dp"
+            android:paddingHorizontal="@dimen/nowme_space_md"
+            android:text="Cancel"
+            android:textColor="@color/nowme_text_primary"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/btnConfirmDelete"
+            style="@style/Text.NowMe.Body"
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            android:layout_marginStart="@dimen/nowme_space_sm"
+            android:background="@drawable/bg_nowme_visibility_menu_item"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:minWidth="92dp"
+            android:paddingHorizontal="@dimen/nowme_space_md"
+            android:text="Delete"
+            android:textColor="@color/nowme_danger"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+</LinearLayout>

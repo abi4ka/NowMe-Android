@@ -6,6 +6,7 @@ import com.example.nowme.network.dto.AuthResponse;
 import com.example.nowme.network.dto.NowmeResponse;
 import com.example.nowme.network.dto.RefreshRequest;
 import com.example.nowme.network.dto.UpdateAvatarRequest;
+import com.example.nowme.network.dto.UpdateNowmeVisibilityRequest;
 import com.example.nowme.network.dto.UserProfileResponse;
 
 import java.util.List;
@@ -56,6 +57,18 @@ public interface NowmeApi {
 
     @DELETE("/nowme/{id}/like")
     Call<Long> unlike(@Path("id") Long id);
+
+    @PUT("/nowme/{id}/visibility")
+    Call<NowmeResponse> updateNowmeVisibility(
+            @Path("id") Long id,
+            @Body UpdateNowmeVisibilityRequest request
+    );
+
+    @PUT("/nowme/{id}/favorite")
+    Call<NowmeResponse> toggleNowmeFavorite(@Path("id") Long id);
+
+    @DELETE("/nowme/{id}")
+    Call<Void> deleteNowme(@Path("id") Long id);
 
     @GET("/users/me")
     Call<UserProfileResponse> getMyProfile();

@@ -1,9 +1,15 @@
 package com.example.nowme.ui.nowme;
 
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -12,9 +18,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.nowme.R;
-import com.example.nowme.network.dto.NowmeResponse;
-import com.example.nowme.ui.main.MainActivity;
 import com.example.nowme.network.RetrofitClient;
+import com.example.nowme.network.dto.NowmeResponse;
+import com.example.nowme.network.dto.UpdateNowmeVisibilityRequest;
+import com.example.nowme.ui.main.MainActivity;
 import com.example.nowme.util.NowmeImageCache;
 import com.example.nowme.util.NowmeLikeStateStore;
 
@@ -71,6 +78,7 @@ public class NowmeActivity extends AppCompatActivity {
 
         NowmeLikeStateStore.apply(nowme);
         liked = nowme.liked != null && nowme.liked;
+        isOwner = Boolean.TRUE.equals(nowme.owner);
 
         btnLike.setImageResource(
                 liked ? R.drawable.ic_heart : R.drawable.ic_heart_empty
@@ -117,9 +125,13 @@ public class NowmeActivity extends AppCompatActivity {
 
         btnClose.setOnClickListener(v -> finish());
 
-        btnMenu.setOnClickListener(v ->
-                Toast.makeText(this, "Menú (delete / pin)", Toast.LENGTH_SHORT).show()
-        );
+        btnMenu.setEnabled(isOwner);
+        btnMenu.setAlpha(isOwner ? 1f : 0.45f);
+        btnMenu.setOnClickListener(v -> {
+            if (isOwner) {
+                showNowmeMenu();
+            }
+        });
 
         btnLike.setOnClickListener(v -> {
 
@@ -192,5 +204,62 @@ public class NowmeActivity extends AppCompatActivity {
         intent.putExtra(MainActivity.EXTRA_PROFILE_USER_ID, nowme.userId);
         startActivity(intent);
         finish();
+    }
+
+    private void showNowmeMenu() {
+        if (nowme.id == null) return;
+
+        View content = LayoutInflater.from(this)
+                .inflate(R.layout.popup_nowme_visibility, null, false);
+        LinearLayout action = content.findViewById(R.id.btnVisibilityAction);
+        TextView status = content.findViewById(R.id.tvVisibilityStatus);
+        String targetVisibility = "FRIENDS_ONLY".equals(nowme.visibility) ? "PUBLIC" : "FRIENDS_ONLY";
+        status.setText("Current: " + visibilityLabel(nowme.visibility));
+
+        PopupWindow popupWindow = new PopupWindow(
+                content,
+                getResources().getDimensionPixelSize(R.dimen.nowme_visibility_menu_width),
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                true
+        );
+        popupWindow.setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        popupWindow.setOutsideTouchable(true);
+        popupWindow.setElevation(getResources().getDimension(R.dimen.nowme_space_sm));
+        action.setOnClickListener(v -> {
+            popupWindow.dismiss();
+            updateVisibility(targetVisibility);
+        });
+        popupWindow.showAsDropDown(btnMenu, -popupWindow.getWidth() + btnMenu.getWidth(), 0);
+    }
+
+    private void updateVisibility(String visibility) {
+        if (nowme.id == null || visibility.equals(nowme.visibility)) return;
+
+        btnMenu.setEnabled(false);
+        RetrofitClient.getApi()
+                .updateNowmeVisibility(nowme.id, new UpdateNowmeVisibilityRequest(visibility))
+                .enqueue(new Callback<NowmeResponse>() {
+                    @Override
+                    public void onResponse(Call<NowmeResponse> call, Response<NowmeResponse> response) {
+                        btnMenu.setEnabled(true);
+                        if (!response.isSuccessful() || response.body() == null) {
+                            Toast.makeText(NowmeActivity.this, "Visibility error", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        nowme.visibility = response.body().visibility;
+                        Toast.makeText(NowmeActivity.this, visibilityLabel(nowme.visibility), Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onFailure(Call<NowmeResponse> call, Throwable t) {
+                        btnMenu.setEnabled(true);
+                        Toast.makeText(NowmeActivity.this, "Visibility error", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private String visibilityLabel(String visibility) {
+        return "FRIENDS_ONLY".equals(visibility) ? "Friends" : "Public";
     }
 }

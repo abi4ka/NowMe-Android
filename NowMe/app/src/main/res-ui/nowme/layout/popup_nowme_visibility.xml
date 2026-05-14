@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="156dp"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_nowme_visibility_menu"
+    android:padding="@dimen/nowme_space_xs">
+
+    <LinearLayout
+        android:id="@+id/btnVisibilityAction"
+        android:layout_width="match_parent"
+        android:layout_height="58dp"
+        android:background="@drawable/bg_nowme_visibility_menu_item"
+        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/nowme_space_md"
+        android:paddingVertical="@dimen/nowme_space_sm">
+
+        <TextView
+            android:id="@+id/tvVisibilityTitle"
+            style="@style/Text.NowMe.Body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Change Visibility"
+            android:textColor="@color/nowme_text_primary"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvVisibilityStatus"
+            style="@style/Text.NowMe.Caption"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="1dp"
+            android:textColor="@color/nowme_text_secondary" />
+
+    </LinearLayout>
+
+</FrameLayout>

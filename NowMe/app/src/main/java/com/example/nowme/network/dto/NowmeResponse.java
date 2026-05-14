@@ -7,10 +7,12 @@ public class NowmeResponse implements Serializable {
     public Long userId;
     public String description;
     public String creationTime;
+    public String visibility;
     public Long likes;
     public Long comments;
     public String username;
     public String userAvatar;
+    public Boolean owner;
     public Boolean favorite;
     public Boolean liked;
 }

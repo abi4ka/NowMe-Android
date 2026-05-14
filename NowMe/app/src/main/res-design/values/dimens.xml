@@ -9,4 +9,5 @@
     <dimen name="nowme_radius_lg">24dp</dimen>
     <dimen name="nowme_button_height">46dp</dimen>
     <dimen name="nowme_bottom_navigation_clearance">28dp</dimen>
+    <dimen name="nowme_visibility_menu_width">196dp</dimen>
 </resources>

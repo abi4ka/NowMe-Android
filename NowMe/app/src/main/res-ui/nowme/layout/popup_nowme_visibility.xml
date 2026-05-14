@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="156dp"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/bg_nowme_visibility_menu"
+    android:orientation="vertical"
     android:padding="@dimen/nowme_space_xs">
 
     <LinearLayout
@@ -34,4 +35,41 @@
 
     </LinearLayout>
 
-</FrameLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginHorizontal="@dimen/nowme_space_sm"
+        android:layout_marginVertical="@dimen/nowme_space_xs"
+        android:background="@color/nowme_surface_overlay" />
+
+    <LinearLayout
+        android:id="@+id/btnDeleteNowme"
+        android:layout_width="match_parent"
+        android:layout_height="58dp"
+        android:background="@drawable/bg_nowme_visibility_menu_item"
+        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/nowme_space_md"
+        android:paddingVertical="@dimen/nowme_space_sm">
+
+        <TextView
+            android:id="@+id/tvDeleteTitle"
+            style="@style/Text.NowMe.Body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Delete Nowme"
+            android:textColor="@color/nowme_danger"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvDeleteSubtitle"
+            style="@style/Text.NowMe.Caption"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="1dp"
+            android:text="Delete forever"
+            android:textColor="@color/nowme_text_secondary" />
+
+    </LinearLayout>
+
+</LinearLayout>

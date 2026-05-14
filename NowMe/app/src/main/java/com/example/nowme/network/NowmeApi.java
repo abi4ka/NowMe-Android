@@ -64,6 +64,9 @@ public interface NowmeApi {
             @Body UpdateNowmeVisibilityRequest request
     );
 
+    @DELETE("/nowme/{id}")
+    Call<Void> deleteNowme(@Path("id") Long id);
+
     @GET("/users/me")
     Call<UserProfileResponse> getMyProfile();
 

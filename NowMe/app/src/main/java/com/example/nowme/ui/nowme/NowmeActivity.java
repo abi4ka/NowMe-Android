@@ -3,6 +3,10 @@ package com.example.nowme.ui.nowme;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +18,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.nowme.R;
@@ -22,6 +28,7 @@ import com.example.nowme.network.RetrofitClient;
 import com.example.nowme.network.dto.NowmeResponse;
 import com.example.nowme.network.dto.UpdateNowmeVisibilityRequest;
 import com.example.nowme.ui.main.MainActivity;
+import com.example.nowme.util.NowmeFeedInvalidationStore;
 import com.example.nowme.util.NowmeImageCache;
 import com.example.nowme.util.NowmeLikeStateStore;
 
@@ -38,6 +45,7 @@ public class NowmeActivity extends AppCompatActivity {
 
     boolean liked = false;
     boolean likeRequestInFlight = false;
+    boolean deleteRequestInFlight = false;
     boolean isOwner;
     NowmeResponse nowme;
 
@@ -212,6 +220,7 @@ public class NowmeActivity extends AppCompatActivity {
         View content = LayoutInflater.from(this)
                 .inflate(R.layout.popup_nowme_visibility, null, false);
         LinearLayout action = content.findViewById(R.id.btnVisibilityAction);
+        LinearLayout deleteAction = content.findViewById(R.id.btnDeleteNowme);
         TextView status = content.findViewById(R.id.tvVisibilityStatus);
         String targetVisibility = "FRIENDS_ONLY".equals(nowme.visibility) ? "PUBLIC" : "FRIENDS_ONLY";
         status.setText("Current: " + visibilityLabel(nowme.visibility));
@@ -228,6 +237,10 @@ public class NowmeActivity extends AppCompatActivity {
         action.setOnClickListener(v -> {
             popupWindow.dismiss();
             updateVisibility(targetVisibility);
+        });
+        deleteAction.setOnClickListener(v -> {
+            popupWindow.dismiss();
+            confirmDeleteNowme();
         });
         popupWindow.showAsDropDown(btnMenu, -popupWindow.getWidth() + btnMenu.getWidth(), 0);
     }
@@ -257,6 +270,76 @@ public class NowmeActivity extends AppCompatActivity {
                         Toast.makeText(NowmeActivity.this, "Visibility error", Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
+
+    private void confirmDeleteNowme() {
+        if (nowme.id == null || deleteRequestInFlight) return;
+
+        View content = LayoutInflater.from(this)
+                .inflate(R.layout.dialog_delete_nowme, null, false);
+        TextView warning = content.findViewById(R.id.tvDeleteWarning);
+        warning.setText(buildDeleteWarningText());
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setView(content)
+                .create();
+        content.findViewById(R.id.btnCancelDelete).setOnClickListener(v -> dialog.dismiss());
+        content.findViewById(R.id.btnConfirmDelete).setOnClickListener(v -> {
+            dialog.dismiss();
+            deleteNowme();
+        });
+        dialog.show();
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        }
+    }
+
+    private SpannableString buildDeleteWarningText() {
+        String dangerText = "Delete forever";
+        String message = dangerText + ", this cannot be undone.";
+        SpannableString warning = new SpannableString(message);
+        warning.setSpan(
+                new ForegroundColorSpan(ContextCompat.getColor(this, R.color.nowme_danger)),
+                0,
+                dangerText.length(),
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        );
+        warning.setSpan(
+                new StyleSpan(android.graphics.Typeface.BOLD),
+                0,
+                dangerText.length(),
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        );
+        return warning;
+    }
+
+    private void deleteNowme() {
+        if (nowme.id == null || deleteRequestInFlight) return;
+
+        deleteRequestInFlight = true;
+        btnMenu.setEnabled(false);
+        RetrofitClient.getApi().deleteNowme(nowme.id).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                deleteRequestInFlight = false;
+                btnMenu.setEnabled(isOwner);
+
+                if (!response.isSuccessful()) {
+                    Toast.makeText(NowmeActivity.this, "Delete error", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                Toast.makeText(NowmeActivity.this, "Nowme deleted", Toast.LENGTH_SHORT).show();
+                NowmeFeedInvalidationStore.invalidate();
+                finish();
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                deleteRequestInFlight = false;
+                btnMenu.setEnabled(isOwner);
+                Toast.makeText(NowmeActivity.this, "Delete error", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private String visibilityLabel(String visibility) {

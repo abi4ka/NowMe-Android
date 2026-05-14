@@ -17,6 +17,7 @@ import com.example.nowme.R;
 import com.example.nowme.network.RetrofitClient;
 import com.example.nowme.network.dto.NowmeResponse;
 import com.example.nowme.ui.main.MainActivity;
+import com.example.nowme.util.NowmeFeedInvalidationStore;
 
 import java.util.Collections;
 import java.util.List;
@@ -68,6 +69,10 @@ public class HomeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        if (NowmeFeedInvalidationStore.consumeInvalidated()) {
+            loadFeed(true);
+            return;
+        }
         if (adapter != null) {
             adapter.syncLikeStates();
         }

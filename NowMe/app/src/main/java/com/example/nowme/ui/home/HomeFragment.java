@@ -45,7 +45,7 @@ public class HomeFragment extends Fragment {
     private RecyclerView recyclerSearchUsers;
     private UserSearchAdapter userSearchAdapter;
 
-    private Call<List<UserSearchResponse>> searchCall;
+    private Call<PageResponse<UserSearchResponse>> searchCall;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -169,17 +169,19 @@ public class HomeFragment extends Fragment {
             searchCall.cancel();
         }
 
-        searchCall = RetrofitClient.getApi().searchUsers(query);
+        searchCall = RetrofitClient.getApi().searchUsers(query, 0, 10);
 
-        searchCall.enqueue(new Callback<List<UserSearchResponse>>() {
+        searchCall.enqueue(new Callback<PageResponse<UserSearchResponse>>() {
             @Override
-            public void onResponse(Call<List<UserSearchResponse>> call,
-                                   Response<List<UserSearchResponse>> response) {
+            public void onResponse(Call<PageResponse<UserSearchResponse>> call,
+                                   Response<PageResponse<UserSearchResponse>> response) {
 
                 if (!isAdded()) return;
 
                 if (response.isSuccessful() && response.body() != null) {
-                    List<UserSearchResponse> users = response.body();
+                    List<UserSearchResponse> users = response.body().content != null
+                            ? response.body().content
+                            : Collections.emptyList();
 
                     userSearchAdapter.setUsers(users);
 
@@ -195,7 +197,7 @@ public class HomeFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Call<List<UserSearchResponse>> call, Throwable t) {
+            public void onFailure(Call<PageResponse<UserSearchResponse>> call, Throwable t) {
                 if (call.isCanceled()) return;
                 if (!isAdded()) return;
 

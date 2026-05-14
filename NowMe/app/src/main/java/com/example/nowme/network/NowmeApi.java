@@ -8,7 +8,6 @@ import com.example.nowme.network.dto.RefreshRequest;
 import com.example.nowme.network.dto.UpdateAvatarRequest;
 import com.example.nowme.network.dto.UserProfileResponse;
 import com.example.nowme.network.dto.UserSearchResponse;
-import com.example.nowme.network.dto.UserSearchResponse;
 
 import java.util.List;
 
@@ -76,7 +75,11 @@ public interface NowmeApi {
     Call<Void> updateAvatar(@Body UpdateAvatarRequest request);
 
     @GET("users/search")
-    Call<List<UserSearchResponse>> searchUsers(@Query("query") String query);
+    Call<PageResponse<UserSearchResponse>> searchUsers(
+            @Query("query") String query,
+            @Query("page") int page,
+            @Query("size") int size
+    );
 }
 
 

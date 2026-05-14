@@ -6,33 +6,16 @@
     android:orientation="vertical"
     android:padding="@dimen/nowme_space_xs">
 
-    <LinearLayout
+    <TextView
         android:id="@+id/btnPinNowme"
+        style="@style/Text.NowMe.Body"
         android:layout_width="match_parent"
-        android:layout_height="58dp"
+        android:layout_height="44dp"
         android:background="@drawable/bg_nowme_visibility_menu_item"
         android:gravity="center_vertical"
-        android:orientation="vertical"
         android:paddingHorizontal="@dimen/nowme_space_md"
-        android:paddingVertical="@dimen/nowme_space_sm">
-
-        <TextView
-            android:id="@+id/tvPinTitle"
-            style="@style/Text.NowMe.Body"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="@color/nowme_text_primary"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/tvPinStatus"
-            style="@style/Text.NowMe.Caption"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="1dp"
-            android:textColor="@color/nowme_text_secondary" />
-
-    </LinearLayout>
+        android:textColor="@color/nowme_text_primary"
+        android:textStyle="bold" />
 
     <View
         android:layout_width="match_parent"
@@ -41,34 +24,16 @@
         android:layout_marginVertical="@dimen/nowme_space_xs"
         android:background="@color/nowme_surface_overlay" />
 
-    <LinearLayout
+    <TextView
         android:id="@+id/btnVisibilityAction"
+        style="@style/Text.NowMe.Body"
         android:layout_width="match_parent"
-        android:layout_height="58dp"
+        android:layout_height="44dp"
         android:background="@drawable/bg_nowme_visibility_menu_item"
         android:gravity="center_vertical"
-        android:orientation="vertical"
         android:paddingHorizontal="@dimen/nowme_space_md"
-        android:paddingVertical="@dimen/nowme_space_sm">
-
-        <TextView
-            android:id="@+id/tvVisibilityTitle"
-            style="@style/Text.NowMe.Body"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Change Visibility"
-            android:textColor="@color/nowme_text_primary"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/tvVisibilityStatus"
-            style="@style/Text.NowMe.Caption"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="1dp"
-            android:textColor="@color/nowme_text_secondary" />
-
-    </LinearLayout>
+        android:textColor="@color/nowme_text_primary"
+        android:textStyle="bold" />
 
     <View
         android:layout_width="match_parent"
@@ -77,34 +42,16 @@
         android:layout_marginVertical="@dimen/nowme_space_xs"
         android:background="@color/nowme_surface_overlay" />
 
-    <LinearLayout
+    <TextView
         android:id="@+id/btnDeleteNowme"
+        style="@style/Text.NowMe.Body"
         android:layout_width="match_parent"
-        android:layout_height="58dp"
+        android:layout_height="44dp"
         android:background="@drawable/bg_nowme_visibility_menu_item"
         android:gravity="center_vertical"
-        android:orientation="vertical"
         android:paddingHorizontal="@dimen/nowme_space_md"
-        android:paddingVertical="@dimen/nowme_space_sm">
-
-        <TextView
-            android:id="@+id/tvDeleteTitle"
-            style="@style/Text.NowMe.Body"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Delete Nowme"
-            android:textColor="@color/nowme_danger"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/tvDeleteSubtitle"
-            style="@style/Text.NowMe.Caption"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="1dp"
-            android:text="Delete forever"
-            android:textColor="@color/nowme_text_secondary" />
-
-    </LinearLayout>
+        android:text="Delete"
+        android:textColor="@color/nowme_danger"
+        android:textStyle="bold" />
 
 </LinearLayout>

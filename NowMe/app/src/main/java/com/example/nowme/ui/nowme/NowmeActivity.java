@@ -220,17 +220,13 @@ public class NowmeActivity extends AppCompatActivity {
 
         View content = LayoutInflater.from(this)
                 .inflate(R.layout.popup_nowme_visibility, null, false);
-        LinearLayout pinAction = content.findViewById(R.id.btnPinNowme);
-        LinearLayout action = content.findViewById(R.id.btnVisibilityAction);
-        LinearLayout deleteAction = content.findViewById(R.id.btnDeleteNowme);
-        TextView pinTitle = content.findViewById(R.id.tvPinTitle);
-        TextView pinStatus = content.findViewById(R.id.tvPinStatus);
-        TextView status = content.findViewById(R.id.tvVisibilityStatus);
+        TextView pinAction = content.findViewById(R.id.btnPinNowme);
+        TextView visibilityAction = content.findViewById(R.id.btnVisibilityAction);
+        TextView deleteAction = content.findViewById(R.id.btnDeleteNowme);
         boolean favorite = Boolean.TRUE.equals(nowme.favorite);
         String targetVisibility = "FRIENDS_ONLY".equals(nowme.visibility) ? "PUBLIC" : "FRIENDS_ONLY";
-        pinTitle.setText(favorite ? "Unpin Nowme" : "Pin Nowme");
-        pinStatus.setText("Current: " + (favorite ? "Pinned" : "Not pinned"));
-        status.setText("Current: " + visibilityLabel(nowme.visibility));
+        pinAction.setText(favorite ? "Unpin" : "Pin");
+        visibilityAction.setText("FRIENDS_ONLY".equals(nowme.visibility) ? "Make public" : "Make friends only");
 
         PopupWindow popupWindow = new PopupWindow(
                 content,
@@ -245,7 +241,7 @@ public class NowmeActivity extends AppCompatActivity {
             popupWindow.dismiss();
             toggleFavorite();
         });
-        action.setOnClickListener(v -> {
+        visibilityAction.setOnClickListener(v -> {
             popupWindow.dismiss();
             updateVisibility(targetVisibility);
         });

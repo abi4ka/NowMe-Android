@@ -64,6 +64,9 @@ public interface NowmeApi {
             @Body UpdateNowmeVisibilityRequest request
     );
 
+    @PUT("/nowme/{id}/favorite")
+    Call<NowmeResponse> toggleNowmeFavorite(@Path("id") Long id);
+
     @DELETE("/nowme/{id}")
     Call<Void> deleteNowme(@Path("id") Long id);
 

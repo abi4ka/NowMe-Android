@@ -46,6 +46,7 @@ public class NowmeActivity extends AppCompatActivity {
     boolean liked = false;
     boolean likeRequestInFlight = false;
     boolean deleteRequestInFlight = false;
+    boolean favoriteRequestInFlight = false;
     boolean isOwner;
     NowmeResponse nowme;
 
@@ -219,10 +220,16 @@ public class NowmeActivity extends AppCompatActivity {
 
         View content = LayoutInflater.from(this)
                 .inflate(R.layout.popup_nowme_visibility, null, false);
+        LinearLayout pinAction = content.findViewById(R.id.btnPinNowme);
         LinearLayout action = content.findViewById(R.id.btnVisibilityAction);
         LinearLayout deleteAction = content.findViewById(R.id.btnDeleteNowme);
+        TextView pinTitle = content.findViewById(R.id.tvPinTitle);
+        TextView pinStatus = content.findViewById(R.id.tvPinStatus);
         TextView status = content.findViewById(R.id.tvVisibilityStatus);
+        boolean favorite = Boolean.TRUE.equals(nowme.favorite);
         String targetVisibility = "FRIENDS_ONLY".equals(nowme.visibility) ? "PUBLIC" : "FRIENDS_ONLY";
+        pinTitle.setText(favorite ? "Unpin Nowme" : "Pin Nowme");
+        pinStatus.setText("Current: " + (favorite ? "Pinned" : "Not pinned"));
         status.setText("Current: " + visibilityLabel(nowme.visibility));
 
         PopupWindow popupWindow = new PopupWindow(
@@ -234,6 +241,10 @@ public class NowmeActivity extends AppCompatActivity {
         popupWindow.setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         popupWindow.setOutsideTouchable(true);
         popupWindow.setElevation(getResources().getDimension(R.dimen.nowme_space_sm));
+        pinAction.setOnClickListener(v -> {
+            popupWindow.dismiss();
+            toggleFavorite();
+        });
         action.setOnClickListener(v -> {
             popupWindow.dismiss();
             updateVisibility(targetVisibility);
@@ -270,6 +281,39 @@ public class NowmeActivity extends AppCompatActivity {
                         Toast.makeText(NowmeActivity.this, "Visibility error", Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
+
+    private void toggleFavorite() {
+        if (nowme.id == null || favoriteRequestInFlight) return;
+
+        favoriteRequestInFlight = true;
+        btnMenu.setEnabled(false);
+        RetrofitClient.getApi().toggleNowmeFavorite(nowme.id).enqueue(new Callback<NowmeResponse>() {
+            @Override
+            public void onResponse(Call<NowmeResponse> call, Response<NowmeResponse> response) {
+                favoriteRequestInFlight = false;
+                btnMenu.setEnabled(isOwner);
+                if (!response.isSuccessful() || response.body() == null) {
+                    Toast.makeText(NowmeActivity.this, "Pin error", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                nowme.favorite = response.body().favorite;
+                NowmeFeedInvalidationStore.invalidateProfile();
+                Toast.makeText(
+                        NowmeActivity.this,
+                        Boolean.TRUE.equals(nowme.favorite) ? "Pinned" : "Unpinned",
+                        Toast.LENGTH_SHORT
+                ).show();
+            }
+
+            @Override
+            public void onFailure(Call<NowmeResponse> call, Throwable t) {
+                favoriteRequestInFlight = false;
+                btnMenu.setEnabled(isOwner);
+                Toast.makeText(NowmeActivity.this, "Pin error", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void confirmDeleteNowme() {

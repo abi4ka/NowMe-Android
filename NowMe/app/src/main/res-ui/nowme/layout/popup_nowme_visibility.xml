@@ -7,6 +7,41 @@
     android:padding="@dimen/nowme_space_xs">
 
     <LinearLayout
+        android:id="@+id/btnPinNowme"
+        android:layout_width="match_parent"
+        android:layout_height="58dp"
+        android:background="@drawable/bg_nowme_visibility_menu_item"
+        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/nowme_space_md"
+        android:paddingVertical="@dimen/nowme_space_sm">
+
+        <TextView
+            android:id="@+id/tvPinTitle"
+            style="@style/Text.NowMe.Body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/nowme_text_primary"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvPinStatus"
+            style="@style/Text.NowMe.Caption"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="1dp"
+            android:textColor="@color/nowme_text_secondary" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginHorizontal="@dimen/nowme_space_sm"
+        android:layout_marginVertical="@dimen/nowme_space_xs"
+        android:background="@color/nowme_surface_overlay" />
+
+    <LinearLayout
         android:id="@+id/btnVisibilityAction"
         android:layout_width="match_parent"
         android:layout_height="58dp"

@@ -35,6 +35,7 @@ import com.example.nowme.network.dto.UpdateAvatarRequest;
 import com.example.nowme.network.dto.NowmeResponse;
 import com.example.nowme.network.dto.UserProfileResponse;
 import com.example.nowme.ui.auth.AuthActivity;
+import com.example.nowme.util.NowmeFeedInvalidationStore;
 
 import java.util.HashMap;
 import java.util.List;
@@ -127,6 +128,15 @@ public class ProfileFragment extends Fragment {
         }
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (NowmeFeedInvalidationStore.consumeProfileInvalidated()) {
+            profileState.postsLoaded = false;
+            loadProfilePosts(true);
+        }
     }
 
     private long getCacheKey() {

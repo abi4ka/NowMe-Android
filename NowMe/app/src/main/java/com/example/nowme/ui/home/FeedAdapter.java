@@ -80,6 +80,22 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         notifyDataSetChanged();
     }
 
+    public int getAdapterPositionForNowmeId(Long nowmeId) {
+        if (nowmeId == null) return RecyclerView.NO_POSITION;
+
+        for (int i = 0; i < rows.size(); i++) {
+            RowItem row = rows.get(i);
+            if (row instanceof PostRow) {
+                NowmeResponse item = ((PostRow) row).item;
+                if (nowmeId.equals(item.id)) {
+                    return i;
+                }
+            }
+        }
+
+        return RecyclerView.NO_POSITION;
+    }
+
     @Override
     public int getItemViewType(int position) {
         return rows.get(position) instanceof DateHeaderRow ? VIEW_TYPE_DATE_HEADER : VIEW_TYPE_POST;
@@ -258,7 +274,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private interface RowItem {
     }
 
-    interface OnAuthorClickListener {
+    public interface OnAuthorClickListener {
         void onAuthorClick(Long userId);
     }
 

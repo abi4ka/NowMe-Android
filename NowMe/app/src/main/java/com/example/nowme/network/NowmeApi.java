@@ -49,6 +49,9 @@ public interface NowmeApi {
     @GET("/nowme/users/{userId}")
     Call<List<NowmeResponse>> getProfileNowmes(@Path("userId") Long userId);
 
+    @GET("/nowme/me/history")
+    Call<List<NowmeResponse>> getMyNowmeHistory();
+
     @GET("/nowme/{id}/image")
     Call<ResponseBody> getNowmeImage(@Path("id") Long id);
 
@@ -85,5 +88,3 @@ public interface NowmeApi {
     @PUT("users/avatar")
     Call<Void> updateAvatar(@Body UpdateAvatarRequest request);
 }
-
-

@@ -22,6 +22,16 @@
         android:theme="@style/Theme.NowMe"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".ui.profile.CalendarHistoryActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.NowMe.NoActionBar" />
+        <activity
+            android:name=".ui.profile.HistoryFeedActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.NowMe.NoActionBar" />
+        <activity
             android:name=".ui.nowme.NowmeActivity"
             android:exported="false"
             android:screenOrientation="portrait" />

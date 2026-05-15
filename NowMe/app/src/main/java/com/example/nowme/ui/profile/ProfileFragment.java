@@ -92,6 +92,15 @@ public class ProfileFragment extends Fragment {
         btnFollow.setOnClickListener(v -> toggleFollow());
 
         btnCalendar = requireActivity().findViewById(R.id.appBarCalendarButton);
+        btnCalendar.setOnClickListener(v -> {
+            if (profileState.user != null && profileState.user.me) {
+                startActivity(new Intent(requireContext(), CalendarHistoryActivity.class));
+                requireActivity().overridePendingTransition(
+                        R.anim.slide_in_left_to_right,
+                        R.anim.stay
+                );
+            }
+        });
         btnSettings = requireActivity().findViewById(R.id.appBarSettingsButton);
         btnSettings.setOnClickListener(v -> showSettingsPanel());
 
@@ -484,6 +493,7 @@ public class ProfileFragment extends Fragment {
         super.onDestroyView();
         if (btnCalendar != null) {
             btnCalendar.setVisibility(View.GONE);
+            btnCalendar.setOnClickListener(null);
         }
         if (btnSettings != null) {
             btnSettings.setVisibility(View.GONE);

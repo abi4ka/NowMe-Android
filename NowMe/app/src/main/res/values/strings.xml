@@ -48,6 +48,9 @@
     <!-- Feed & Search -->
     <string name="search_users">Search users...</string>
     <string name="no_posts_yet">No posts yet. Capture your moment today!</string>
+    <string name="empty_feed_title">Your feed is quiet</string>
+    <string name="empty_feed_subtitle">Follow your friends or capture your first NowMe!</string>
+    <string name="no_users_found">No users found</string>
     <string name="empty_calendar">No memories recorded yet.</string>
 
     <!-- Errors -->
@@ -55,4 +58,5 @@
     <string name="calendar_error">Unable to load calendar</string>
     <string name="history_error">Unable to load history</string>
     <string name="like_error">Like action failed</string>
+    <string name="unable_to_load_feed">Unable to load feed. Pull down to retry.</string>
 </resources>

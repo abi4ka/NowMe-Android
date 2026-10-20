@@ -11,6 +11,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
@@ -47,8 +48,8 @@ public class HomeFragment extends Fragment {
     private EditText etSearchUser;
     private RecyclerView recyclerSearchUsers;
     private UserSearchAdapter userSearchAdapter;
-
-
+    private View homeEmptyState;
+    private TextView tvSearchEmpty;
 
     private Call<PageResponse<UserSearchResponse>> searchCall;
 
@@ -65,6 +66,7 @@ public class HomeFragment extends Fragment {
 
         if (viewModel.items != null) {
             adapter.setItems(viewModel.items);
+            updateFeedEmptyState(viewModel.items.isEmpty());
             restoreScrollPosition();
         }
 
@@ -75,11 +77,21 @@ public class HomeFragment extends Fragment {
         return view;
     }
 
+    private void updateFeedEmptyState(boolean isEmpty) {
+        if (homeEmptyState != null) {
+            homeEmptyState.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
+        }
+        if (recyclerView != null) {
+            recyclerView.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
+        }
+    }
+
     private void initFeed(View view) {
         refreshLayout = view.findViewById(R.id.homeRefresh);
         refreshLayout.setOnRefreshListener(() -> loadFeed(true));
 
         recyclerView = view.findViewById(R.id.recyclerFeed);
+        homeEmptyState = view.findViewById(R.id.homeEmptyState);
 
         adapter = new FeedAdapter(userId -> {
             Bundle args = new Bundle();
@@ -96,6 +108,7 @@ public class HomeFragment extends Fragment {
         searchContainer = view.findViewById(R.id.searchContainer);
         etSearchUser = view.findViewById(R.id.etSearchUser);
         recyclerSearchUsers = view.findViewById(R.id.recyclerSearchUsers);
+        tvSearchEmpty = view.findViewById(R.id.tvSearchEmpty);
 
         userSearchAdapter = new UserSearchAdapter(userId -> {
             Bundle args = new Bundle();
@@ -196,6 +209,10 @@ public class HomeFragment extends Fragment {
             recyclerSearchUsers.setVisibility(View.GONE);
         }
 
+        if (tvSearchEmpty != null) {
+            tvSearchEmpty.setVisibility(View.GONE);
+        }
+
         if (searchContainer != null) {
             searchContainer.setVisibility(View.GONE);
         }
@@ -222,21 +239,23 @@ public class HomeFragment extends Fragment {
 
                     userSearchAdapter.setUsers(users);
 
+                    searchContainer.setVisibility(View.VISIBLE);
                     if (users.isEmpty()) {
                         recyclerSearchUsers.setVisibility(View.GONE);
-                        searchContainer.setVisibility(View.GONE);
+                        if (tvSearchEmpty != null) tvSearchEmpty.setVisibility(View.VISIBLE);
                     } else {
-                        searchContainer.setVisibility(View.VISIBLE);
+                        if (tvSearchEmpty != null) tvSearchEmpty.setVisibility(View.GONE);
                         recyclerSearchUsers.setVisibility(View.VISIBLE);
                     }
 
                 } else {
                     recyclerSearchUsers.setVisibility(View.GONE);
+                    if (tvSearchEmpty != null) tvSearchEmpty.setVisibility(View.GONE);
                     searchContainer.setVisibility(View.GONE);
 
                     Toast.makeText(
                             requireContext(),
-                            "Search failed: " + response.code(),
+                            R.string.network_error,
                             Toast.LENGTH_SHORT
                     ).show();
                 }
@@ -248,9 +267,10 @@ public class HomeFragment extends Fragment {
                 if (!isAdded()) return;
 
                 recyclerSearchUsers.setVisibility(View.GONE);
+                if (tvSearchEmpty != null) tvSearchEmpty.setVisibility(View.GONE);
                 searchContainer.setVisibility(View.GONE);
 
-                Toast.makeText(requireContext(), "Search error", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), R.string.network_error, Toast.LENGTH_SHORT).show();
                 t.printStackTrace();
             }
         });
@@ -304,6 +324,14 @@ public class HomeFragment extends Fragment {
                     if (adapter != null) {
                         adapter.setItems(list);
                     }
+                    updateFeedEmptyState(list.isEmpty());
+                } else {
+                    if (adapter == null || adapter.getItemCount() == 0) {
+                        updateFeedEmptyState(true);
+                    }
+                    if (isAdded()) {
+                        Toast.makeText(requireContext(), R.string.unable_to_load_feed, Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
 
@@ -311,6 +339,12 @@ public class HomeFragment extends Fragment {
             public void onFailure(Call<PageResponse<NowmeResponse>> call, Throwable t) {
                 viewModel.loading = false;
                 stopRefreshing();
+                if (adapter == null || adapter.getItemCount() == 0) {
+                    updateFeedEmptyState(true);
+                }
+                if (isAdded()) {
+                    Toast.makeText(requireContext(), R.string.network_error, Toast.LENGTH_SHORT).show();
+                }
                 t.printStackTrace();
             }
         });

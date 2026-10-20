@@ -76,6 +76,17 @@
                     android:nestedScrollingEnabled="false"
                     android:visibility="gone" />
 
+                <TextView
+                    android:id="@+id/tvSearchEmpty"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:padding="16dp"
+                    android:text="@string/no_users_found"
+                    android:textColor="@color/nowme_text_secondary"
+                    android:textSize="14sp"
+                    android:visibility="gone" />
+
             </LinearLayout>
 
         </LinearLayout>
@@ -88,12 +99,59 @@
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerFeed"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipToPadding="false"
-            android:paddingBottom="16dp" />
+            android:layout_height="match_parent">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerFeed"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingBottom="16dp" />
+
+            <LinearLayout
+                android:id="@+id/homeEmptyState"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="32dp"
+                android:visibility="gone">
+
+                <ImageView
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:alpha="0.45"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_home"
+                    app:tint="@color/nowme_text_secondary" />
+
+                <TextView
+                    android:id="@+id/tvEmptyTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center"
+                    android:text="@string/empty_feed_title"
+                    android:textColor="@color/nowme_text_primary"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvEmptySubtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center"
+                    android:lineSpacingExtra="2dp"
+                    android:text="@string/empty_feed_subtitle"
+                    android:textColor="@color/nowme_text_secondary"
+                    android:textSize="14sp" />
+
+            </LinearLayout>
+
+        </FrameLayout>
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 

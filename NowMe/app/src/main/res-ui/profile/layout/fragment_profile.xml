@@ -201,12 +201,34 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/profileCard" />
 
+                <LinearLayout
+                    android:id="@+id/profileEmptyState"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="32dp"
+                    android:visibility="gone"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/recyclerProfilePosts">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="@string/no_posts_yet"
+                        android:textColor="@color/nowme_text_secondary"
+                        android:textSize="14sp" />
+
+                </LinearLayout>
+
                 <Space
                     android:id="@+id/profileBottomSpacer"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/nowme_bottom_navigation_clearance"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/recyclerProfilePosts" />
+                    app:layout_constraintTop_toBottomOf="@id/profileEmptyState" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

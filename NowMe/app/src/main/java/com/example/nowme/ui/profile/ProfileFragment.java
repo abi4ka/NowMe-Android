@@ -53,6 +53,7 @@ public class ProfileFragment extends Fragment {
     Button btnFollow;
     ImageButton btnCalendar, btnSettings;
     RecyclerView recyclerProfilePosts;
+    View profileEmptyState;
     ProfilePostAdapter postAdapter;
     SwipeRefreshLayout refreshLayout;
     Long userId = null;
@@ -104,6 +105,7 @@ public class ProfileFragment extends Fragment {
         }
 
         recyclerProfilePosts = view.findViewById(R.id.recyclerProfilePosts);
+        profileEmptyState = view.findViewById(R.id.profileEmptyState);
         postAdapter = new ProfilePostAdapter();
         recyclerProfilePosts.setLayoutManager(new GridLayoutManager(getContext(), 3));
         recyclerProfilePosts.setAdapter(postAdapter);
@@ -113,7 +115,11 @@ public class ProfileFragment extends Fragment {
         }
         if (profileState.posts != null) {
             postAdapter.setItems(profileState.posts);
-            updateProfilePostsHeight(profileState.posts.size());
+            int count = profileState.posts.size();
+            updateProfilePostsHeight(count);
+            if (profileEmptyState != null) {
+                profileEmptyState.setVisibility(count == 0 ? View.VISIBLE : View.GONE);
+            }
         }
         if (!profileState.profileLoaded && !profileState.profileLoading) {
             loadProfile(false);
@@ -238,7 +244,15 @@ public class ProfileFragment extends Fragment {
                     if (postAdapter != null) {
                         postAdapter.setItems(posts);
                     }
-                    updateProfilePostsHeight(posts != null ? posts.size() : 0);
+                    int postCount = posts != null ? posts.size() : 0;
+                    updateProfilePostsHeight(postCount);
+                    if (profileEmptyState != null) {
+                        profileEmptyState.setVisibility(postCount == 0 ? View.VISIBLE : View.GONE);
+                    }
+                } else {
+                    if (isAdded()) {
+                        Toast.makeText(requireContext(), R.string.network_error, Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
 
@@ -246,6 +260,9 @@ public class ProfileFragment extends Fragment {
             public void onFailure(Call<List<NowmeResponse>> call, Throwable t) {
                 profileState.postsLoading = false;
                 stopRefreshing();
+                if (isAdded()) {
+                    Toast.makeText(requireContext(), R.string.network_error, Toast.LENGTH_SHORT).show();
+                }
                 t.printStackTrace();
             }
         });

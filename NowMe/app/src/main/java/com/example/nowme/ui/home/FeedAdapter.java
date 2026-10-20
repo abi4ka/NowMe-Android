@@ -197,7 +197,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                 if (!response.isSuccessful() || response.body() == null) {
                     updateLikeState(item, likeButton, wasLiked, item.likes);
-                    Toast.makeText(likeButton.getContext(), "Like error", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(likeButton.getContext(), R.string.like_error, Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -210,7 +210,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     likeButton.setEnabled(true);
                 }
                 updateLikeState(item, likeButton, wasLiked, item.likes);
-                Toast.makeText(likeButton.getContext(), "Like error", Toast.LENGTH_SHORT).show();
+                Toast.makeText(likeButton.getContext(), R.string.like_error, Toast.LENGTH_SHORT).show();
             }
         });
     }

@@ -1,98 +1,143 @@
-# NowMe
-
-**NowMe** is a daily photo-sharing application inspired by the real app BeReal. The idea is to motivate users to take a photo every day, so they can follow the story of their own life, keep warm memories, and also see everyday moments from their friends' lives.
-
-The project was developed jointly by two students as their final project. It is split into two connected parts: an Android application for the user experience and a Spring backend for authentication, data storage, images, and social features.
-
 # NowMe Android
 
-NowMe Android is the mobile client for this system. It is the part users touch: they sign in, take photos, publish NowMe posts, browse the feed, open profiles, follow friends, leave likes, write comments, and look back through their personal history.
+[![Android SDK](https://img.shields.io/badge/Android%20SDK-32%20--%2036-3DDC84?logo=android&logoColor=white)](https://developer.android.com)
+[![Java](https://img.shields.io/badge/Java-11-ED8B00?logo=openjdk&logoColor=white)](https://openjdk.org)
+[![Retrofit](https://img.shields.io/badge/Retrofit-3.0.0-blue)](https://square.github.io/retrofit/)
+[![Glide](https://img.shields.io/badge/Glide-4.16.0-4285F4)](https://github.com/bumptech/glide)
+[![Security Crypto](https://img.shields.io/badge/AndroidX-Security%20Crypto-green)](https://developer.android.com/jetpack/androidx/releases/security)
+[![License](https://img.shields.io/badge/License-MIT-lightgrey.svg)](LICENSE)
 
-The app is not a static prototype. It talks to a real backend API, stores authentication tokens, uploads photos, loads images from the server, and keeps the main social actions synchronized with the backend.
+**NowMe** is a daily photo-sharing social application inspired by BeReal. It encourages users to capture an authentic snapshot every day, curate a visual chronicle of their life, and share candid moments with their close circle of friends.
 
-## Project Pair
+This repository contains the native **Android Client**, engineered with modern Android development best practices, secure credential storage, resilient token lifecycle management, and hardware-accelerated image handling.
 
-- [**NowMe Android**](https://github.com/abi4ka/NowMe-Android): the mobile app in this repository.
-- [**NowMe Spring**](https://github.com/abi4ka/NowMe-Spring): the backend REST API used by the Android app.
+---
 
-By default, the app connects to the local backend at:
+## Project Ecosystem
 
-```text
-http://10.0.2.2:25565/
-```
+- [**NowMe Android**](https://github.com/abi4ka/NowMe-Android): The native Android mobile client (this repository).
+- [**NowMe Spring**](https://github.com/abi4ka/NowMe-Spring): The companion Spring Boot REST API providing authentication, social graph management, media storage, and OpenAPI documentation.
 
-This address is used for the Android emulator to reach the Spring server running on the development machine.
+---
 
 ## Screenshots
 
-<table>
-  <tr>
-    <td><img src="docs/images/android-auth.png" width="250"/></td>
-    <td><img src="docs/images/android-feed.png" width="250"/></td>
-    <td><img src="docs/images/android-camera-publish.png" width="250"/></td>
-  </tr>
-  <tr>
-    <td><img src="docs/images/android-nowme-details.png" width="250"/></td>
-    <td><img src="docs/images/android-profile.png" width="250"/></td>
-    <td><img src="docs/images/android-history-calendar.png" width="250"/></td>
-  </tr>
-</table>
+<div align="center">
+  <table>
+    <tr>
+      <td align="center"><b>Authentication</b></td>
+      <td align="center"><b>Main Feed</b></td>
+      <td align="center"><b>Camera & Publish</b></td>
+    </tr>
+    <tr>
+      <td><img src="docs/images/android-auth.png" width="260" alt="Auth Screen"/></td>
+      <td><img src="docs/images/android-feed.png" width="260" alt="Main Feed"/></td>
+      <td><img src="docs/images/android-camera-publish.png" width="260" alt="Camera Capture"/></td>
+    </tr>
+    <tr>
+      <td align="center"><b>Post Details & Comments</b></td>
+      <td align="center"><b>User Profile</b></td>
+      <td align="center"><b>Memories Calendar</b></td>
+    </tr>
+    <tr>
+      <td><img src="docs/images/android-nowme-details.png" width="260" alt="Post Details"/></td>
+      <td><img src="docs/images/android-profile.png" width="260" alt="Profile View"/></td>
+      <td><img src="docs/images/android-history-calendar.png" width="260" alt="History Calendar"/></td>
+    </tr>
+  </table>
+</div>
 
-## Features
+---
 
-- User registration and login.
-- Access and refresh token storage.
-- Automatic token refresh through OkHttp authentication.
-- Main feed with recent NowMe posts.
-- Pull-to-refresh support.
-- User search.
-- User profiles with follower and following counts.
-- Follow and unfollow actions.
-- Camera capture with CameraX.
-- Image publishing with optional description.
-- Server-loaded post images.
-- Likes and unlikes.
-- Comments list and comment creation.
-- Favorite toggle for posts.
-- Post visibility update.
-- Own post deletion.
-- Personal NowMe history.
-- Calendar-style history view.
-- Local UI state stores for likes, comments, feed invalidation, and image caching.
+## Architectural Highlights
 
-## Tech Stack
+### 1. Jetpack Navigation & Single-Activity Architecture
+- `MainActivity` hosts a `NavHostFragment` coordinating navigation between top-level destinations (`HomeFragment`, `CameraFragment`, `ProfileFragment`) and secondary flows.
+- State preservation across tab switches powered by dedicated AndroidX `ViewModel` instances (`HomeFeedViewModel`, `ProfileViewModel`).
 
-- Java 11 source compatibility.
-- Android SDK 36.
-- Minimum SDK 32.
-- AndroidX AppCompat.
-- Material Components.
-- ConstraintLayout.
-- Android Navigation.
-- SwipeRefreshLayout.
-- CameraX.
-- Retrofit 3.
-- Gson converter.
-- OkHttp logging interceptor.
+### 2. Enterprise-Grade Credential Security
+- **AndroidX Security Crypto**: `TokenStorage` uses `EncryptedSharedPreferences` backed by the hardware-backed Android Keystore (`MasterKey` with AES256-GCM value encryption and AES256-SIV key encryption).
+- **Graceful Fallback**: Transparently handles legacy migration or devices lacking hardware keystore modules.
 
-## How It Works
+### 3. Resilient Networking & Token Lifecycle
+- **Retrofit 3 & OkHttp**: Thread-safe singleton `RetrofitClient` with custom interceptors and converters.
+- **Automatic Token Refresh**: OkHttp `AuthAuthenticator` automatically catches HTTP 401 Unauthorized responses, acquires fresh access tokens using the refresh token, and replays failed requests seamlessly without user interruption.
+- **Session Termination**: Full logout support clearing tokens locally and invalidating sessions on the backend.
 
-1. The user signs in or creates an account.
-2. The backend returns access and refresh tokens.
-3. The Android app stores tokens locally and attaches the access token to protected API requests.
-4. If the access token expires, the authenticator calls the refresh endpoint and retries the request.
-5. The user can browse the feed, search for people, follow profiles, publish photos, like posts, and comment.
-6. Images are uploaded as multipart form data and later loaded from the backend image endpoint.
+### 4. Optimized Image Loading Pipeline (Glide)
+- **NowmeImageLoader**: Centralized helper providing memory caching, disk caching (`DiskCacheStrategy.ALL`), request cancellation on RecyclerView recycling, and smooth cross-fade transitions.
+- **Dynamic JWT Authorization**: Leverages Glide's `LazyHeaders` to dynamically supply valid `Authorization: Bearer <token>` credentials for authenticated image endpoints.
 
-## Running Locally
+### 5. Camera & Media Processing
+- **CameraX**: Hardware camera integration supporting tap-to-focus and front/back lens selection.
+- **EXIF Normalization**: `ImageOrientationUtils` handles EXIF orientation flags, ensuring images are stored upright across all device orientations.
 
-1. Start the [NowMe Spring](https://github.com/abi4ka/NowMe-Spring) server.
-2. Open `NowMe/` in Android Studio.
-3. Build and run the app on an emulator or device.
-4. If you use an emulator, keep the default backend URL:
+### 6. Modern Material 3 UI/UX
+- **BottomSheet Dialogs**: Settings panel extracted into a standalone `SettingsBottomSheetDialogFragment`.
+- **Empty States & Feedback**: Graceful empty state placeholders for empty feeds, empty profiles, and zero-match user searches.
+- **100% English Localization**: Fully consolidated Android string resources in `strings.xml`.
+
+---
+
+## Project Structure
+
+```text
+NowMe/app/src/main/
+├── java/com/example/nowme/
+│   ├── network/            # Retrofit client, API interface, DTOs, AuthInterceptor & Authenticator
+│   ├── ui/
+│   │   ├── auth/           # Login & Registration activities
+│   │   ├── camera/         # CameraX capture & preview fragment
+│   │   ├── home/           # Main feed, user search adapter, FeedAdapter
+│   │   ├── main/           # MainActivity and primary navigation controller
+│   │   ├── nowme/          # Post detail activity, comments sheet helper
+│   │   └── profile/        # ProfileFragment, CalendarHistoryActivity, SettingsBottomSheet
+│   └── util/               # NowmeImageLoader, state stores, EXIF orientation utilities
+└── res-ui/                 # Feature-modularized resource folders
+    ├── auth/               # Auth layouts and drawables
+    ├── camera/             # Camera preview UI
+    ├── home/               # Feed & search layouts
+    ├── main/               # Main container & bottom navigation
+    ├── nowme/              # Fullscreen post viewer layouts
+    └── profile/            # Profile card, grid & bottom sheet layouts
+```
+
+---
+
+## Getting Started
+
+### Prerequisites
+- **Android Studio** Hedgehog (2023.1.1) or newer.
+- **JDK 17** or **JDK 21** configured in Android Studio.
+- **Android SDK Platform 34+** installed.
+- Running instance of [NowMe Spring](https://github.com/abi4ka/NowMe-Spring).
+
+### Configuration
+By default, the app is pre-configured to communicate with the Spring server running locally:
 
 ```text
 http://10.0.2.2:25565/
 ```
+*(Default alias for `localhost` in the Android Emulator)*.
 
-For a physical Android device, replace the base URL in `RetrofitClient.java` with the development machine IP address reachable from the device.
+To run on a physical device over Wi-Fi, change `BASE_URL` in `RetrofitClient.java` to your machine's local IP address (e.g., `http://192.168.1.100:25565/`).
+
+### Building and Testing
+
+Run unit tests via Gradle:
+```bash
+cd NowMe
+./gradlew testDebugUnitTest
+```
+
+Assemble debug APK:
+```bash
+./gradlew assembleDebug
+```
+
+---
+
+## Contributing & Authors
+
+- Developed by **Nikita** ([@abi4ka](https://github.com/abi4ka)) and project partner as an advanced academic project.
+- Modernized, refactored, and maintained as a showcase portfolio repository.

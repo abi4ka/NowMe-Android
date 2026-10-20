@@ -49,22 +49,17 @@ import retrofit2.Response;
 public class ProfileFragment extends Fragment {
     private static final long MY_PROFILE_CACHE_KEY = -1L;
 
-    TextView tvUserIcon, tvUsername, tvFollowers, tvFollowing, tvFriends, tvStreak, tvUserAvatar;
+    TextView tvUserIcon, tvUsername, tvFollowers, tvFollowing, tvFriends, tvStreak;
     Button btnFollow;
     ImageButton btnCalendar, btnSettings;
     RecyclerView recyclerProfilePosts;
     ProfilePostAdapter postAdapter;
     SwipeRefreshLayout refreshLayout;
-    View settingsOverlay, settingsPanel;
-    OnBackPressedCallback settingsBackCallback;
     Long userId = null;
     Long profileUserId = null;
     boolean followingProfile = false;
-    boolean settingsClosing = false;
     ProfileViewModel viewModel;
     ProfileState profileState;
-    LinearLayout btnEditAvatar;
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -92,33 +87,21 @@ public class ProfileFragment extends Fragment {
         btnFollow.setOnClickListener(v -> toggleFollow());
 
         btnCalendar = requireActivity().findViewById(R.id.appBarCalendarButton);
-        btnCalendar.setOnClickListener(v -> {
-            if (profileState.user != null && profileState.user.me) {
-                startActivity(new Intent(requireContext(), CalendarHistoryActivity.class));
-                requireActivity().overridePendingTransition(
-                        R.anim.slide_in_left_to_right,
-                        R.anim.stay
-                );
-            }
-        });
+        if (btnCalendar != null) {
+            btnCalendar.setOnClickListener(v -> {
+                if (profileState.user != null && profileState.user.me) {
+                    startActivity(new Intent(requireContext(), CalendarHistoryActivity.class));
+                    requireActivity().overridePendingTransition(
+                            R.anim.slide_in_left_to_right,
+                            R.anim.stay
+                    );
+                }
+            });
+        }
         btnSettings = requireActivity().findViewById(R.id.appBarSettingsButton);
-        btnSettings.setOnClickListener(v -> showSettingsPanel());
-
-        settingsOverlay = view.findViewById(R.id.settingsOverlay);
-        settingsPanel = view.findViewById(R.id.settingsPanel);
-        btnEditAvatar = view.findViewById(R.id.btnEditAvatar);
-        tvUserAvatar = view.findViewById(R.id.tvUserAvatar);
-
-        view.findViewById(R.id.btnBackSettings).setOnClickListener(v -> closeSettingsPanel(null));
-        view.findViewById(R.id.btnLogout).setOnClickListener(v -> closeSettingsPanel(this::logout));
-        btnEditAvatar.setOnClickListener(v -> showEditAvatarDialog());
-        settingsBackCallback = new OnBackPressedCallback(false) {
-            @Override
-            public void handleOnBackPressed() {
-                closeSettingsPanel(null);
-            }
-        };
-        requireActivity().getOnBackPressedDispatcher().addCallback(this, settingsBackCallback);
+        if (btnSettings != null) {
+            btnSettings.setOnClickListener(v -> showSettingsPanel());
+        }
 
         recyclerProfilePosts = view.findViewById(R.id.recyclerProfilePosts);
         postAdapter = new ProfilePostAdapter();
@@ -204,10 +187,6 @@ public class ProfileFragment extends Fragment {
         String avatar = user.avatar != null ? user.avatar : "";
 
         tvUserIcon.setText(avatar);
-
-        if (tvUserAvatar != null) {
-            tvUserAvatar.setText(avatar);
-        }
 
         tvUsername.setText(user.username != null ? user.username : "");
         tvFollowers.setText(String.valueOf(getFollowersCount(user)));
@@ -356,136 +335,16 @@ public class ProfileFragment extends Fragment {
     }
 
     private void showSettingsPanel() {
-        if (settingsOverlay == null || settingsPanel == null) return;
-
-        settingsClosing = false;
-        settingsBackCallback.setEnabled(true);
-        settingsPanel.animate().cancel();
-        settingsPanel.setTranslationX(getResources().getDisplayMetrics().widthPixels);
-        settingsOverlay.setVisibility(View.VISIBLE);
-        settingsPanel.post(() -> openSettingsPanel(settingsPanel));
-    }
-
-    private void openSettingsPanel(View panel) {
-        panel.animate().cancel();
-        panel.animate()
-                .translationX(0f)
-                .setDuration(280)
-                .setInterpolator(new DecelerateInterpolator())
-                .start();
-    }
-    private void showEditAvatarDialog() {
-        EditText input = new EditText(requireContext());
-
-        input.setHint("New emoji");
-        input.setText("");
-        input.setTextSize(28);
-        input.setSingleLine(true);
-        input.setGravity(android.view.Gravity.CENTER);
-
-        int padding = (int) (20 * getResources().getDisplayMetrics().density);
-        input.setPadding(padding, padding / 2, padding, padding / 2);
-
-        AlertDialog dialog = new AlertDialog.Builder(requireContext())
-                .setTitle("Edit avatar")
-                .setMessage("Current: " + tvUserIcon.getText().toString())
-                .setView(input)
-                .setPositiveButton("SAVE", null)
-                .setNegativeButton("CANCEL", null)
-                .create();
-
-        dialog.setOnShowListener(d -> {
-            input.requestFocus();
-
-            if (dialog.getWindow() != null) {
-                dialog.getWindow().setSoftInputMode(
-                        android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE
-                );
+        String avatar = profileState.user != null ? profileState.user.avatar : null;
+        SettingsBottomSheetFragment bottomSheet = SettingsBottomSheetFragment.newInstance(avatar, newAvatar -> {
+            if (profileState.user != null) {
+                profileState.user.avatar = newAvatar;
             }
-
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
-                String newAvatar = input.getText().toString().trim();
-
-                if (newAvatar.isEmpty()) {
-                    input.setError("Write an emoji");
-                    return;
-                }
-
-                updateAvatar(newAvatar, dialog);
-            });
-        });
-
-        dialog.show();
-    }
-
-    private void updateAvatar(String newAvatar, AlertDialog dialog) {
-        UpdateAvatarRequest request = new UpdateAvatarRequest(newAvatar);
-
-        RetrofitClient.getApi().updateAvatar(request).enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                if (response.isSuccessful()) {
-
-                    tvUserAvatar.setText(newAvatar);
-
-                    tvUserIcon.setText(newAvatar);
-
-                    if (profileState.user != null) {
-                        profileState.user.avatar = newAvatar;
-                    }
-
-                    Toast.makeText(requireContext(), "Avatar updated", Toast.LENGTH_SHORT).show();
-
-                    dialog.dismiss();
-
-                } else {
-                    try {
-                        String error = response.errorBody() != null ? response.errorBody().string() : "No error body";
-                        Log.e("AvatarUpdate", "Error code: " + response.code() + " body: " + error);
-                    } catch (Exception e) {
-                        Log.e("AvatarUpdate", "Error reading error body", e);
-                    }
-
-                    Toast.makeText(requireContext(), "Error updating avatar", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Void> call, Throwable t) {
-                Toast.makeText(requireContext(), "Connection error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            if (tvUserIcon != null) {
+                tvUserIcon.setText(newAvatar);
             }
         });
-    }
-
-    private void closeSettingsPanel(Runnable afterClose) {
-        if (settingsOverlay == null || settingsPanel == null || settingsClosing) return;
-        settingsClosing = true;
-        settingsBackCallback.setEnabled(false);
-
-        settingsPanel.animate().cancel();
-        settingsPanel.animate()
-                .translationX(settingsPanel.getWidth())
-                .setDuration(240)
-                .setInterpolator(new AccelerateInterpolator())
-                .withEndAction(() -> {
-                    settingsOverlay.setVisibility(View.GONE);
-                    settingsPanel.setTranslationX(0f);
-                    settingsClosing = false;
-                    if (afterClose != null) {
-                        afterClose.run();
-                    }
-                })
-                .start();
-    }
-
-    private void logout() {
-        if (getContext() == null) return;
-
-        TokenStorage.clear(requireContext());
-
-        Intent intent = new Intent(requireContext(), AuthActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
+        bottomSheet.show(getChildFragmentManager(), "settings");
     }
 
     @Override

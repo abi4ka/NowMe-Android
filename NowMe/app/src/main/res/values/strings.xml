@@ -1,5 +1,58 @@
 <resources>
     <string name="app_name">NowMe</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="no_description">No description</string>
+
+    <!-- Auth -->
+    <string name="login">Login</string>
+    <string name="register">Register</string>
+    <string name="sign_up">Sign up</string>
+    <string name="back">Back</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="session_expired">Session expired. Please log in again.</string>
+    <string name="username_password_required">Username and password required</string>
+
+    <!-- Post Details & Actions -->
+    <string name="delete_nowme">Delete Nowme</string>
+    <string name="delete_forever">Delete forever</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+    <string name="pin">Pin</string>
+    <string name="unpin">Unpin</string>
+    <string name="make_public">Make public</string>
+    <string name="make_friends_only">Make friends only</string>
+    <string name="add_comment">Add comment</string>
+    <string name="write_comment">Write a comment...</string>
+    <string name="send">Send</string>
+
+    <!-- Profile & Settings -->
+    <string name="settings">Settings</string>
+    <string name="edit_avatar">Edit avatar</string>
+    <string name="log_out">Log out</string>
+    <string name="followers">Followers</string>
+    <string name="following">Following</string>
+    <string name="friends">Friends</string>
+    <string name="follow">Follow</string>
+    <string name="unfollow">Unfollow</string>
+    <string name="write_an_emoji">Write an emoji</string>
+    <string name="new_emoji">New emoji</string>
+    <string name="save">Save</string>
+    <string name="avatar_updated">Avatar updated</string>
+    <string name="error_updating_avatar">Error updating avatar</string>
+
+    <!-- Camera & Publish -->
+    <string name="publish">Publish</string>
+    <string name="publish_nowme">Publish NowMe</string>
+    <string name="add_description">Add a description...</string>
+
+    <!-- Feed & Search -->
+    <string name="search_users">Search users...</string>
+    <string name="no_posts_yet">No posts yet. Capture your moment today!</string>
+    <string name="empty_calendar">No memories recorded yet.</string>
+
+    <!-- Errors -->
+    <string name="network_error">Network error</string>
+    <string name="calendar_error">Unable to load calendar</string>
+    <string name="history_error">Unable to load history</string>
+    <string name="like_error">Like action failed</string>
 </resources>

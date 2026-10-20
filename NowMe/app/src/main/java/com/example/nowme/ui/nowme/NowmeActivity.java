@@ -118,7 +118,7 @@ public class NowmeActivity extends AppCompatActivity {
         btnLike.setEnabled(nowme.id != null);
 
         tvUsername.setText(nowme.username);
-        tvDescription.setText(nowme.description != null ? nowme.description : "Sin descripción");
+        tvDescription.setText(nowme.description != null ? nowme.description : getString(R.string.no_description));
         tvNumLike.setText(String.valueOf(nowme.likes != null ? nowme.likes : 0));
         tvNumComment.setText(String.valueOf(nowme.comments != null ? nowme.comments : 0));
         tvEmoji.setText(nowme.userAvatar != null ? nowme.userAvatar : ":)");

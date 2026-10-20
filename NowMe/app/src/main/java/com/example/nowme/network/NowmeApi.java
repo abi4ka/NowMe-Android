@@ -46,6 +46,9 @@ public interface NowmeApi {
     @POST("/auth/refresh")
     Call<AuthResponse> refresh(@Body RefreshRequest request);
 
+    @POST("/auth/logout")
+    Call<Void> logout(@Body RefreshRequest request);
+
     @GET("/nowme")
     Call<PageResponse<NowmeResponse>> getNowmes(
     );

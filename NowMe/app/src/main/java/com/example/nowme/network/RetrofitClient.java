@@ -6,33 +6,37 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class RetrofitClient {
 
     private static final String BASE_URL = "http://10.0.2.2:25565/";
-    private static Retrofit retrofit;
+    private static volatile NowmeApi apiInstance;
 
     public static NowmeApi getApi() {
+        if (apiInstance == null) {
+            synchronized (RetrofitClient.class) {
+                if (apiInstance == null) {
+                    HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+                    logging.setLevel(HttpLoggingInterceptor.Level.BODY);
 
-        if (retrofit == null) {
+                    NowmeApi tempApi = new Retrofit.Builder()
+                            .baseUrl(BASE_URL)
+                            .addConverterFactory(GsonConverterFactory.create())
+                            .build()
+                            .create(NowmeApi.class);
 
-            HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-            logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+                    OkHttpClient client = new OkHttpClient.Builder()
+                            .addInterceptor(logging)
+                            .addInterceptor(new AuthInterceptor()) // access token
+                            .authenticator(new AuthAuthenticator(tempApi)) // auto-refresh
+                            .build();
 
-            NowmeApi tempApi = new Retrofit.Builder()
-                    .baseUrl(BASE_URL)
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build()
-                    .create(NowmeApi.class);
+                    Retrofit retrofit = new Retrofit.Builder()
+                            .baseUrl(BASE_URL)
+                            .client(client)
+                            .addConverterFactory(GsonConverterFactory.create())
+                            .build();
 
-            OkHttpClient client = new OkHttpClient.Builder()
-                    .addInterceptor(logging)
-                    .addInterceptor(new AuthInterceptor()) //  access token
-                    .authenticator(new AuthAuthenticator(tempApi)) // auto-refresh
-                    .build();
-
-            retrofit = new Retrofit.Builder()
-                    .baseUrl(BASE_URL)
-                    .client(client)
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build();
+                    apiInstance = retrofit.create(NowmeApi.class);
+                }
+            }
         }
-        return retrofit.create(NowmeApi.class);
+        return apiInstance;
     }
 }

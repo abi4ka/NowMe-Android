@@ -45,6 +45,11 @@ public class TokenStorage {
                 .apply();
     }
 
+    public static String getAccess() {
+        Context context = com.example.nowme.MyApplication.getAppContext();
+        return context != null ? getAccess(context) : null;
+    }
+
     public static String getAccess(Context context) {
         String access = getPrefs(context).getString(KEY_ACCESS, null);
         if (access == null) {

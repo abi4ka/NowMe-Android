@@ -31,10 +31,9 @@ import com.example.nowme.network.RetrofitClient;
 import com.example.nowme.network.dto.NowmeResponse;
 import com.example.nowme.network.dto.UpdateNowmeVisibilityRequest;
 import com.example.nowme.ui.main.MainActivity;
-import com.example.nowme.util.NowmeFeedInvalidationStore;
-import com.example.nowme.network.RetrofitClient;
 import com.example.nowme.util.NowmeCommentStateStore;
-import com.example.nowme.util.NowmeImageCache;
+import com.example.nowme.util.NowmeFeedInvalidationStore;
+import com.example.nowme.util.NowmeImageLoader;
 import com.example.nowme.util.NowmeLikeStateStore;
 
 import java.time.LocalDate;
@@ -129,7 +128,7 @@ public class NowmeActivity extends AppCompatActivity {
         tvDate.setText(creationDate != null ? creationDate.format(DATE_FORMATTER) : "-- / -- / --");
 
         if (nowme.id != null) {
-            NowmeImageCache.load(nowme.id, bitmap -> imgNowMe.setImageBitmap(bitmap));
+            NowmeImageLoader.loadNowmeImage(imgNowMe, nowme.id);
             loadComments();
         }
 

@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.nowme.R;
 import com.example.nowme.network.dto.NowmeResponse;
 import com.example.nowme.ui.nowme.NowmeActivity;
-import com.example.nowme.util.NowmeImageCache;
+import com.example.nowme.util.NowmeImageLoader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,15 +56,13 @@ public class ProfilePostAdapter extends RecyclerView.Adapter<ProfilePostAdapter.
         holder.pin.bringToFront();
         holder.itemView.setOnClickListener(v -> openNowme(v.getContext(), item));
 
-        if (item.id == null) return;
+        NowmeImageLoader.loadNowmeImage(holder.image, item.id);
+    }
 
-        holder.image.setTag(item.id);
-        NowmeImageCache.load(item.id, bitmap -> {
-            Object currentTag = holder.image.getTag();
-            if (currentTag instanceof Long && ((Long) currentTag).equals(item.id)) {
-                holder.image.setImageBitmap(bitmap);
-            }
-        });
+    @Override
+    public void onViewRecycled(@NonNull ProfilePostViewHolder holder) {
+        super.onViewRecycled(holder);
+        NowmeImageLoader.clear(holder.image);
     }
 
     @Override

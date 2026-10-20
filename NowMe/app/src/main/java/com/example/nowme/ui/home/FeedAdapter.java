@@ -19,7 +19,7 @@ import com.example.nowme.network.dto.NowmeResponse;
 import com.example.nowme.ui.nowme.CommentDialogHelper;
 import com.example.nowme.ui.nowme.NowmeActivity;
 import com.example.nowme.util.NowmeCommentStateStore;
-import com.example.nowme.util.NowmeImageCache;
+import com.example.nowme.util.NowmeImageLoader;
 import com.example.nowme.util.NowmeLikeStateStore;
 
 import java.time.LocalDate;
@@ -166,15 +166,15 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         postHolder.commentButton.setEnabled(item.id != null);
         postHolder.commentButton.setOnClickListener(v -> showAddCommentDialog(item, postHolder));
 
-        if (item.id == null) return;
+        NowmeImageLoader.loadNowmeImage(postHolder.image, item.id);
+    }
 
-        postHolder.image.setTag(item.id);
-        NowmeImageCache.load(item.id, bitmap -> {
-            Object currentTag = postHolder.image.getTag();
-            if (currentTag instanceof Long && ((Long) currentTag).equals(item.id)) {
-                postHolder.image.setImageBitmap(bitmap);
-            }
-        });
+    @Override
+    public void onViewRecycled(@NonNull androidx.recyclerview.widget.RecyclerView.ViewHolder holder) {
+        super.onViewRecycled(holder);
+        if (holder instanceof PostViewHolder) {
+            NowmeImageLoader.clear(((PostViewHolder) holder).image);
+        }
     }
 
     private void toggleLike(NowmeResponse item, ImageButton likeButton) {

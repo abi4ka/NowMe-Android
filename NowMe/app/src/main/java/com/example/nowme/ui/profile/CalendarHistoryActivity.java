@@ -22,7 +22,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.example.nowme.R;
 import com.example.nowme.network.RetrofitClient;
 import com.example.nowme.network.dto.NowmeResponse;
-import com.example.nowme.util.NowmeImageCache;
+import com.example.nowme.util.NowmeImageLoader;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -213,13 +213,7 @@ public class CalendarHistoryActivity extends AppCompatActivity {
         ));
 
         if (post != null && post.id != null) {
-            image.setTag(post.id);
-            NowmeImageCache.load(post.id, bitmap -> {
-                Object tag = image.getTag();
-                if (tag instanceof Long && ((Long) tag).equals(post.id)) {
-                    image.setImageBitmap(bitmap);
-                }
-            });
+            NowmeImageLoader.loadNowmeImage(image, post.id);
             cell.setForeground(ContextCompat.getDrawable(this, android.R.drawable.list_selector_background));
             cell.setOnClickListener(v -> openHistoryFeed(post.id));
         } else {

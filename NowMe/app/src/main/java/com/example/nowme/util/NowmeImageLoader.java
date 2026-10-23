@@ -7,6 +7,7 @@ import android.widget.ImageView;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestBuilder;
@@ -15,7 +16,6 @@ import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.load.model.LazyHeaders;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestListener;
-import com.example.nowme.R;
 import com.example.nowme.network.RetrofitClient;
 import com.example.nowme.network.TokenStorage;
 
@@ -45,7 +45,10 @@ public final class NowmeImageLoader {
     }
 
     public static void loadNowmeImage(ImageView imageView, Long nowmeId) {
-        loadNowmeImage(imageView, nowmeId, R.drawable.ic_launcher_background, null);
+        if (imageView == null) return;
+        Context context = imageView.getContext();
+        loadNowmeImage(imageView, nowmeId,
+                NowmeImagePlaceholder.loading(context), NowmeImagePlaceholder.error(context), null);
     }
 
     public static void loadNowmeImage(ImageView imageView, Long nowmeId, @DrawableRes int placeholderResId) {
@@ -59,7 +62,17 @@ public final class NowmeImageLoader {
             @Nullable RequestListener<Drawable> listener
     ) {
         if (imageView == null) return;
+        Drawable placeholder = ContextCompat.getDrawable(imageView.getContext(), placeholderResId);
+        loadNowmeImage(imageView, nowmeId, placeholder, placeholder, listener);
+    }
 
+    private static void loadNowmeImage(
+            ImageView imageView,
+            Long nowmeId,
+            @Nullable Drawable placeholder,
+            @Nullable Drawable error,
+            @Nullable RequestListener<Drawable> listener
+    ) {
         Context context = imageView.getContext();
         if (context instanceof Activity) {
             Activity activity = (Activity) context;
@@ -70,15 +83,15 @@ public final class NowmeImageLoader {
 
         if (nowmeId == null) {
             Glide.with(imageView).clear(imageView);
-            imageView.setImageResource(placeholderResId);
+            imageView.setImageDrawable(error);
             return;
         }
 
         GlideUrl glideUrl = buildGlideUrl(nowmeId);
         RequestBuilder<Drawable> request = Glide.with(imageView)
                 .load(glideUrl)
-                .placeholder(placeholderResId)
-                .error(placeholderResId)
+                .placeholder(placeholder)
+                .error(error)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .transition(DrawableTransitionOptions.withCrossFade());
 

@@ -137,7 +137,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
 
         postHolder.username.setText(item.username);
-        postHolder.image.setImageResource(R.drawable.ic_launcher_background);
         postHolder.likeButton.setEnabled(item.id != null);
         postHolder.likeButton.setTag(item.id);
         postHolder.likeButton.setImageResource(isLiked(item) ? R.drawable.ic_heart : R.drawable.ic_heart_empty);

@@ -51,7 +51,6 @@ public class ProfilePostAdapter extends RecyclerView.Adapter<ProfilePostAdapter.
             holder.itemView.setLayoutParams(layoutParams);
         }
 
-        holder.image.setImageResource(R.drawable.ic_launcher_background);
         holder.pin.setVisibility(Boolean.TRUE.equals(item.favorite) ? View.VISIBLE : View.GONE);
         holder.pin.bringToFront();
         holder.itemView.setOnClickListener(v -> openNowme(v.getContext(), item));

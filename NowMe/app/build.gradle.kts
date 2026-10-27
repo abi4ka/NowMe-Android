@@ -1,6 +1,19 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
 }
+
+// Server address per build type. Override in local.properties (not committed), e.g.
+//   nowme.baseUrl=http://192.168.1.50:25565/   (debug build on a real phone in the same Wi-Fi)
+//   nowme.releaseBaseUrl=https://api.example.com/
+val localProperties = Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.exists()) file.inputStream().use { load(it) }
+}
+
+fun nowmeProperty(name: String, default: String): String =
+    (project.findProperty(name) as String?) ?: localProperties.getProperty(name) ?: default
 
 android {
     namespace = "com.example.nowme"
@@ -16,8 +29,19 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    buildFeatures {
+        buildConfig = true
+    }
+
     buildTypes {
+        debug {
+            buildConfigField("String", "BASE_URL", "\"${nowmeProperty("nowme.baseUrl", "http://10.0.2.2:25565/")}\"")
+            // Plain HTTP is only allowed for local development servers
+            manifestPlaceholders["usesCleartextTraffic"] = "true"
+        }
         release {
+            buildConfigField("String", "BASE_URL", "\"${nowmeProperty("nowme.releaseBaseUrl", "https://nowme.invalid/")}\"")
+            manifestPlaceholders["usesCleartextTraffic"] = "false"
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -84,5 +108,6 @@ dependencies {
 
     // Glide for memory-efficient image loading and caching
     implementation("com.github.bumptech.glide:glide:4.16.0")
+    implementation("com.github.bumptech.glide:okhttp3-integration:4.16.0")
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
 }

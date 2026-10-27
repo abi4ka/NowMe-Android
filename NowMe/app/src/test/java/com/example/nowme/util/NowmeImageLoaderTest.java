@@ -1,6 +1,7 @@
 package com.example.nowme.util;
 
 import com.bumptech.glide.load.model.GlideUrl;
+import com.example.nowme.network.RetrofitClient;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -25,7 +26,7 @@ public class NowmeImageLoaderTest {
 
     @Test
     public void getImageUrl_withValidId_returnsCorrectUrl() {
-        assertEquals("http://10.0.2.2:25565/nowme/123/image", NowmeImageLoader.getImageUrl(123L));
+        assertEquals(RetrofitClient.BASE_URL + "nowme/123/image", NowmeImageLoader.getImageUrl(123L));
     }
 
     @Test

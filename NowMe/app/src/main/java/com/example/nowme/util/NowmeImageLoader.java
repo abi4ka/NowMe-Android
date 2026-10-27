@@ -13,14 +13,12 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.model.GlideUrl;
-import com.bumptech.glide.load.model.LazyHeaders;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestListener;
 import com.example.nowme.network.RetrofitClient;
-import com.example.nowme.network.TokenStorage;
 
 /**
- * Utility for loading and caching NowMe post images with automatic JWT authorization,
+ * Utility for loading and caching NowMe post images (authorized via NowmeGlideModule),
  * lifecycle management, cross-fade transitions, and disk/memory caching powered by Glide.
  */
 public final class NowmeImageLoader {
@@ -36,12 +34,8 @@ public final class NowmeImageLoader {
     public static GlideUrl buildGlideUrl(Long nowmeId) {
         String url = getImageUrl(nowmeId);
         if (url == null) return null;
-        return new GlideUrl(url, new LazyHeaders.Builder()
-                .addHeader("Authorization", () -> {
-                    String token = TokenStorage.getAccess();
-                    return (token != null && !token.isEmpty()) ? "Bearer " + token : "";
-                })
-                .build());
+        // The access token is added by AuthInterceptor (see NowmeGlideModule)
+        return new GlideUrl(url);
     }
 
     public static void loadNowmeImage(ImageView imageView, Long nowmeId) {

@@ -113,14 +113,20 @@ NowMe/app/src/main/
 - Running instance of [NowMe Spring](https://github.com/abi4ka/NowMe-Spring).
 
 ### Configuration
-By default, the app is pre-configured to communicate with the Spring server running locally:
+The server address is set per build type in `app/build.gradle.kts` and exposed as `BuildConfig.BASE_URL`. Debug builds talk to the Spring server running locally by default:
 
 ```text
 http://10.0.2.2:25565/
 ```
 *(Default alias for `localhost` in the Android Emulator)*.
 
-To run on a physical device over Wi-Fi, change `BASE_URL` in `RetrofitClient.java` to your machine's local IP address (e.g., `http://192.168.1.100:25565/`).
+To run a debug build on a physical device over Wi-Fi, add your machine's local IP to `NowMe/local.properties` (not committed) and rebuild:
+
+```properties
+nowme.baseUrl=http://192.168.1.100:25565/
+```
+
+Release builds use `nowme.releaseBaseUrl` and only allow HTTPS; plain HTTP is enabled for debug builds only.
 
 ### Building and Testing
 

@@ -11,6 +11,12 @@ public class NowmeLikeStateStore {
     private NowmeLikeStateStore() {
     }
 
+    public static void clear() {
+        synchronized (STATES) {
+            STATES.clear();
+        }
+    }
+
     public static void remember(NowmeResponse nowme) {
         if (nowme == null || nowme.id == null || nowme.liked == null) return;
 

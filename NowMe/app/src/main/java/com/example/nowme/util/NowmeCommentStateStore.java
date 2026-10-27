@@ -9,6 +9,10 @@ public class NowmeCommentStateStore {
 
     private static final Map<Long, Long> commentCounts = new HashMap<>();
 
+    public static void clear() {
+        commentCounts.clear();
+    }
+
     public static void remember(NowmeResponse nowme) {
         if (nowme == null || nowme.id == null || nowme.comments == null) return;
 

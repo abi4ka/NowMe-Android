@@ -1,5 +1,13 @@
 package com.example.nowme.network;
 
+import com.example.nowme.network.dto.RefreshRequest;
+import com.example.nowme.util.NowmeCommentStateStore;
+import com.example.nowme.util.NowmeLikeStateStore;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
@@ -19,13 +27,41 @@ public class SessionManager {
         redirectingToLogin.set(false);
     }
 
+    /** Logs out on the server (best effort) and drops all local session state. */
+    public static void logout(Context context) {
+        Context appContext = context.getApplicationContext();
+        String refreshToken = TokenStorage.getRefresh(appContext);
+        if (refreshToken != null) {
+            RefreshRequest request = new RefreshRequest();
+            request.accessToken = TokenStorage.getAccess(appContext);
+            request.refreshToken = refreshToken;
+            RetrofitClient.getApi().logout(request).enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(Call<Void> call, Response<Void> response) {
+                }
+
+                @Override
+                public void onFailure(Call<Void> call, Throwable t) {
+                }
+            });
+        }
+        clearLocalSession(appContext);
+    }
+
+    // Cached like/comment states belong to the previous user and must not leak into the next session
+    private static void clearLocalSession(Context context) {
+        TokenStorage.clear(context);
+        NowmeLikeStateStore.clear();
+        NowmeCommentStateStore.clear();
+    }
+
     public static void expireSession(Context context) {
         if (context == null || !redirectingToLogin.compareAndSet(false, true)) {
             return;
         }
 
         Context appContext = context.getApplicationContext();
-        TokenStorage.clear(appContext);
+        clearLocalSession(appContext);
 
         new Handler(Looper.getMainLooper()).post(() -> {
             Intent intent = new Intent(appContext, AuthActivity.class);

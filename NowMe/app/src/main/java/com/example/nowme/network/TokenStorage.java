@@ -16,7 +16,22 @@ public class TokenStorage {
     private static final String KEY_ACCESS = "accessToken";
     private static final String KEY_REFRESH = "refreshToken";
 
+    private static volatile SharedPreferences prefs;
+
+    // Creating EncryptedSharedPreferences hits the Keystore, so build it once per process
     private static SharedPreferences getPrefs(Context context) {
+        SharedPreferences cached = prefs;
+        if (cached != null) return cached;
+
+        synchronized (TokenStorage.class) {
+            if (prefs == null) {
+                prefs = createPrefs(context.getApplicationContext());
+            }
+            return prefs;
+        }
+    }
+
+    private static SharedPreferences createPrefs(Context context) {
         try {
             MasterKey masterKey = new MasterKey.Builder(context)
                     .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)

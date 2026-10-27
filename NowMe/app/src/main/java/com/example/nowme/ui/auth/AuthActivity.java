@@ -10,12 +10,15 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.nowme.R;
+import com.example.nowme.network.ApiErrors;
 import com.example.nowme.network.RetrofitClient;
 import com.example.nowme.network.SessionManager;
 import com.example.nowme.network.TokenStorage;
 import com.example.nowme.network.dto.AuthRequest;
 import com.example.nowme.network.dto.AuthResponse;
 import com.example.nowme.ui.main.MainActivity;
+
+import java.util.regex.Pattern;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -26,6 +29,10 @@ public class AuthActivity extends AppCompatActivity {
     private EditText etUsername, etPassword;
     private Button btnLogin;
     private TextView tvSignup;
+    private static final Pattern USERNAME_PATTERN = Pattern.compile("^[a-zA-Z0-9_.]{3,20}$");
+    private static final int MIN_PASSWORD_LENGTH = 8;
+    private static final int MAX_PASSWORD_LENGTH = 24;
+
     private boolean registerMode = false;
     private boolean authRequestInFlight = false;
 
@@ -44,7 +51,7 @@ public class AuthActivity extends AppCompatActivity {
         getSupportActionBar().hide();
 
         if (getIntent().getBooleanExtra(SessionManager.EXTRA_SESSION_EXPIRED, false)) {
-            Toast.makeText(this, "Session expired. Please log in again.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.session_expired, Toast.LENGTH_SHORT).show();
         }
 
         etUsername = findViewById(R.id.etUsername);
@@ -56,12 +63,12 @@ public class AuthActivity extends AppCompatActivity {
 
         tvSignup.setOnClickListener(v -> {
             if (!registerMode) {
-                btnLogin.setText("Register");
-                tvSignup.setText("Back");
+                btnLogin.setText(R.string.register);
+                tvSignup.setText(R.string.back);
                 registerMode = true;
             } else {
-                btnLogin.setText("Login");
-                tvSignup.setText("Sign up");
+                btnLogin.setText(R.string.login);
+                tvSignup.setText(R.string.sign_up);
                 registerMode = false;
             }
         });
@@ -76,7 +83,17 @@ public class AuthActivity extends AppCompatActivity {
         String password = etPassword.getText().toString().trim();
 
         if (username.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Username and password required", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.username_password_required, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Same rules as the backend's RegisterRequest, checked here to give instant feedback
+        if (registerMode && !USERNAME_PATTERN.matcher(username).matches()) {
+            etUsername.setError(getString(R.string.username_format));
+            return;
+        }
+        if (registerMode && (password.length() < MIN_PASSWORD_LENGTH || password.length() > MAX_PASSWORD_LENGTH)) {
+            etPassword.setError(getString(R.string.password_length));
             return;
         }
 
@@ -106,7 +123,7 @@ public class AuthActivity extends AppCompatActivity {
                     finish();
                 } else {
                     Toast.makeText(AuthActivity.this,
-                            "Auth failed: " + response.code(),
+                            errorMessage(ApiErrors.code(response)),
                             Toast.LENGTH_SHORT).show();
                 }
             }
@@ -116,12 +133,23 @@ public class AuthActivity extends AppCompatActivity {
                 authRequestInFlight = false;
                 btnLogin.setEnabled(true);
                 tvSignup.setEnabled(true);
-                t.printStackTrace();
-                Toast.makeText(AuthActivity.this,
-                        "Network error: " + t.getMessage(),
-                        Toast.LENGTH_SHORT).show();
+                Toast.makeText(AuthActivity.this, R.string.network_error, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private int errorMessage(String errorCode) {
+        if (errorCode == null) return R.string.auth_failed;
+        switch (errorCode) {
+            case "INVALID_CREDENTIALS":
+                return R.string.invalid_credentials;
+            case "USERNAME_ALREADY_EXISTS":
+                return R.string.username_taken;
+            case "INVALID_REQUEST":
+                return registerMode ? R.string.username_format : R.string.auth_failed;
+            default:
+                return R.string.auth_failed;
+        }
     }
 
     private boolean hasSession() {

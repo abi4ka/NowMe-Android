@@ -11,6 +11,12 @@ public class NowmeFeedInvalidationStore {
         feedInvalidated = true;
     }
 
+    /** A post was created, deleted or changed: reload both the feed and the profile grid. */
+    public static synchronized void invalidateAll() {
+        invalidate();
+        invalidateProfile();
+    }
+
     public static synchronized void invalidateProfile() {
         profileInvalidated = true;
     }

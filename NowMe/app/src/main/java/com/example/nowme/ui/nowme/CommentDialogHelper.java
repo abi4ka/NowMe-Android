@@ -1,6 +1,7 @@
 package com.example.nowme.ui.nowme;
 
 import android.app.AlertDialog;
+import android.app.Activity;
 import android.content.Context;
 import android.view.Gravity;
 import android.view.WindowManager;
@@ -75,6 +76,7 @@ public class CommentDialogHelper {
                 RetrofitClient.getApi().createComment(nowmeId, request).enqueue(new Callback<CommentResponse>() {
                     @Override
                     public void onResponse(Call<CommentResponse> call, Response<CommentResponse> response) {
+                        if (isHostGone(context)) return;
                         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
 
                         if (!response.isSuccessful() || response.body() == null) {
@@ -91,6 +93,7 @@ public class CommentDialogHelper {
 
                     @Override
                     public void onFailure(Call<CommentResponse> call, Throwable t) {
+                        if (isHostGone(context)) return;
                         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
                         Toast.makeText(context, "Connection error", Toast.LENGTH_SHORT).show();
                     }
@@ -99,5 +102,14 @@ public class CommentDialogHelper {
         });
 
         dialog.show();
+    }
+
+    // Dismissing a dialog of a destroyed activity throws "View not attached to window manager"
+    private static boolean isHostGone(Context context) {
+        if (context instanceof Activity) {
+            Activity activity = (Activity) context;
+            return activity.isFinishing() || activity.isDestroyed();
+        }
+        return false;
     }
 }

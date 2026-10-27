@@ -164,6 +164,8 @@ public class ProfileFragment extends Fragment {
                     UserProfileResponse user = response.body();
                     profileState.user = user;
                     profileState.profileLoaded = true;
+                    // The user may have left the screen while loading; state is kept in the ViewModel
+                    if (!isViewAlive()) return;
                     renderProfile(user);
 
                     if (forceRefresh || !profileState.postsLoaded) {
@@ -171,7 +173,7 @@ public class ProfileFragment extends Fragment {
                     } else {
                         stopRefreshing();
                     }
-                } else {
+                } else if (isViewAlive()) {
                     stopRefreshing();
                 }
             }
@@ -179,8 +181,9 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onFailure(Call<UserProfileResponse> call, Throwable t) {
                 profileState.profileLoading = false;
-                stopRefreshing();
-                t.printStackTrace();
+                if (isViewAlive()) {
+                    stopRefreshing();
+                }
             }
         });
     }
@@ -236,11 +239,14 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onResponse(Call<List<NowmeResponse>> call, Response<List<NowmeResponse>> response) {
                 profileState.postsLoading = false;
+                if (response.isSuccessful()) {
+                    profileState.posts = response.body();
+                    profileState.postsLoaded = true;
+                }
+                if (!isViewAlive()) return;
                 stopRefreshing();
                 if (response.isSuccessful()) {
                     List<NowmeResponse> posts = response.body();
-                    profileState.posts = posts;
-                    profileState.postsLoaded = true;
                     if (postAdapter != null) {
                         postAdapter.setItems(posts);
                     }
@@ -330,9 +336,10 @@ public class ProfileFragment extends Fragment {
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (!isViewAlive()) return;
                 if (!response.isSuccessful()) {
                     btnFollow.setEnabled(true);
-                    Toast.makeText(getContext(), "Follow error", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), R.string.follow_error, Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -345,10 +352,15 @@ public class ProfileFragment extends Fragment {
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
+                if (!isViewAlive()) return;
                 btnFollow.setEnabled(true);
-                Toast.makeText(getContext(), "Follow error", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), R.string.follow_error, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private boolean isViewAlive() {
+        return isAdded() && getView() != null;
     }
 
     private void showSettingsPanel() {

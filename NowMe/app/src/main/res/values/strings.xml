@@ -11,6 +11,11 @@
     <string name="password">Password</string>
     <string name="session_expired">Session expired. Please log in again.</string>
     <string name="username_password_required">Username and password required</string>
+    <string name="invalid_credentials">Wrong username or password</string>
+    <string name="username_taken">This username is already taken</string>
+    <string name="username_format">Username must be 3–20 characters: letters, digits, _ or .</string>
+    <string name="password_length">Password must be 8–24 characters</string>
+    <string name="auth_failed">Could not sign in. Please try again.</string>
 
     <!-- Post Details & Actions -->
     <string name="delete_nowme">Delete Nowme</string>
@@ -44,6 +49,19 @@
     <string name="publish">Publish</string>
     <string name="publish_nowme">Publish NowMe</string>
     <string name="add_description">Add a description...</string>
+    <string name="image_required">Image required</string>
+    <string name="post_published">Post published</string>
+    <string name="publish_failed">Could not publish. Please try again.</string>
+    <string name="file_error">Could not read this photo</string>
+    <string name="file_too_large">This photo is too large</string>
+    <string name="invalid_image">This file is not a supported image</string>
+    <string name="capture_failed">Could not take the photo</string>
+    <string name="camera_permission_title">Camera access needed</string>
+    <string name="camera_permission_message">NowMe needs the camera to take your photo. You can allow it in the app settings or pick a photo from the gallery.</string>
+    <string name="open_settings">Open settings</string>
+    <string name="save_to_gallery">Save to gallery</string>
+    <string name="saved_to_gallery">Saved to gallery</string>
+    <string name="save_to_gallery_failed">Could not save the photo</string>
 
     <!-- Feed & Search -->
     <string name="search_users">Search users...</string>
@@ -57,6 +75,8 @@
     <string name="network_error">Network error</string>
     <string name="calendar_error">Unable to load calendar</string>
     <string name="history_error">Unable to load history</string>
+    <string name="comments_error">Unable to load comments</string>
     <string name="like_error">Like action failed</string>
+    <string name="follow_error">Could not update follow</string>
     <string name="unable_to_load_feed">Unable to load feed. Pull down to retry.</string>
 </resources>

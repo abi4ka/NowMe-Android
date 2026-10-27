@@ -15,7 +15,7 @@ import androidx.annotation.Nullable;
 
 import com.example.nowme.R;
 import com.example.nowme.network.RetrofitClient;
-import com.example.nowme.network.TokenStorage;
+import com.example.nowme.network.SessionManager;
 import com.example.nowme.network.dto.UpdateAvatarRequest;
 import com.example.nowme.ui.auth.AuthActivity;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
@@ -113,6 +113,8 @@ public class SettingsBottomSheetFragment extends BottomSheetDialogFragment {
         RetrofitClient.getApi().updateAvatar(request).enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
+                // The sheet may have been closed while the request was running
+                if (!isAdded()) return;
                 if (response.isSuccessful()) {
                     avatar = newAvatar;
                     if (tvUserAvatar != null) {
@@ -130,6 +132,7 @@ public class SettingsBottomSheetFragment extends BottomSheetDialogFragment {
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
+                if (!isAdded()) return;
                 Toast.makeText(requireContext(), R.string.network_error, Toast.LENGTH_SHORT).show();
             }
         });
@@ -137,7 +140,7 @@ public class SettingsBottomSheetFragment extends BottomSheetDialogFragment {
 
     private void logout() {
         if (getContext() == null) return;
-        TokenStorage.clear(requireContext());
+        SessionManager.logout(requireContext());
         Intent intent = new Intent(requireContext(), AuthActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);

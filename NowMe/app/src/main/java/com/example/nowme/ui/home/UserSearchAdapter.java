@@ -37,6 +37,13 @@ public class UserSearchAdapter extends RecyclerView.Adapter<UserSearchAdapter.Us
         notifyDataSetChanged();
     }
 
+    public void addUsers(List<UserSearchResponse> moreUsers) {
+        if (moreUsers == null || moreUsers.isEmpty()) return;
+        int start = users.size();
+        users.addAll(moreUsers);
+        notifyItemRangeInserted(start, moreUsers.size());
+    }
+
     public void clear() {
         users.clear();
         notifyDataSetChanged();

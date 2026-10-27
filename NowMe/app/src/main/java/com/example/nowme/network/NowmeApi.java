@@ -51,6 +51,8 @@ public interface NowmeApi {
 
     @GET("/nowme")
     Call<PageResponse<NowmeResponse>> getNowmes(
+            @Query("page") int page,
+            @Query("size") int size
     );
 
     @GET("/nowme/users/{userId}")

@@ -39,6 +39,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int VIEW_TYPE_POST = 1;
 
     private final List<RowItem> rows = new ArrayList<>();
+    private String lastDateLabel;
     private final OnAuthorClickListener onAuthorClickListener;
 
     public FeedAdapter(OnAuthorClickListener onAuthorClickListener) {
@@ -47,17 +48,28 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     public void setItems(List<NowmeResponse> items) {
         rows.clear();
-        if (items == null) {
-            notifyDataSetChanged();
-            return;
-        }
+        lastDateLabel = null;
+        addRows(items);
+        notifyDataSetChanged();
+    }
 
-        String lastDateLabel = null;
+    /** Adds the next page of posts below the current ones. */
+    public void appendItems(List<NowmeResponse> items) {
+        int start = rows.size();
+        addRows(items);
+        notifyItemRangeInserted(start, rows.size() - start);
+    }
+
+    public boolean hasPosts() {
+        return !rows.isEmpty();
+    }
+
+    private void addRows(List<NowmeResponse> items) {
+        if (items == null) return;
+
         for (NowmeResponse item : items) {
-            NowmeLikeStateStore.apply(item);
+            // Fresh server data is the truth; the stores only bridge changes made on other screens
             NowmeLikeStateStore.remember(item);
-
-            NowmeCommentStateStore.apply(item);
             NowmeCommentStateStore.remember(item);
 
             String dateLabel = formatDateLabel(item.creationTime);
@@ -67,8 +79,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }
             rows.add(new PostRow(item));
         }
-
-        notifyDataSetChanged();
     }
 
     public void syncStates() {

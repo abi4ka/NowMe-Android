@@ -37,6 +37,13 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         notifyDataSetChanged();
     }
 
+    public void addItems(List<CommentResponse> moreComments) {
+        if (moreComments == null || moreComments.isEmpty()) return;
+        int start = comments.size();
+        comments.addAll(moreComments);
+        notifyItemRangeInserted(start, moreComments.size());
+    }
+
     public void addItemAtTop(CommentResponse comment) {
         if (comment == null) return;
 

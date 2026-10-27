@@ -27,17 +27,24 @@ import com.example.nowme.R;
 import com.example.nowme.network.RetrofitClient;
 import com.example.nowme.network.dto.NowmeResponse;
 import com.example.nowme.ui.main.MainActivity;
+import com.example.nowme.util.LoadMoreScrollListener;
 import com.example.nowme.util.NowmeFeedInvalidationStore;
 import com.example.nowme.network.dto.UserSearchResponse;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class HomeFragment extends Fragment {
+
+    private static final int FEED_PAGE_SIZE = 10;
+    private static final int SEARCH_PAGE_SIZE = 10;
 
     private RecyclerView recyclerView;
     private FeedAdapter adapter;
@@ -52,6 +59,10 @@ public class HomeFragment extends Fragment {
     private TextView tvSearchEmpty;
 
     private Call<PageResponse<UserSearchResponse>> searchCall;
+    private String searchQuery;
+    private int searchNextPage;
+    private boolean searchHasMore;
+    private boolean searchInFlight;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -101,6 +112,12 @@ public class HomeFragment extends Fragment {
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter);
+        recyclerView.addOnScrollListener(new LoadMoreScrollListener() {
+            @Override
+            protected void onLoadMore() {
+                loadMoreFeed();
+            }
+        });
     }
 
     private void initSearch(View view) {
@@ -121,6 +138,12 @@ public class HomeFragment extends Fragment {
 
         recyclerSearchUsers.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerSearchUsers.setAdapter(userSearchAdapter);
+        recyclerSearchUsers.addOnScrollListener(new LoadMoreScrollListener() {
+            @Override
+            protected void onLoadMore() {
+                loadMoreSearchResults();
+            }
+        });
 
         btnSearch.setOnClickListener(v -> toggleSearch());
 
@@ -200,6 +223,8 @@ public class HomeFragment extends Fragment {
         if (searchCall != null) {
             searchCall.cancel();
         }
+        searchInFlight = false;
+        searchHasMore = false;
 
         if (userSearchAdapter != null) {
             userSearchAdapter.clear();
@@ -223,13 +248,19 @@ public class HomeFragment extends Fragment {
             searchCall.cancel();
         }
 
-        searchCall = RetrofitClient.getApi().searchUsers(query, 0, 10);
+        searchQuery = query;
+        searchNextPage = 1;
+        searchHasMore = false;
+        searchInFlight = true;
+        searchCall = RetrofitClient.getApi().searchUsers(query, 0, SEARCH_PAGE_SIZE);
 
         searchCall.enqueue(new Callback<PageResponse<UserSearchResponse>>() {
             @Override
             public void onResponse(Call<PageResponse<UserSearchResponse>> call,
                                    Response<PageResponse<UserSearchResponse>> response) {
 
+                if (call != searchCall) return;
+                searchInFlight = false;
                 if (!isAdded()) return;
 
                 if (response.isSuccessful() && response.body() != null) {
@@ -238,6 +269,7 @@ public class HomeFragment extends Fragment {
                             : Collections.emptyList();
 
                     userSearchAdapter.setUsers(users);
+                    searchHasMore = response.body().hasNext();
 
                     searchContainer.setVisibility(View.VISIBLE);
                     if (users.isEmpty()) {
@@ -263,7 +295,8 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void onFailure(Call<PageResponse<UserSearchResponse>> call, Throwable t) {
-                if (call.isCanceled()) return;
+                if (call.isCanceled() || call != searchCall) return;
+                searchInFlight = false;
                 if (!isAdded()) return;
 
                 recyclerSearchUsers.setVisibility(View.GONE);
@@ -304,7 +337,7 @@ public class HomeFragment extends Fragment {
 
         viewModel.loading = true;
 
-        Call<PageResponse<NowmeResponse>> call = RetrofitClient.getApi().getNowmes();
+        Call<PageResponse<NowmeResponse>> call = RetrofitClient.getApi().getNowmes(0, FEED_PAGE_SIZE);
 
         call.enqueue(new Callback<PageResponse<NowmeResponse>>() {
             @Override
@@ -318,8 +351,10 @@ public class HomeFragment extends Fragment {
                             ? response.body().content
                             : Collections.emptyList();
 
-                    viewModel.items = list;
+                    viewModel.items = new ArrayList<>(list);
                     viewModel.loaded = true;
+                    viewModel.nextPage = 1;
+                    viewModel.hasMore = response.body().hasNext();
 
                     if (adapter != null) {
                         adapter.setItems(list);
@@ -346,6 +381,74 @@ public class HomeFragment extends Fragment {
                     Toast.makeText(requireContext(), R.string.network_error, Toast.LENGTH_SHORT).show();
                 }
                 t.printStackTrace();
+            }
+        });
+    }
+
+    private void loadMoreFeed() {
+        if (viewModel.loading || viewModel.loadingMore || !viewModel.hasMore || viewModel.items == null) return;
+
+        viewModel.loadingMore = true;
+        int page = viewModel.nextPage;
+        RetrofitClient.getApi().getNowmes(page, FEED_PAGE_SIZE).enqueue(new Callback<PageResponse<NowmeResponse>>() {
+            @Override
+            public void onResponse(Call<PageResponse<NowmeResponse>> call,
+                                   Response<PageResponse<NowmeResponse>> response) {
+                viewModel.loadingMore = false;
+                // A pull-to-refresh started meanwhile; this page belongs to the old list
+                if (viewModel.loading || page != viewModel.nextPage) return;
+                if (!response.isSuccessful() || response.body() == null) return;
+
+                List<NowmeResponse> more = new ArrayList<>();
+                if (response.body().content != null) {
+                    // New posts shift offset pages, so skip ones that are already shown
+                    Set<Long> shown = new HashSet<>();
+                    for (NowmeResponse item : viewModel.items) shown.add(item.id);
+                    for (NowmeResponse item : response.body().content) {
+                        if (item.id == null || shown.add(item.id)) more.add(item);
+                    }
+                }
+                viewModel.items.addAll(more);
+                viewModel.nextPage = page + 1;
+                viewModel.hasMore = response.body().hasNext();
+                if (adapter != null && isAdded()) {
+                    adapter.appendItems(more);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<PageResponse<NowmeResponse>> call, Throwable t) {
+                viewModel.loadingMore = false;
+            }
+        });
+    }
+
+    private void loadMoreSearchResults() {
+        if (!searchHasMore || searchQuery == null || searchInFlight) return;
+
+        String query = searchQuery;
+        int page = searchNextPage;
+        searchInFlight = true;
+        searchCall = RetrofitClient.getApi().searchUsers(query, page, SEARCH_PAGE_SIZE);
+        searchCall.enqueue(new Callback<PageResponse<UserSearchResponse>>() {
+            @Override
+            public void onResponse(Call<PageResponse<UserSearchResponse>> call,
+                                   Response<PageResponse<UserSearchResponse>> response) {
+                // A newer search replaced this request
+                if (call != searchCall) return;
+                searchInFlight = false;
+                if (!isAdded() || !response.isSuccessful() || response.body() == null) return;
+
+                userSearchAdapter.addUsers(response.body().content);
+                searchNextPage = page + 1;
+                searchHasMore = response.body().hasNext();
+            }
+
+            @Override
+            public void onFailure(Call<PageResponse<UserSearchResponse>> call, Throwable t) {
+                if (call == searchCall) {
+                    searchInFlight = false;
+                }
             }
         });
     }
@@ -390,6 +493,9 @@ public class HomeFragment extends Fragment {
         List<NowmeResponse> items;
         boolean loaded = false;
         boolean loading = false;
+        boolean loadingMore = false;
+        boolean hasMore = false;
+        int nextPage = 0;
         int scrollPosition = 0;
         int scrollOffset = 0;
     }

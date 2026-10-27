@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.Surface;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -15,6 +16,8 @@ import androidx.camera.core.AspectRatio;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
@@ -28,6 +31,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.nowme.R;
+import com.example.nowme.util.AppExecutors;
 import com.example.nowme.util.ImageOrientationUtils;
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -38,6 +42,8 @@ public class CameraActivity extends AppCompatActivity {
 
     PreviewView previewView;
     ImageCapture imageCapture;
+    ImageButton captureButton;
+    private boolean cameraStarted;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +61,7 @@ public class CameraActivity extends AppCompatActivity {
             cameraContainer.requestLayout();
         });
 
-        ImageButton captureButton = findViewById(R.id.captureButton);
+        captureButton = findViewById(R.id.captureButton);
         ImageButton galleryButton = findViewById(R.id.galleryButton);
         ImageButton closeButton = findViewById(R.id.closeButton);
         TextView cameraTitle = findViewById(R.id.cameraTitle);
@@ -78,9 +84,28 @@ public class CameraActivity extends AppCompatActivity {
         captureButton.setOnClickListener(v -> takePhoto());
         galleryButton.setOnClickListener(v -> galleryLauncher.launch("image/*"));
         closeButton.setOnClickListener(v -> closeWithSlideDown());
+        // Back button and back gesture slide the screen down like the close button
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                closeWithSlideDown();
+            }
+        });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Coming back from the settings screen after granting the permission
+        if (!cameraStarted && ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                == PackageManager.PERMISSION_GRANTED) {
+            startCamera();
+        }
     }
 
     private void startCamera() {
+        if (cameraStarted) return;
+        cameraStarted = true;
 
         ListenableFuture<ProcessCameraProvider> cameraProviderFuture =
                 ProcessCameraProvider.getInstance(this);
@@ -126,7 +151,9 @@ public class CameraActivity extends AppCompatActivity {
 
     private void takePhoto() {
 
-        if (imageCapture == null) return;
+        if (imageCapture == null || !captureButton.isEnabled()) return;
+        // One capture at a time; a double tap used to open two publish screens
+        captureButton.setEnabled(false);
 
         if (previewView.getDisplay() != null) {
             imageCapture.setTargetRotation(previewView.getDisplay().getRotation());
@@ -149,13 +176,14 @@ public class CameraActivity extends AppCompatActivity {
                     public void onImageSaved(@NonNull ImageCapture.OutputFileResults output) {
 
                         Uri uri = Uri.fromFile(photoFile);
-                        goToPublishActivity(uri);
+                        goToPublishActivity(uri, true);
 
                     }
 
                     @Override
                     public void onError(@NonNull ImageCaptureException exception) {
-                        exception.printStackTrace();
+                        captureButton.setEnabled(true);
+                        Toast.makeText(CameraActivity.this, R.string.capture_failed, Toast.LENGTH_SHORT).show();
                     }
                 }
         );
@@ -165,29 +193,42 @@ public class CameraActivity extends AppCompatActivity {
             registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
 
                 if (uri != null) {
-                    try {
-                        goToPublishActivity(copyGalleryImageToCache(uri));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        Toast.makeText(this, "File error", Toast.LENGTH_SHORT).show();
-                    }
+                    copyGalleryImageToCache(uri);
                 }
 
             });
 
-    private Uri copyGalleryImageToCache(Uri uri) throws IOException {
+    // The picker's permission only covers this activity, so copy the raw file (no decoding) off the main thread
+    private void copyGalleryImageToCache(Uri uri) {
         File photoFile = new File(
                 getCacheDir(),
                 "gallery_photo_" + System.currentTimeMillis() + ".jpg"
         );
-        ImageOrientationUtils.writeUprightJpeg(this, uri, photoFile);
-        return Uri.fromFile(photoFile);
+        AppExecutors.io(() -> {
+            boolean copied;
+            try {
+                ImageOrientationUtils.copyToFile(this, uri, photoFile);
+                copied = true;
+            } catch (IOException e) {
+                copied = false;
+            }
+            boolean success = copied;
+            AppExecutors.main(() -> {
+                if (isFinishing() || isDestroyed()) return;
+                if (success) {
+                    goToPublishActivity(Uri.fromFile(photoFile), false);
+                } else {
+                    Toast.makeText(this, R.string.file_error, Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
     }
 
-    private void goToPublishActivity(Uri uri) {
+    private void goToPublishActivity(Uri uri, boolean fromCamera) {
 
         Intent intent = new Intent(this, PublishActivity.class);
-        intent.putExtra("imageUri", uri.toString());
+        intent.putExtra(PublishActivity.EXTRA_IMAGE_URI, uri.toString());
+        intent.putExtra(PublishActivity.EXTRA_FROM_CAMERA, fromCamera);
 
         startActivity(intent);
         finish();
@@ -195,10 +236,6 @@ public class CameraActivity extends AppCompatActivity {
 
     }
 
-    @Override
-    public void onBackPressed() {
-        closeWithSlideDown();
-    }
 
     private void closeWithSlideDown() {
         finish();
@@ -208,7 +245,23 @@ public class CameraActivity extends AppCompatActivity {
     private final ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
 
-                if (granted) startCamera();
+                if (granted) {
+                    startCamera();
+                } else {
+                    showCameraPermissionDialog();
+                }
 
             });
+
+    // Without the camera the preview stays black; explain and offer settings or the gallery
+    private void showCameraPermissionDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.camera_permission_title)
+                .setMessage(R.string.camera_permission_message)
+                .setPositiveButton(R.string.open_settings, (dialog, which) -> startActivity(
+                        new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                Uri.fromParts("package", getPackageName(), null))))
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
 }

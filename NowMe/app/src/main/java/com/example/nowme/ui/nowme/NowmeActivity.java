@@ -1,5 +1,6 @@
 package com.example.nowme.ui.nowme;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -14,6 +15,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,17 +27,22 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.nowme.PageResponse;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.FutureTarget;
 import com.example.nowme.R;
 import com.example.nowme.network.dto.CommentResponse;
 import com.example.nowme.network.RetrofitClient;
 import com.example.nowme.network.dto.NowmeResponse;
 import com.example.nowme.network.dto.UpdateNowmeVisibilityRequest;
 import com.example.nowme.ui.main.MainActivity;
+import com.example.nowme.util.AppExecutors;
+import com.example.nowme.util.GallerySaver;
 import com.example.nowme.util.NowmeCommentStateStore;
 import com.example.nowme.util.NowmeFeedInvalidationStore;
 import com.example.nowme.util.NowmeImageLoader;
 import com.example.nowme.util.NowmeLikeStateStore;
 
+import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -61,6 +68,12 @@ public class NowmeActivity extends AppCompatActivity {
     NowmeResponse nowme;
     RecyclerView rvComments;
     CommentAdapter commentAdapter;
+
+    private static final int COMMENTS_PAGE_SIZE = 20;
+    private static final int COMMENTS_LOAD_MORE_DISTANCE_PX = 600;
+    private int commentsNextPage = 0;
+    private boolean commentsHasMore = false;
+    private boolean commentsLoading = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,6 +110,14 @@ public class NowmeActivity extends AppCompatActivity {
         rvComments.setLayoutManager(new LinearLayoutManager(this));
         rvComments.setAdapter(commentAdapter);
         rvComments.setNestedScrollingEnabled(false);
+
+        ScrollView pageScroll = findViewById(R.id.main);
+        pageScroll.setOnScrollChangeListener((v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
+            View content = pageScroll.getChildAt(0);
+            if (content != null && content.getBottom() - (scrollY + pageScroll.getHeight()) < COMMENTS_LOAD_MORE_DISTANCE_PX) {
+                loadMoreComments();
+            }
+        });
 
         nowme = (NowmeResponse) getIntent().getSerializableExtra("nowme");
 
@@ -230,6 +251,7 @@ public class NowmeActivity extends AppCompatActivity {
                 .inflate(R.layout.popup_nowme_visibility, null, false);
         TextView pinAction = content.findViewById(R.id.btnPinNowme);
         TextView visibilityAction = content.findViewById(R.id.btnVisibilityAction);
+        TextView saveAction = content.findViewById(R.id.btnSaveToGallery);
         TextView deleteAction = content.findViewById(R.id.btnDeleteNowme);
         boolean favorite = Boolean.TRUE.equals(nowme.favorite);
         String targetVisibility = "FRIENDS_ONLY".equals(nowme.visibility) ? "PUBLIC" : "FRIENDS_ONLY";
@@ -252,6 +274,10 @@ public class NowmeActivity extends AppCompatActivity {
         visibilityAction.setOnClickListener(v -> {
             popupWindow.dismiss();
             updateVisibility(targetVisibility);
+        });
+        saveAction.setOnClickListener(v -> {
+            popupWindow.dismiss();
+            saveToGallery();
         });
         deleteAction.setOnClickListener(v -> {
             popupWindow.dismiss();
@@ -276,6 +302,7 @@ public class NowmeActivity extends AppCompatActivity {
                         }
 
                         nowme.visibility = response.body().visibility;
+                        NowmeFeedInvalidationStore.invalidateAll();
                         Toast.makeText(NowmeActivity.this, visibilityLabel(nowme.visibility), Toast.LENGTH_SHORT).show();
                     }
 
@@ -303,7 +330,7 @@ public class NowmeActivity extends AppCompatActivity {
                 }
 
                 nowme.favorite = response.body().favorite;
-                NowmeFeedInvalidationStore.invalidateProfile();
+                NowmeFeedInvalidationStore.invalidateAll();
                 Toast.makeText(
                         NowmeActivity.this,
                         Boolean.TRUE.equals(nowme.favorite) ? "Pinned" : "Unpinned",
@@ -360,6 +387,31 @@ public class NowmeActivity extends AppCompatActivity {
         return warning;
     }
 
+    // Re-download your own published photo: Glide returns the cached original or fetches it with auth
+    private void saveToGallery() {
+        if (nowme.id == null) return;
+
+        Context appContext = getApplicationContext();
+        FutureTarget<File> target = Glide.with(appContext)
+                .asFile()
+                .load(NowmeImageLoader.buildGlideUrl(nowme.id))
+                .submit();
+        AppExecutors.io(() -> {
+            File file;
+            try {
+                file = target.get();
+            } catch (Exception e) {
+                file = null;
+            }
+            if (file == null) {
+                AppExecutors.main(() -> Toast.makeText(appContext, R.string.save_to_gallery_failed, Toast.LENGTH_SHORT).show());
+                return;
+            }
+            File downloaded = file;
+            AppExecutors.main(() -> GallerySaver.saveInBackground(appContext, downloaded));
+        });
+    }
+
     private void deleteNowme() {
         if (nowme.id == null || deleteRequestInFlight) return;
 
@@ -377,7 +429,7 @@ public class NowmeActivity extends AppCompatActivity {
                 }
 
                 Toast.makeText(NowmeActivity.this, "Nowme deleted", Toast.LENGTH_SHORT).show();
-                NowmeFeedInvalidationStore.invalidate();
+                NowmeFeedInvalidationStore.invalidateAll();
                 finish();
             }
 
@@ -396,22 +448,44 @@ public class NowmeActivity extends AppCompatActivity {
 
     private void loadComments() {
         if (nowme == null || nowme.id == null) return;
+        loadCommentsPage(0);
+    }
 
-        RetrofitClient.getApi().getComments(nowme.id, 0, 20).enqueue(new Callback<PageResponse<CommentResponse>>() {
+    // Comments sit in a non-scrolling RecyclerView inside the page's ScrollView, so the next
+    // page is requested when the ScrollView gets near its bottom
+    private void loadMoreComments() {
+        if (commentsHasMore && !commentsLoading) {
+            loadCommentsPage(commentsNextPage);
+        }
+    }
+
+    private void loadCommentsPage(int page) {
+        commentsLoading = true;
+        RetrofitClient.getApi().getComments(nowme.id, page, COMMENTS_PAGE_SIZE).enqueue(new Callback<PageResponse<CommentResponse>>() {
             @Override
             public void onResponse(Call<PageResponse<CommentResponse>> call, Response<PageResponse<CommentResponse>> response) {
+                commentsLoading = false;
+                if (isFinishing() || isDestroyed()) return;
                 if (!response.isSuccessful() || response.body() == null) {
-                    Toast.makeText(NowmeActivity.this, "Error loading comments", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(NowmeActivity.this, R.string.comments_error, Toast.LENGTH_SHORT).show();
                     return;
                 }
 
                 List<CommentResponse> comments = response.body().content;
-                commentAdapter.setItems(comments);
+                if (page == 0) {
+                    commentAdapter.setItems(comments);
+                } else {
+                    commentAdapter.addItems(comments);
+                }
+                commentsNextPage = page + 1;
+                commentsHasMore = response.body().hasNext();
             }
 
             @Override
             public void onFailure(Call<PageResponse<CommentResponse>> call, Throwable t) {
-                Toast.makeText(NowmeActivity.this, "Connection error loading comments", Toast.LENGTH_SHORT).show();
+                commentsLoading = false;
+                if (isFinishing() || isDestroyed()) return;
+                Toast.makeText(NowmeActivity.this, R.string.network_error, Toast.LENGTH_SHORT).show();
             }
         });
     }

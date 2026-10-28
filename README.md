@@ -86,7 +86,3 @@ NowMe/app/src/main/
     util/        image loading, gallery saving, background executors, shared UI state
   res-ui/        layouts and drawables grouped by screen
 ```
-
-## Authors
-
-Built by [@abi4ka](https://github.com/abi4ka) and a project partner as a final student project.

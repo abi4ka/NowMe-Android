@@ -1,149 +1,92 @@
 # NowMe Android
 
-[![Android SDK](https://img.shields.io/badge/Android%20SDK-32%20--%2036-3DDC84?logo=android&logoColor=white)](https://developer.android.com)
-[![Java](https://img.shields.io/badge/Java-11-ED8B00?logo=openjdk&logoColor=white)](https://openjdk.org)
-[![Retrofit](https://img.shields.io/badge/Retrofit-3.0.0-blue)](https://square.github.io/retrofit/)
-[![Glide](https://img.shields.io/badge/Glide-4.16.0-4285F4)](https://github.com/bumptech/glide)
-[![Security Crypto](https://img.shields.io/badge/AndroidX-Security%20Crypto-green)](https://developer.android.com/jetpack/androidx/releases/security)
-[![License](https://img.shields.io/badge/License-MIT-lightgrey.svg)](LICENSE)
+Android client for **NowMe**, a daily photo-sharing app inspired by BeReal: post one photo a day, keep a calendar of your own life and see what your friends are up to.
 
-**NowMe** is a daily photo-sharing social application inspired by BeReal. It encourages users to capture an authentic snapshot every day, curate a visual chronicle of their life, and share candid moments with their close circle of friends.
-
-This repository contains the native **Android Client**, engineered with modern Android development best practices, secure credential storage, resilient token lifecycle management, and hardware-accelerated image handling.
-
----
-
-## Project Ecosystem
-
-- [**NowMe Android**](https://github.com/abi4ka/NowMe-Android): The native Android mobile client (this repository).
-- [**NowMe Spring**](https://github.com/abi4ka/NowMe-Spring): The companion Spring Boot REST API providing authentication, social graph management, media storage, and OpenAPI documentation.
-
----
-
-## Screenshots
+The app needs the backend from [NowMe-Spring](https://github.com/abi4ka/NowMe-Spring).
 
 <div align="center">
   <table>
     <tr>
-      <td align="center"><b>Authentication</b></td>
-      <td align="center"><b>Main Feed</b></td>
-      <td align="center"><b>Camera & Publish</b></td>
+      <td align="center"><b>Sign in</b></td>
+      <td align="center"><b>Feed</b></td>
+      <td align="center"><b>Camera and publish</b></td>
     </tr>
     <tr>
-      <td><img src="docs/images/android-auth.png" width="260" alt="Auth Screen"/></td>
-      <td><img src="docs/images/android-feed.png" width="260" alt="Main Feed"/></td>
-      <td><img src="docs/images/android-camera-publish.png" width="260" alt="Camera Capture"/></td>
+      <td><img src="docs/images/android-auth.png" width="240" alt="Sign in"/></td>
+      <td><img src="docs/images/android-feed.png" width="240" alt="Feed"/></td>
+      <td><img src="docs/images/android-camera-publish.png" width="240" alt="Camera and publish"/></td>
     </tr>
     <tr>
-      <td align="center"><b>Post Details & Comments</b></td>
-      <td align="center"><b>User Profile</b></td>
-      <td align="center"><b>Memories Calendar</b></td>
+      <td align="center"><b>Post and comments</b></td>
+      <td align="center"><b>Profile</b></td>
+      <td align="center"><b>Calendar</b></td>
     </tr>
     <tr>
-      <td><img src="docs/images/android-nowme-details.png" width="260" alt="Post Details"/></td>
-      <td><img src="docs/images/android-profile.png" width="260" alt="Profile View"/></td>
-      <td><img src="docs/images/android-history-calendar.png" width="260" alt="History Calendar"/></td>
+      <td><img src="docs/images/android-nowme-details.png" width="240" alt="Post and comments"/></td>
+      <td><img src="docs/images/android-profile.png" width="240" alt="Profile"/></td>
+      <td><img src="docs/images/android-history-calendar.png" width="240" alt="Calendar"/></td>
     </tr>
   </table>
 </div>
 
----
+## Features
 
-## Architectural Highlights
+- Register and sign in. The session stays alive through automatic token refresh.
+- Take a photo with the camera or pick one from the gallery, add a description and publish it.
+- Photos taken with the camera are also saved to the phone gallery under `Pictures/NowMe`. Your own posts can be saved again from the post menu.
+- The feed shows posts from you and the people you follow over the last 7 days. It loads more as you scroll and supports pull-to-refresh.
+- Like and comment on posts.
+- Search for users, view their profiles, and follow or unfollow them.
+- Your profile has an emoji avatar, pinned posts and a calendar of every past post.
+- Each post can be public or friends-only. Posts can also be pinned or deleted.
 
-### 1. Jetpack Navigation & Single-Activity Architecture
-- `MainActivity` hosts a `NavHostFragment` coordinating navigation between top-level destinations (`HomeFragment`, `CameraFragment`, `ProfileFragment`) and secondary flows.
-- State preservation across tab switches powered by dedicated AndroidX `ViewModel` instances (`HomeFeedViewModel`, `ProfileViewModel`).
+## Stack
 
-### 2. Enterprise-Grade Credential Security
-- **AndroidX Security Crypto**: `TokenStorage` uses `EncryptedSharedPreferences` backed by the hardware-backed Android Keystore (`MasterKey` with AES256-GCM value encryption and AES256-SIV key encryption).
-- **Graceful Fallback**: Transparently handles legacy migration or devices lacking hardware keystore modules.
-
-### 3. Resilient Networking & Token Lifecycle
-- **Retrofit 3 & OkHttp**: Thread-safe singleton `RetrofitClient` with custom interceptors and converters.
-- **Automatic Token Refresh**: OkHttp `AuthAuthenticator` automatically catches HTTP 401 Unauthorized responses, acquires fresh access tokens using the refresh token, and replays failed requests seamlessly without user interruption.
-- **Session Termination**: Full logout support clearing tokens locally and invalidating sessions on the backend.
-
-### 4. Optimized Image Loading Pipeline (Glide)
-- **NowmeImageLoader**: Centralized helper providing memory caching, disk caching (`DiskCacheStrategy.ALL`), request cancellation on RecyclerView recycling, and smooth cross-fade transitions.
-- **Dynamic JWT Authorization**: Leverages Glide's `LazyHeaders` to dynamically supply valid `Authorization: Bearer <token>` credentials for authenticated image endpoints.
-
-### 5. Camera & Media Processing
-- **CameraX**: Hardware camera integration supporting tap-to-focus and front/back lens selection.
-- **EXIF Normalization**: `ImageOrientationUtils` handles EXIF orientation flags, ensuring images are stored upright across all device orientations.
-
-### 6. Modern Material 3 UI/UX
-- **BottomSheet Dialogs**: Settings panel extracted into a standalone `SettingsBottomSheetDialogFragment`.
-- **Empty States & Feedback**: Graceful empty state placeholders for empty feeds, empty profiles, and zero-match user searches.
-- **100% English Localization**: Fully consolidated Android string resources in `strings.xml`.
-
----
-
-## Project Structure
-
-```text
-NowMe/app/src/main/
-├── java/com/example/nowme/
-│   ├── network/            # Retrofit client, API interface, DTOs, AuthInterceptor & Authenticator
-│   ├── ui/
-│   │   ├── auth/           # Login & Registration activities
-│   │   ├── camera/         # CameraX capture & preview fragment
-│   │   ├── home/           # Main feed, user search adapter, FeedAdapter
-│   │   ├── main/           # MainActivity and primary navigation controller
-│   │   ├── nowme/          # Post detail activity, comments sheet helper
-│   │   └── profile/        # ProfileFragment, CalendarHistoryActivity, SettingsBottomSheet
-│   └── util/               # NowmeImageLoader, state stores, EXIF orientation utilities
-└── res-ui/                 # Feature-modularized resource folders
-    ├── auth/               # Auth layouts and drawables
-    ├── camera/             # Camera preview UI
-    ├── home/               # Feed & search layouts
-    ├── main/               # Main container & bottom navigation
-    ├── nowme/              # Fullscreen post viewer layouts
-    └── profile/            # Profile card, grid & bottom sheet layouts
-```
-
----
+Java 11, minSdk 32 / targetSdk 36, AndroidX Navigation, CameraX, Retrofit 3 + OkHttp, Glide (through the same OkHttp client), EncryptedSharedPreferences, Material Components.
 
 ## Getting Started
 
-### Prerequisites
-- **Android Studio** Hedgehog (2023.1.1) or newer.
-- **JDK 17** or **JDK 21** configured in Android Studio.
-- **Android SDK Platform 34+** installed.
-- Running instance of [NowMe Spring](https://github.com/abi4ka/NowMe-Spring).
+You need a recent Android Studio (AGP 8.13, JDK 17+) and a running [NowMe-Spring](https://github.com/abi4ka/NowMe-Spring) server. Demo accounts are listed in its README, for example `nowme_star` / `Star2026!`.
 
-### Configuration
-The server address is set per build type in `app/build.gradle.kts` and exposed as `BuildConfig.BASE_URL`. Debug builds talk to the Spring server running locally by default:
+The server address is compiled in as `BuildConfig.BASE_URL`:
 
-```text
-http://10.0.2.2:25565/
-```
-*(Default alias for `localhost` in the Android Emulator)*.
+| Build | Default | Override in `NowMe/local.properties` |
+|---|---|---|
+| debug | `http://10.0.2.2:25565/` (your computer, as seen from the emulator) | `nowme.baseUrl` |
+| release | none, must be set | `nowme.releaseBaseUrl` (HTTPS only) |
 
-To run a debug build on a physical device over Wi-Fi, add your machine's local IP to `NowMe/local.properties` (not committed) and rebuild:
+To use a real phone, connect it to the same Wi-Fi as your computer. Then set your computer's LAN IP and rebuild:
 
 ```properties
 nowme.baseUrl=http://192.168.1.100:25565/
 ```
 
-Release builds use `nowme.releaseBaseUrl` and only allow HTTPS; plain HTTP is enabled for debug builds only.
+Plain HTTP is allowed in debug builds only.
 
-### Building and Testing
+## Build and Test
 
-Run unit tests via Gradle:
 ```bash
 cd NowMe
+./gradlew assembleDebug
 ./gradlew testDebugUnitTest
 ```
 
-Assemble debug APK:
-```bash
-./gradlew assembleDebug
+## Project Layout
+
+```text
+NowMe/app/src/main/
+  java/com/example/nowme/
+    network/     Retrofit API, DTOs, token storage, auth interceptor and token refresh
+    ui/auth/     sign in and registration
+    ui/camera/   CameraX capture and publish screen
+    ui/home/     feed and user search
+    ui/nowme/    post screen, comments
+    ui/profile/  profile, calendar, history, settings
+    ui/main/     MainActivity with bottom navigation
+    util/        image loading, gallery saving, background executors, shared UI state
+  res-ui/        layouts and drawables grouped by screen
 ```
 
----
+## Authors
 
-## Contributing & Authors
-
-- Developed by **Nikita** ([@abi4ka](https://github.com/abi4ka)) and project partner as an advanced academic project.
-- Modernized, refactored, and maintained as a showcase portfolio repository.
+Built by [@abi4ka](https://github.com/abi4ka) and a project partner as a final student project.

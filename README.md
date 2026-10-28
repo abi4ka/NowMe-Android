@@ -4,30 +4,16 @@ Android client for **NowMe**, a daily photo-sharing app inspired by BeReal: post
 
 The app needs the backend from [NowMe-Spring](https://github.com/abi4ka/NowMe-Spring).
 
-<div align="center">
-  <table>
-    <tr>
-      <td align="center"><b>Sign in</b></td>
-      <td align="center"><b>Feed</b></td>
-      <td align="center"><b>Camera and publish</b></td>
-    </tr>
-    <tr>
-      <td><img src="docs/images/android-auth.png" width="240" alt="Sign in"/></td>
-      <td><img src="docs/images/android-feed.png" width="240" alt="Feed"/></td>
-      <td><img src="docs/images/android-camera-publish.png" width="240" alt="Camera and publish"/></td>
-    </tr>
-    <tr>
-      <td align="center"><b>Post and comments</b></td>
-      <td align="center"><b>Profile</b></td>
-      <td align="center"><b>Calendar</b></td>
-    </tr>
-    <tr>
-      <td><img src="docs/images/android-nowme-details.png" width="240" alt="Post and comments"/></td>
-      <td><img src="docs/images/android-profile.png" width="240" alt="Profile"/></td>
-      <td><img src="docs/images/android-history-calendar.png" width="240" alt="Calendar"/></td>
-    </tr>
-  </table>
-</div>
+<p align="center">
+  <img src="docs/images/android-auth.png" width="30%" alt="Sign in"/>
+  <img src="docs/images/android-feed.png" width="30%" alt="Feed"/>
+  <img src="docs/images/android-camera-publish.png" width="30%" alt="Camera and publish"/>
+</p>
+<p align="center">
+  <img src="docs/images/android-nowme-details.png" width="30%" alt="Post and comments"/>
+  <img src="docs/images/android-profile.png" width="30%" alt="Profile"/>
+  <img src="docs/images/android-history-calendar.png" width="30%" alt="Calendar"/>
+</p>
 
 ## Features
 

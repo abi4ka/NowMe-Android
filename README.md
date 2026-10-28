@@ -1,5 +1,15 @@
 # NowMe Android
 
+[![Android SDK](https://img.shields.io/badge/Android%20SDK-32%20--%2036-3DDC84?logo=android&logoColor=white)](https://developer.android.com)
+[![Java](https://img.shields.io/badge/Java-11-ED8B00?logo=openjdk&logoColor=white)](https://openjdk.org)
+[![CameraX](https://img.shields.io/badge/CameraX-1.3.3-3DDC84?logo=android&logoColor=white)](https://developer.android.com/media/camera/camerax)
+[![Retrofit](https://img.shields.io/badge/Retrofit-3.0.0-blue)](https://square.github.io/retrofit/)
+[![OkHttp](https://img.shields.io/badge/OkHttp-4.12-blue)](https://square.github.io/okhttp/)
+[![Glide](https://img.shields.io/badge/Glide-4.16.0-4285F4)](https://github.com/bumptech/glide)
+[![Navigation](https://img.shields.io/badge/AndroidX-Navigation-green)](https://developer.android.com/guide/navigation)
+[![Security Crypto](https://img.shields.io/badge/AndroidX-Security%20Crypto-green)](https://developer.android.com/jetpack/androidx/releases/security)
+[![Material](https://img.shields.io/badge/Material%20Components-1.13-757575?logo=materialdesign&logoColor=white)](https://github.com/material-components/material-components-android)
+
 Android client for **NowMe**, a daily photo-sharing app inspired by BeReal: post one photo a day, keep a calendar of your own life and see what your friends are up to.
 
 The app needs the backend from [NowMe-Spring](https://github.com/abi4ka/NowMe-Spring).
@@ -25,10 +35,6 @@ The app needs the backend from [NowMe-Spring](https://github.com/abi4ka/NowMe-Sp
 - Search for users, view their profiles, and follow or unfollow them.
 - Your profile has an emoji avatar, pinned posts and a calendar of every past post.
 - Each post can be public or friends-only. Posts can also be pinned or deleted.
-
-## Stack
-
-Java 11, minSdk 32 / targetSdk 36, AndroidX Navigation, CameraX, Retrofit 3 + OkHttp, Glide (through the same OkHttp client), EncryptedSharedPreferences, Material Components.
 
 ## Getting Started
 

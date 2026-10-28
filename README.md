@@ -5,14 +5,14 @@ Android client for **NowMe**, a daily photo-sharing app inspired by BeReal: post
 The app needs the backend from [NowMe-Spring](https://github.com/abi4ka/NowMe-Spring).
 
 <p align="center">
-  <img src="docs/images/android-auth.png" width="30%" alt="Sign in"/>
-  <img src="docs/images/android-feed.png" width="30%" alt="Feed"/>
-  <img src="docs/images/android-camera-publish.png" width="30%" alt="Camera and publish"/>
+  <img src="docs/images/screen-auth.png" width="30%" alt="Sign in"/>
+  <img src="docs/images/screen-feed.png" width="30%" alt="Feed"/>
+  <img src="docs/images/screen-publish.png" width="30%" alt="Camera and publish"/>
 </p>
 <p align="center">
-  <img src="docs/images/android-nowme-details.png" width="30%" alt="Post and comments"/>
-  <img src="docs/images/android-profile.png" width="30%" alt="Profile"/>
-  <img src="docs/images/android-history-calendar.png" width="30%" alt="Calendar"/>
+  <img src="docs/images/screen-post.png" width="30%" alt="Post and comments"/>
+  <img src="docs/images/screen-profile.png" width="30%" alt="Profile"/>
+  <img src="docs/images/screen-calendar.png" width="30%" alt="Calendar"/>
 </p>
 
 ## Features
